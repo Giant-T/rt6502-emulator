@@ -1,9 +1,10 @@
 Checks: >
   -*,
+  modernize-*,
+  -modernize-use-nullptr,
   bugprone-*,
   google-*,
   misc-*,
-  modernize-*,
   performance-*,
   portability-*,
   readability-*,
