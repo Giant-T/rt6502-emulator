@@ -11,18 +11,22 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # ---- FTXUI ----
 
-include(FetchContent)
+if (DEFINED ENV{NIX_STORE})
+    find_package(ftxui REQUIRED) 
+else()
+    include(FetchContent)
 
-set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
-set(FETCHCONTENT_QUIET OFF)
+    set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+    set(FETCHCONTENT_QUIET OFF)
 
-FetchContent_Declare(
-    ftxui
-    GIT_REPOSITORY https://github.com/ArthurSonzogni/FTXUI
-    GIT_TAG v6.1.9    
-)
+    FetchContent_Declare(
+        ftxui
+        GIT_REPOSITORY https://github.com/ArthurSonzogni/FTXUI
+        GIT_TAG v6.1.9    
+    )
 
-FetchContent_MakeAvailable(ftxui)
+    FetchContent_MakeAvailable(ftxui)
+endif()
 
 # ---------------
 
