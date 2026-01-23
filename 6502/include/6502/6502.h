@@ -1,9 +1,15 @@
 #pragma once
 
-#include <string>
+#include "cpu.h"
+#include "memory.h"
 
-namespace RT6502 {
+namespace rt6502 {
+struct rt6502 {
+    CPU cpu;
+    Memory memory;
 
-std::string GetWelcomeMessage();
+    void reset() noexcept;
+    void execute();
+};
 
-}  // namespace RT6502
+}  // namespace rt6502

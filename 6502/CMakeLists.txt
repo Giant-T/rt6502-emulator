@@ -10,7 +10,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(6502
-    src/6502.cpp
+    "src/6502.cpp"
+    "src/cpu.cpp"
+    "src/memory.cpp" 
 )
 add_library(6502::6502 ALIAS 6502)
 
