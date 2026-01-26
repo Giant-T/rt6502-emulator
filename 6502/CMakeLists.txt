@@ -13,7 +13,8 @@ add_library(6502
     "src/6502.cpp"
     "src/cpu.cpp"
     "src/memory.cpp" 
-)
+    "src/decode.cpp" 
+    "src/instruction_set.cpp")
 add_library(6502::6502 ALIAS 6502)
 
 target_include_directories(6502

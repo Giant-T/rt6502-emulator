@@ -1,4 +1,5 @@
 #include <6502/6502.h>
+#include <6502/decode.h>
 
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
@@ -12,6 +13,9 @@ using namespace ftxui;
 int main() {
     rt6502::rt6502 emulator;
     emulator.reset();
+    emulator.execute();
+
+    const auto inst = rt6502::decode::decode(emulator.cpu.PC, emulator.memory);
 
     auto table = Table({
         {"Register", "Values"},
@@ -21,12 +25,13 @@ int main() {
         {"X", std::format("{:02X}", emulator.cpu.X)},
         {"Y", std::format("{:02X}", emulator.cpu.Y)},
         {"N", std::to_string(emulator.cpu.PS.N)},
-        {"V", std::to_string(emulator.cpu.PS.O)},
+        {"V", std::to_string(emulator.cpu.PS.V)},
         {"B", std::to_string(emulator.cpu.PS.B)},
         {"D", std::to_string(emulator.cpu.PS.D)},
         {"I", std::to_string(emulator.cpu.PS.I)},
         {"Z", std::to_string(emulator.cpu.PS.Z)},
         {"C", std::to_string(emulator.cpu.PS.C)},
+        {"Decode", inst.display()},
     });
 
     table.SelectAll().Border(LIGHT);

@@ -1,10 +1,12 @@
 #pragma once
 
-#include "Memory.h"
+#include "memory.h"
 #include "types.h"
 
 namespace rt6502 {
-
+/**
+ * @ref http://www.erich-foltyn.eu/Technique/6502.html
+ */
 class CPU {
    public:
     Word PC;  // Program Counter
@@ -14,7 +16,7 @@ class CPU {
     Byte X;  // Index Register X
     Byte Y;  // Index Register Y
 
-    Flags PS;
+    Flags PS;  // Processor Status
 
     CPU();
 
@@ -22,6 +24,7 @@ class CPU {
      * @ref Procedure ["https://www.c64-wiki.com/wiki/Reset_(Process)"]
      */
     void reset(Memory&) noexcept;
+    void execute(Memory&);
 };
 
 }  // namespace rt6502
