@@ -3,16 +3,16 @@
 #include "memory.h"
 #include "types.h"
 
-namespace rt6502 {
+namespace RT6502 {
 /**
  * @ref http://www.erich-foltyn.eu/Technique/6502.html
  */
 class CPU {
    public:
-    static constexpr Byte stack_pointer_begin = 0xFF;
-    static constexpr Word nmi_vector_addr = 0xFFFA; 
-    static constexpr Word reset_vector_addr = 0xFFFC; 
-    static constexpr Word irqbrk_vector_addr = 0xFFFE; 
+    static constexpr Byte STACK_POINTER_BEGIN = 0xFF;
+    static constexpr Word NMI_VECTOR_ADDR = 0xFFFA;
+    static constexpr Word RESET_VECTOR_ADDR = 0xFFFC;
+    static constexpr Word IRQBRK_VECTOR_ADDR = 0xFFFE;
 
     Word PC;  // Program Counter
     Byte SP;  // Stack Pointer
@@ -25,14 +25,14 @@ class CPU {
 
     CPU();
 
-    void stack_push(Memory&, Byte);
-    Byte stack_pull(Memory&);
+    void StackPush(Memory&, Byte);
+    Byte StackPull(Memory&);
 
     /**
      * @ref Procedure ["https://www.c64-wiki.com/wiki/Reset_(Process)"]
      */
-    void reset(Memory&) noexcept;
-    void execute(Memory&);
+    void Reset(Memory&) noexcept;
+    void Execute(Memory&);
 };
 
-}  // namespace rt6502
+}  // namespace RT6502

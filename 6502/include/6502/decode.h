@@ -16,22 +16,22 @@
 #include "memory.h"
 #include "types.h"
 
-namespace rt6502::decode {
+namespace RT6502::Decode {
 
-struct operation {
-    instruction_set::instruction info;
-    Word param;
+struct Operation {
+    InstructionSet::Instruction Info;
+    Word Param;
 
-    [[nodiscard]] std::string display() const {
-        return std::vformat(info.name + " " + info.format(), std::make_format_args(param));
+    [[nodiscard]] std::string Display() const {
+        return std::vformat(Info.Name + " " + Info.Format(), std::make_format_args(Param));
     }
 };
 
-operation decode(Word, const Memory&);
+Operation Decode(Word, const Memory&);
 
-instruction_set::instruction fetch_instruction(Word& pc, const Memory& memory);
+InstructionSet::Instruction FetchInstruction(Word& pc, const Memory& memory);
 
-Byte fetch_byte(Word& pc, const Memory& memory) noexcept;
-Word fetch_word(Word& pc, const Memory& memory) noexcept;
+Byte FetchByte(Word& pc, const Memory& memory) noexcept;
+Word FetchWord(Word& pc, const Memory& memory) noexcept;
 
-}  // namespace rt6502::decode
+}  // namespace RT6502::Decode

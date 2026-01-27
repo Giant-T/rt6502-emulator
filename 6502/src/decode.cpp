@@ -1,17 +1,17 @@
 #include "6502/decode.h"
 
-rt6502::decode::operation rt6502::decode::decode(Word pc, const Memory& memory) {
-    const Byte opcode = fetch_byte(pc, memory);
+RT6502::Decode::Operation RT6502::Decode::Decode(Word pc, const Memory& memory) {
+    const Byte opcode = FetchByte(pc, memory);
 
-    const auto& instr = instruction_set::opcode_list.at(opcode);
+    const auto& instr = InstructionSet::OPCODE_LIST.at(opcode);
 
     Word param = 0;
-    if (instr.bytes == 3)
-        param = fetch_word(pc, memory);
-    else if (instr.bytes == 2)
-        param = fetch_byte(pc, memory);
+    if (instr.Bytes == 3)
+        param = FetchWord(pc, memory);
+    else if (instr.Bytes == 2)
+        param = FetchByte(pc, memory);
 
-    operation op = {
+    Operation op = {
         instr,
         param
     };
@@ -19,21 +19,21 @@ rt6502::decode::operation rt6502::decode::decode(Word pc, const Memory& memory) 
     return op;
 }
 
-rt6502::instruction_set::instruction rt6502::decode::fetch_instruction(Word& pc, const Memory& memory) {
-    const Byte opcode = fetch_byte(pc, memory);
+RT6502::InstructionSet::Instruction RT6502::Decode::FetchInstruction(Word& pc, const Memory& memory) {
+    const Byte opcode = FetchByte(pc, memory);
 
-    return instruction_set::opcode_list.at(opcode);
+    return InstructionSet::OPCODE_LIST.at(opcode);
 }
 
-rt6502::Byte rt6502::decode::fetch_byte(Word& pc, const Memory& memory) noexcept {
+RT6502::Byte RT6502::Decode::FetchByte(Word& pc, const Memory& memory) noexcept {
     return memory[pc++];
 }
 
-rt6502::Word rt6502::decode::fetch_word(Word& pc, const Memory& memory) noexcept {
-    const auto low_byte = fetch_byte(pc, memory);
-    const auto high_byte = fetch_byte(pc, memory);
-    Word result = high_byte;
+RT6502::Word RT6502::Decode::FetchWord(Word& pc, const Memory& memory) noexcept {
+    const auto lowByte = FetchByte(pc, memory);
+    const auto highByte = FetchByte(pc, memory);
+    Word result = highByte;
     result <<= 8;
-    result |= low_byte;
+    result |= lowByte;
     return result;
 }

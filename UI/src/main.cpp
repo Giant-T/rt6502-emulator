@@ -11,31 +11,31 @@
 using namespace ftxui;
 
 int main() {
-    rt6502::rt6502 emulator;
-    emulator.reset();
-    emulator.execute();
-    emulator.execute();
-    emulator.execute();
-    emulator.execute();
-    emulator.execute();
+    RT6502::RT6502 emulator;
+    emulator.Reset();
+    emulator.Execute();
+    emulator.Execute();
+    emulator.Execute();
+    emulator.Execute();
+    emulator.Execute();
 
-    const auto oper = rt6502::decode::decode(emulator.cpu.PC, emulator.memory);
+    const auto oper = RT6502::Decode::Decode(emulator.Cpu.PC, emulator.Memory);
 
     auto table = Table({
         {"Register", "Values"},
-        {"PC", std::format("{:04X}", emulator.cpu.PC)},
-        {"SP", std::format("{:02X}", emulator.cpu.SP)},
-        {"A", std::format("{:02X}", emulator.cpu.A)},
-        {"X", std::format("{:02X}", emulator.cpu.X)},
-        {"Y", std::format("{:02X}", emulator.cpu.Y)},
-        {"N", std::to_string(emulator.cpu.PS.N)},
-        {"V", std::to_string(emulator.cpu.PS.V)},
-        {"B", std::to_string(emulator.cpu.PS.B)},
-        {"D", std::to_string(emulator.cpu.PS.D)},
-        {"I", std::to_string(emulator.cpu.PS.I)},
-        {"Z", std::to_string(emulator.cpu.PS.Z)},
-        {"C", std::to_string(emulator.cpu.PS.C)},
-        {"Decode", oper.display()},
+        {"PC", std::format("{:04X}", emulator.Cpu.PC)},
+        {"SP", std::format("{:02X}", emulator.Cpu.SP)},
+        {"A", std::format("{:02X}", emulator.Cpu.A)},
+        {"X", std::format("{:02X}", emulator.Cpu.X)},
+        {"Y", std::format("{:02X}", emulator.Cpu.Y)},
+        {"N", std::to_string(emulator.Cpu.PS.N)},
+        {"V", std::to_string(emulator.Cpu.PS.V)},
+        {"B", std::to_string(emulator.Cpu.PS.B)},
+        {"D", std::to_string(emulator.Cpu.PS.D)},
+        {"I", std::to_string(emulator.Cpu.PS.I)},
+        {"Z", std::to_string(emulator.Cpu.PS.Z)},
+        {"C", std::to_string(emulator.Cpu.PS.C)},
+        {"Decode", oper.Display()},
     });
 
     table.SelectAll().Border(LIGHT);

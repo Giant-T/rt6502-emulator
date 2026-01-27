@@ -3,13 +3,13 @@
 #include "cpu.h"
 #include "memory.h"
 
-namespace rt6502 {
-struct rt6502 {
-    CPU cpu;
-    Memory memory;
+namespace RT6502 {
+struct RT6502 {
+    CPU Cpu;
+    Memory Memory;
 
-    void reset() noexcept;
-    void execute();
+    void Reset() noexcept;
+    void Execute();
 };
 
-}  // namespace rt6502
+}  // namespace RT6502

@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace rt6502 {
+namespace RT6502 {
 
 using Byte = uint8_t;
 using Word = uint16_t;
@@ -18,4 +18,4 @@ struct Flags {
     Byte N : 1;  // Bit 7 - Negative Result
 };
 
-}  // namespace rt6502
+}  // namespace RT6502

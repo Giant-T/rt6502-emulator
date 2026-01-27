@@ -2,17 +2,17 @@
 
 #include <algorithm>
 
-rt6502::Memory::Memory() : data{} {
+RT6502::Memory::Memory() : Data{} {
 }
 
-void rt6502::Memory::init() noexcept {
-    std::ranges::fill(data, 0);
+void RT6502::Memory::Init() noexcept {
+    std::ranges::fill(Data, 0);
 }
 
-rt6502::Byte rt6502::Memory::operator[](const Word addr) const {
-    return data[addr];
+RT6502::Byte RT6502::Memory::operator[](const Word addr) const {
+    return Data[addr];
 }
 
-rt6502::Byte& rt6502::Memory::operator[](const Word addr) {
-    return data[addr];
+RT6502::Byte& RT6502::Memory::operator[](const Word addr) {
+    return Data[addr];
 }

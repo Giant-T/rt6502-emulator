@@ -2,19 +2,19 @@
 
 #include "types.h"
 
-namespace rt6502 {
+namespace RT6502 {
 
 class Memory {
    public:
     static constexpr uint32_t MAX_MEMORY = 1024 * 64;  // 64 Kb
-    Byte data[MAX_MEMORY];
+    Byte Data[MAX_MEMORY];
 
     Memory();
 
-    void init() noexcept;
+    void Init() noexcept;
 
     Byte operator[](Word) const;
     Byte& operator[](Word);
 };
 
-}  // namespace rt6502
+}  // namespace RT6502

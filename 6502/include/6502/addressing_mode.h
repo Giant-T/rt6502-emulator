@@ -5,29 +5,29 @@
 #include "6502/memory.h"
 #include "types.h"
 
-namespace rt6502::addressing_mode {
-enum class addressing_mode {
-    implicit,
-    accumulator,
-    immediate,
-    zeropage,
-    zeropage_x,
-    zeropage_y,
-    relative,
-    absolute,
-    absolute_x,
-    absolute_y,
-    indirect,
-    indexed_indirect,
-    indirect_indexed
+namespace RT6502::AddressingMode {
+enum class AddressingMode {
+    Implicit,
+    Accumulator,
+    Immediate,
+    Zeropage,
+    ZeropageX,
+    ZeropageY,
+    Relative,
+    Absolute,
+    AbsoluteX,
+    AbsoluteY,
+    Indirect,
+    IndexedIndirect,
+    IndirectIndexed
 };
 
-std::string format(addressing_mode);
-Byte execute(addressing_mode, Word&, const Memory&);
+std::string Format(AddressingMode);
+Byte Execute(AddressingMode, Word&, const Memory&);
 
-Byte implicit(Word& pc, const Memory& memory);
-Byte immediate(Word& pc, const Memory& memory);
-Byte zeropage(Word& pc, const Memory& memory);
-Byte absolute(Word& pc, const Memory& memory);
+Byte Implicit(Word& pc, const Memory& memory);
+Byte Immediate(Word& pc, const Memory& memory);
+Byte Zeropage(Word& pc, const Memory& memory);
+Byte Absolute(Word& pc, const Memory& memory);
 
-}  // namespace rt6502::addressing_mode
+}  // namespace RT6502::AddressingMode

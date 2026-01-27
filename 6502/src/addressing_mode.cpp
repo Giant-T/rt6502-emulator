@@ -2,85 +2,85 @@
 
 #include "6502/decode.h"
 
-std::string rt6502::addressing_mode::format(const addressing_mode addr_mode) {
-    switch (addr_mode) {
-        case addressing_mode::implicit:
+std::string RT6502::AddressingMode::Format(const AddressingMode addrMode) {
+    switch (addrMode) {
+        case AddressingMode::Implicit:
             return "";
-        case addressing_mode::accumulator:
+        case AddressingMode::Accumulator:
             return "A";
-        case addressing_mode::immediate:
+        case AddressingMode::Immediate:
             return "#${:02X}";
-        case addressing_mode::zeropage:
+        case AddressingMode::Zeropage:
             return "${:02X}";
-        case addressing_mode::zeropage_x:
+        case AddressingMode::ZeropageX:
             return "${:02X},X";
-        case addressing_mode::zeropage_y:
+        case AddressingMode::ZeropageY:
             return "${:02X},Y";
-        case addressing_mode::relative:
+        case AddressingMode::Relative:
             return "${:02X}";
-        case addressing_mode::absolute:
+        case AddressingMode::Absolute:
             return "${:04X}";
-        case addressing_mode::absolute_x:
+        case AddressingMode::AbsoluteX:
             return "${:04X},X";
-        case addressing_mode::absolute_y:
+        case AddressingMode::AbsoluteY:
             return "${:04X},Y";
-        case addressing_mode::indirect:
+        case AddressingMode::Indirect:
             return "(${:04X})";
-        case addressing_mode::indexed_indirect:
+        case AddressingMode::IndexedIndirect:
             return "(${:02X},X)";
-        case addressing_mode::indirect_indexed:
+        case AddressingMode::IndirectIndexed:
             return "(${:02X}),Y";
         default:
             return "";
     }
 }
 
-rt6502::Byte rt6502::addressing_mode::execute(const addressing_mode addr_mode, Word& pc, const Memory& memory) {
-    switch (addr_mode) {
-        case addressing_mode::implicit:
-            return implicit(pc, memory);
-        // case addressing_mode::accumulator:
+RT6502::Byte RT6502::AddressingMode::Execute(const AddressingMode addrMode, Word& pc, const Memory& memory) {
+    switch (addrMode) {
+        case AddressingMode::Implicit:
+            return Implicit(pc, memory);
+        // case addressing_mode::Accumulator:
         // return "A";
-        case addressing_mode::immediate:
-            return immediate(pc, memory);
-        case addressing_mode::zeropage:
-            return zeropage(pc, memory);
-        // case addressing_mode::zeropage_x:
+        case AddressingMode::Immediate:
+            return Immediate(pc, memory);
+        case AddressingMode::Zeropage:
+            return Zeropage(pc, memory);
+        // case addressing_mode::ZeropageX:
         // return "${:02X},X";
-        // case addressing_mode::zeropage_y:
+        // case addressing_mode::ZeropageY:
         // return "${:02X},Y";
-        // case addressing_mode::relative:
+        // case addressing_mode::Relative:
         // return "${:02X}";
-        case addressing_mode::absolute:
-            return absolute(pc, memory);
-        // case addressing_mode::absolute_x:
+        case AddressingMode::Absolute:
+            return Absolute(pc, memory);
+        // case addressing_mode::AbsoluteX:
         // return "${:04X},X";
-        // case addressing_mode::absolute_y:
+        // case addressing_mode::AbsoluteY:
         // return "${:04X},Y";
-        // case addressing_mode::indirect:
+        // case addressing_mode::Indirect:
         // return "(${:04X})";
-        // case addressing_mode::indexed_indirect:
+        // case addressing_mode::IndexedIndirect:
         // return "(${:02X},X)";
-        // case addressing_mode::indirect_indexed:
+        // case addressing_mode::IndirectIndexed:
         // return "(${:02X}),Y";
         default:
             throw "not implemented";
     }
 }
 
-rt6502::Byte rt6502::addressing_mode::implicit(Word& pc, const Memory& memory) {
+RT6502::Byte RT6502::AddressingMode::Implicit(Word& pc, const Memory& memory) {
     return 0;
 }
 
-rt6502::Byte rt6502::addressing_mode::immediate(Word& pc, const Memory& memory) {
-    return decode::fetch_byte(pc, memory);
+RT6502::Byte RT6502::AddressingMode::Immediate(Word& pc, const Memory& memory) {
+    return Decode::FetchByte(pc, memory);
 }
 
-rt6502::Byte rt6502::addressing_mode::zeropage(Word& pc, const Memory& memory) {
-    const auto addr = decode::fetch_byte(pc, memory);
+RT6502::Byte RT6502::AddressingMode::Zeropage(Word& pc, const Memory& memory) {
+    const auto addr = Decode::FetchByte(pc, memory);
     return memory[addr];
 }
 
-rt6502::Byte rt6502::addressing_mode::absolute(Word& pc, const Memory& memory) {
-    return memory[decode::fetch_word(pc, memory)];
+RT6502::Byte RT6502::AddressingMode::Absolute(Word& pc, const Memory& memory) {
+    return memory[Decode::FetchWord(pc, memory)];
 }
