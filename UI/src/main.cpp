@@ -11,7 +11,7 @@
 ftxui::Component App(ftxui::ScreenInteractive& screen) {
     return ftxui::CatchEvent(
         ftxui::Container::Vertical({}),
-        [&](ftxui::Event event) {
+        [&](const ftxui::Event& event) {
             if (event.character() == "q")
                 screen.Exit();
 
