@@ -37,8 +37,8 @@ std::string rt6502::addressing_mode::format(const addressing_mode addr_mode) {
 
 rt6502::Byte rt6502::addressing_mode::execute(const addressing_mode addr_mode, Word& pc, const Memory& memory) {
     switch (addr_mode) {
-        // case addressing_mode::implicit:
-        // return "";
+        case addressing_mode::implicit:
+            return implicit(pc, memory);
         // case addressing_mode::accumulator:
         // return "A";
         case addressing_mode::immediate:
@@ -66,6 +66,10 @@ rt6502::Byte rt6502::addressing_mode::execute(const addressing_mode addr_mode, W
         default:
             throw "not implemented";
     }
+}
+
+rt6502::Byte rt6502::addressing_mode::implicit(Word& pc, const Memory& memory) {
+    return 0;
 }
 
 rt6502::Byte rt6502::addressing_mode::immediate(Word& pc, const Memory& memory) {

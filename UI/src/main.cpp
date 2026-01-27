@@ -16,6 +16,7 @@ int main() {
     emulator.execute();
     emulator.execute();
     emulator.execute();
+    emulator.execute();
 
     const auto inst = rt6502::decode::decode(emulator.cpu.PC, emulator.memory);
 

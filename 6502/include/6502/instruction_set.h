@@ -20,19 +20,21 @@ struct instruction {
     Byte bytes;
     std::string name;
     const addressing_mode::addressing_mode addr_mode;
-    void (*func)(Byte, CPU&);
+    void (*func)(Byte, CPU&, Memory&);
 
     std::string format() const noexcept {
         return addressing_mode::format(addr_mode);
     }
 };
 
-void LDA(Byte, CPU&);
+void LDA(Byte, CPU&, Memory&);
+void TSX(Byte, CPU&, Memory&);
 
 inline const std::map<Byte, instruction> opcode_list = {
     {0xA9, {0xA9, 2, "LDA", addressing_mode::addressing_mode::immediate, LDA}},
     {0xA5, {0xA5, 2, "LDA", addressing_mode::addressing_mode::zeropage, LDA}},
     {0xAD, {0xAD, 3, "LDA", addressing_mode::addressing_mode::absolute, LDA}},
+    {0xBA, {0xBA, 1, "TSX", addressing_mode::addressing_mode::implicit, TSX}},
 };
 
 }  // namespace rt6502::instruction_set

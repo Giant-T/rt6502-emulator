@@ -22,5 +22,5 @@ void rt6502::CPU::execute(Memory& memory) {
     const auto param = addressing_mode::execute(inst.addr_mode, PC, memory);
 
     // Exécuter l'instruction
-    inst.func(param, *this);
+    inst.func(param, *this, memory);
 }

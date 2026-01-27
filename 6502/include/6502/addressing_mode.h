@@ -25,6 +25,7 @@ enum class addressing_mode {
 std::string format(addressing_mode);
 Byte execute(addressing_mode, Word&, const Memory&);
 
+Byte implicit(Word& pc, const Memory& memory);
 Byte immediate(Word& pc, const Memory& memory);
 Byte zeropage(Word& pc, const Memory& memory);
 Byte absolute(Word& pc, const Memory& memory);
