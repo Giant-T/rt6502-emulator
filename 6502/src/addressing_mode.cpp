@@ -82,10 +82,5 @@ rt6502::Byte rt6502::addressing_mode::zeropage(Word& pc, const Memory& memory) {
 }
 
 rt6502::Byte rt6502::addressing_mode::absolute(Word& pc, const Memory& memory) {
-    const auto low_byte = decode::fetch_byte(pc, memory);
-    const auto high_byte = decode::fetch_byte(pc, memory);
-    Word addr = high_byte;
-    addr <<= 8;
-    addr |= low_byte;
-    return memory[addr];
+    return memory[decode::fetch_word(pc, memory)];
 }

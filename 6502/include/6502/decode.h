@@ -32,5 +32,6 @@ operation decode(Word&, const Memory&);
 instruction_set::instruction fetch_instruction(Word& pc, const Memory& memory);
 
 Byte fetch_byte(Word& pc, const Memory& memory) noexcept;
+Word fetch_word(Word& pc, const Memory& memory) noexcept;
 
 }  // namespace rt6502::decode
