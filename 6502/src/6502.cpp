@@ -13,8 +13,9 @@ void rt6502::rt6502::reset() noexcept {
     memory[0x0005] = 0x04;
     memory[0x0006] = 0x00;
     memory[0x0007] = 0xBA;  // TSX implicit
-    memory[0x0008] = 0xA9;  // LDA immediate
-    memory[0x0009] = 0x0A;
+    memory[0x0008] = 0x48;  // PHA immediate
+    memory[0x0009] = 0xA9;  // LDA immediate
+    memory[0x000A] = 0x0A;
 }
 
 void rt6502::rt6502::execute() {

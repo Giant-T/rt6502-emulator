@@ -17,3 +17,7 @@ void rt6502::instruction_set::TSX(const Byte value, CPU& cpu, Memory&) {
     cpu.PS.Z = cpu.X == 0;
     cpu.PS.N = cpu.X >> 7;
 }
+
+void rt6502::instruction_set::PHA(Byte, CPU& cpu, Memory& memory) {
+    cpu.stack_push(memory, cpu.A);
+}

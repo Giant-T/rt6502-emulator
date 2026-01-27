@@ -17,6 +17,7 @@ int main() {
     emulator.execute();
     emulator.execute();
     emulator.execute();
+    emulator.execute();
 
     const auto oper = rt6502::decode::decode(emulator.cpu.PC, emulator.memory);
 
