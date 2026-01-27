@@ -18,7 +18,7 @@ int main() {
     emulator.execute();
     emulator.execute();
 
-    const auto inst = rt6502::decode::decode(emulator.cpu.PC, emulator.memory);
+    const auto oper = rt6502::decode::decode(emulator.cpu.PC, emulator.memory);
 
     auto table = Table({
         {"Register", "Values"},
@@ -34,7 +34,7 @@ int main() {
         {"I", std::to_string(emulator.cpu.PS.I)},
         {"Z", std::to_string(emulator.cpu.PS.Z)},
         {"C", std::to_string(emulator.cpu.PS.C)},
-        {"Decode", inst.display()},
+        {"Decode", oper.display()},
     });
 
     table.SelectAll().Border(LIGHT);

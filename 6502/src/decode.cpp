@@ -1,6 +1,6 @@
 #include "6502/decode.h"
 
-rt6502::decode::operation rt6502::decode::decode(Word& pc, const Memory& memory) {
+rt6502::decode::operation rt6502::decode::decode(Word pc, const Memory& memory) {
     const Byte opcode = fetch_byte(pc, memory);
 
     const auto& instr = instruction_set::opcode_list.at(opcode);

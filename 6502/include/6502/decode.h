@@ -27,7 +27,7 @@ struct operation {
     }
 };
 
-operation decode(Word&, const Memory&);
+operation decode(Word, const Memory&);
 
 instruction_set::instruction fetch_instruction(Word& pc, const Memory& memory);
 
