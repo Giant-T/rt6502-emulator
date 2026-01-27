@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Memory.h"
+#include "memory.h"
 #include "types.h"
 
 namespace rt6502 {
