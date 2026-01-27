@@ -33,12 +33,13 @@ struct instruction {
 
 inline const std::map<Byte, instruction> opcode_list = {
     {0xA9, {0xA9, 2, "LDA", addressing_mode::addressing_mode::immediate, instruction_set::LDA}},
-    {0xA5, {0xA5, 2, "LDA", addressing_mode::addressing_mode::zeropage, instruction_set::LDA}}
+    {0xA5, {0xA5, 2, "LDA", addressing_mode::addressing_mode::zeropage, instruction_set::LDA}},
+    {0xAD, {0xAD, 3, "LDA", addressing_mode::addressing_mode::absolute, instruction_set::LDA}},
 };
 
 struct operation {
     instruction info;
-    Byte param;
+    Word param;
 
     [[nodiscard]] std::string display() const {
         return std::vformat(info.name + " " + info.format(), std::make_format_args(param));

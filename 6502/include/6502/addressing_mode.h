@@ -27,5 +27,6 @@ Byte execute(addressing_mode, Word&, const Memory&);
 
 Byte immediate(Word& pc, const Memory& memory);
 Byte zeropage(Word& pc, const Memory& memory);
+Byte absolute(Word& pc, const Memory& memory);
 
 }  // namespace rt6502::addressing_mode

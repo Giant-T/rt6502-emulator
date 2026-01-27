@@ -5,8 +5,15 @@ rt6502::decode::operation rt6502::decode::decode(Word& pc, const Memory& memory)
 
     const auto& instr = opcode_list.at(opcode);
 
-    Byte param = 0;
-    if (instr.bytes > 1)
+    Word param = 0;
+    if (instr.bytes == 3) {
+        const Byte low = fetch_byte(pc, memory);
+        const Byte high = fetch_byte(pc, memory);
+        param = high;
+        param <<= 8;
+        param |= low;
+    }
+    if (instr.bytes == 2)
         param = fetch_byte(pc, memory);
 
     operation op = {
