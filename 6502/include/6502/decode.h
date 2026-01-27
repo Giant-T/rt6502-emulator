@@ -12,34 +12,42 @@
 #include <map>
 #include <string>
 
+#include "addressing_mode.h"
 #include "instruction_set.h"
 #include "memory.h"
 #include "types.h"
 
 namespace rt6502::decode {
 
-struct metadata {
+struct instruction {
     Byte opcode;
     Byte bytes;
     std::string name;
-    std::string format;
+    const addressing_mode::addressing_mode addr_mode;
     void (*func)(Byte, CPU&);
-};
 
-inline const std::map<Byte, metadata> opcode_list = {
-    {0xA9, {0xA9, 2, "LDA", " #{}", instruction_set::A9_LDA_IM}}
-};
-
-struct instruction {
-    metadata info;
-    Byte param;
-
-    [[nodiscard]] std::string display() const {
-        return std::vformat(info.name + info.format, std::make_format_args(param));
+    std::string format() const noexcept {
+        return addressing_mode::format(addr_mode);
     }
 };
 
-instruction decode(Word&, const Memory&);
+inline const std::map<Byte, instruction> opcode_list = {
+    {0xA9, {0xA9, 2, "LDA", addressing_mode::addressing_mode::immediate, instruction_set::LDA}},
+    {0xA5, {0xA5, 2, "LDA", addressing_mode::addressing_mode::zeropage, instruction_set::LDA}}
+};
+
+struct operation {
+    instruction info;
+    Byte param;
+
+    [[nodiscard]] std::string display() const {
+        return std::vformat(info.name + " " + info.format(), std::make_format_args(param));
+    }
+};
+
+operation decode(Word&, const Memory&);
+
+instruction fetch_instruction(Word& pc, const Memory& memory);
 
 Byte fetch_byte(Word& pc, const Memory& memory) noexcept;
 

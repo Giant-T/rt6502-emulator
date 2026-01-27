@@ -16,8 +16,11 @@ void rt6502::CPU::reset(Memory& memory) noexcept {
 
 void rt6502::CPU::execute(Memory& memory) {
     // Récupérer l'instruction
-    const auto inst = decode::decode(PC, memory);
+    const auto inst = decode::fetch_instruction(PC, memory);
+
+    // Récupérer dans la mémoire via le mode d'adressage
+    const auto param = addressing_mode::execute(inst.addr_mode, PC, memory);
 
     // Exécuter l'instruction
-    inst.info.func(inst.param, *this);
+    inst.func(param, *this);
 }

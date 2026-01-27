@@ -12,8 +12,6 @@
 
 namespace rt6502::instruction_set {
 
-void A9_LDA_IM(Byte, CPU&);
-
 void LDA(Byte, CPU&);
 
 }
