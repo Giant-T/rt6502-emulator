@@ -5,5 +5,8 @@ project(RT6502Emulator
         LANGUAGES CXX
 )
 
+enable_testing()
+
 add_subdirectory(6502)
 add_subdirectory(UI)
+add_subdirectory(Tests)

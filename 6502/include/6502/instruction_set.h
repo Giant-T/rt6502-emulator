@@ -15,6 +15,14 @@
 
 namespace RT6502::InstructionSet {
 
+// opcodes
+static constexpr Byte INS_LDA_IMM = 0xA9;
+static constexpr Byte INS_LDA_ZP = 0xA5;
+static constexpr Byte INS_LDA_ABS = 0xAD;
+static constexpr Byte INS_STA_ZP = 0x85;
+static constexpr Byte INS_STX_ZP = 0x86;
+static constexpr Byte INS_TSX_IMP = 0xBA;
+
 struct Instruction {
     Byte Opcode;
     Byte Bytes;
@@ -35,13 +43,13 @@ void TSX(CPU&);
 void STX(CPU&);
 
 inline const std::map<Byte, const Instruction> OPCODE_LIST = {
-    {0xA9, {0xA9, 2, "LDA", AddressingMode::AddressingMode::Immediate, Read, LDA}},
-    {0xA5, {0xA5, 2, "LDA", AddressingMode::AddressingMode::Zeropage, Read, LDA}},
-    {0xAD, {0xAD, 3, "LDA", AddressingMode::AddressingMode::Absolute, Read, LDA}},
-    {0x85, {0x85, 2, "STA", AddressingMode::AddressingMode::Zeropage, Write, STA}},
-    {0xBA, {0xBA, 1, "TSX", AddressingMode::AddressingMode::Implicit, Read, TSX}},
+    {INS_LDA_IMM, {INS_LDA_IMM, 2, "LDA", AddressingMode::AddressingMode::Immediate, Read, LDA}},
+    {INS_LDA_ZP, {INS_LDA_ZP, 2, "LDA", AddressingMode::AddressingMode::Zeropage, Read, LDA}},
+    {INS_LDA_ABS, {INS_LDA_ABS, 3, "LDA", AddressingMode::AddressingMode::Absolute, Read, LDA}},
+    {INS_STA_ZP, {INS_STA_ZP, 2, "STA", AddressingMode::AddressingMode::Zeropage, Write, STA}},
+    {INS_TSX_IMP, {INS_TSX_IMP, 1, "TSX", AddressingMode::AddressingMode::Implicit, Read, TSX}},
     //{0x48, {0x48, 1, "PHA", AddressingMode::AddressingMode::Implicit, PHA}},
-    {0x86, {0x86, 1, "STX", AddressingMode::AddressingMode::Zeropage, Write, STX}},
+    {INS_STX_ZP, {INS_STX_ZP, 1, "STX", AddressingMode::AddressingMode::Zeropage, Write, STX}},
 };
 
 }  // namespace RT6502::InstructionSet
