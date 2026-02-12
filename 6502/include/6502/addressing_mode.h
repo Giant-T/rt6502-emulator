@@ -3,7 +3,7 @@
 #include <string>
 
 #include "6502/memory.h"
-#include "types.h"
+#include "cpu.h"
 
 namespace RT6502::AddressingMode {
 enum class AddressingMode {
@@ -23,11 +23,11 @@ enum class AddressingMode {
 };
 
 std::string Format(AddressingMode);
-Byte Execute(AddressingMode, Word&, const Memory&);
+void Execute(CPU&, Memory&);
 
-Byte Implicit(Word& pc, const Memory& memory);
-Byte Immediate(Word& pc, const Memory& memory);
-Byte Zeropage(Word& pc, const Memory& memory);
-Byte Absolute(Word& pc, const Memory& memory);
+void Implicit(CPU& cpu, Memory& memory);
+void Immediate(CPU& cpu, Memory& memory);
+void Zeropage(CPU& cpu, Memory& memory);
+void Absolute(CPU& cpu, Memory& memory);
 
 }  // namespace RT6502::AddressingMode

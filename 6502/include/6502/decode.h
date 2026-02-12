@@ -9,7 +9,6 @@
 #pragma once
 
 #include <format>
-#include <map>
 #include <string>
 
 #include "instruction_set.h"
@@ -29,7 +28,7 @@ struct Operation {
 
 Operation Decode(Word, const Memory&);
 
-InstructionSet::Instruction FetchInstruction(Word& pc, const Memory& memory);
+const InstructionSet::Instruction& FetchInstruction(Word& pc, const Memory& memory);
 
 Byte FetchByte(Word& pc, const Memory& memory) noexcept;
 Word FetchWord(Word& pc, const Memory& memory) noexcept;

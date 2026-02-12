@@ -13,6 +13,9 @@ class Memory {
 
     void Init() noexcept;
 
+    void Read(const Word& addrBus, Byte& dataBus) const;
+    void Write(const Word& addrBus, const Byte& dataBus);
+
     Byte operator[](Word) const;
     Byte& operator[](Word);
 };

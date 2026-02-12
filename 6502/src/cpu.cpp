@@ -2,7 +2,7 @@
 
 #include "6502/decode.h"
 
-RT6502::CPU::CPU() : PC(0), SP(STACK_POINTER_BEGIN), A(0), X(0), Y(0), PS() {
+RT6502::CPU::CPU() : PC(0), SP(STACK_POINTER_BEGIN), A(0), X(0), Y(0), PS(), RW(false), DataBus(0), AddressBus(0), AddressRegister(0), IR(nullptr) {
 }
 
 /**
@@ -11,7 +11,7 @@ RT6502::CPU::CPU() : PC(0), SP(STACK_POINTER_BEGIN), A(0), X(0), Y(0), PS() {
  * @param value
  */
 void RT6502::CPU::StackPush(Memory& memory, const Byte value) {
-    memory[SP--] = value;
+    memory[0x0100 + SP--] = value;
 }
 
 /**
@@ -20,7 +20,7 @@ void RT6502::CPU::StackPush(Memory& memory, const Byte value) {
  * @return
  */
 RT6502::Byte RT6502::CPU::StackPull(Memory& memory) {
-    return memory[SP++];
+    return memory[0x0100 + SP++];
 }
 
 void RT6502::CPU::Reset(Memory& memory) noexcept {
@@ -38,13 +38,14 @@ void RT6502::CPU::Reset(Memory& memory) noexcept {
     memory.Init();  // TODO: Le déplacer ailleur, car n'est pas une opération normal du RESET
 }
 
+/**
+ * Ici, on va exécuter une instruction au complet
+ * @param memory
+ */
 void RT6502::CPU::Execute(Memory& memory) {
-    // Récupérer l'instruction
-    const auto inst = Decode::FetchInstruction(PC, memory);
+    // Récupérer l'instruction et le mettre dans le IR
+    IR = &Decode::FetchInstruction(PC, memory);
 
-    // Récupérer dans la mémoire via le mode d'adressage
-    const auto param = AddressingMode::Execute(inst.AddrMode, PC, memory);
-
-    // Exécuter l'instruction
-    inst.Func(param, *this, memory);
+    // Exécuter l'instruction (c'est le mode d'adressage qui va gérer ça)
+    AddressingMode::Execute(*this, memory);
 }

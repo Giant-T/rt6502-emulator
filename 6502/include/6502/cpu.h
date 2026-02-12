@@ -3,6 +3,10 @@
 #include "memory.h"
 #include "types.h"
 
+namespace RT6502::InstructionSet {
+struct Instruction;
+}
+
 namespace RT6502 {
 /**
  * @ref http://www.erich-foltyn.eu/Technique/6502.html
@@ -22,6 +26,15 @@ class CPU {
     Byte Y;  // Index Register Y
 
     Flags PS;  // Processor Status
+
+    bool RW;  // Read or Write on memory. Read = 1, Write = 0; C'est la direction du transfert de données entre le processeur et les chips.
+
+    Byte DataBus;                           // All instructions and data transfers between the processor and memory take place on these lines. Page 47
+    Word AddressBus;                        // Also Address Register. Est utilisé pour accéder à la mémoire
+    Word AddressRegister;                   // Contient ADL et ADH;
+    const InstructionSet::Instruction* IR;  // Instruction Register. Holds the fetched instruction opcode byte while the CPU decodes and executes it.
+
+    TimeStates CurrentState = T0;
 
     CPU();
 

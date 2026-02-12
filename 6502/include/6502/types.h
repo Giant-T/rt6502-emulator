@@ -18,4 +18,19 @@ struct Flags {
     Byte N : 1;  // Bit 7 - Negative Result
 };
 
+enum TimeStates {
+    T0 = 0,
+    T1 = 1,
+    T2 = 2,
+    T3 = 3,
+    T4 = 4,
+    T5 = 5
+};
+
+enum ReadWrite {
+    Read = 1 << 0,
+    Write = 1 << 1,
+    RMW = Read | Write
+};
+
 }  // namespace RT6502

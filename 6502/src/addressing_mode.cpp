@@ -1,6 +1,6 @@
 #include "6502/addressing_mode.h"
 
-#include "6502/decode.h"
+#include "6502/instruction_set.h"
 
 std::string RT6502::AddressingMode::Format(const AddressingMode addrMode) {
     switch (addrMode) {
@@ -35,24 +35,28 @@ std::string RT6502::AddressingMode::Format(const AddressingMode addrMode) {
     }
 }
 
-RT6502::Byte RT6502::AddressingMode::Execute(const AddressingMode addrMode, Word& pc, const Memory& memory) {
-    switch (addrMode) {
+void RT6502::AddressingMode::Execute(CPU& cpu, Memory& memory) {
+    switch (cpu.IR->AddrMode) {
         case AddressingMode::Implicit:
-            return Implicit(pc, memory);
-        // case addressing_mode::Accumulator:
-        // return "A";
+            Implicit(cpu, memory);
+            break;
+        //  case addressing_mode::Accumulator:
+        //  return "A";
         case AddressingMode::Immediate:
-            return Immediate(pc, memory);
+            Immediate(cpu, memory);
+            break;
         case AddressingMode::Zeropage:
-            return Zeropage(pc, memory);
-        // case addressing_mode::ZeropageX:
-        // return "${:02X},X";
-        // case addressing_mode::ZeropageY:
-        // return "${:02X},Y";
-        // case addressing_mode::Relative:
-        // return "${:02X}";
+            Zeropage(cpu, memory);
+            break;
+            // case addressing_mode::ZeropageX:
+            // return "${:02X},X";
+            // case addressing_mode::ZeropageY:
+            // return "${:02X},Y";
+            // case addressing_mode::Relative:
+            // return "${:02X}";
         case AddressingMode::Absolute:
-            return Absolute(pc, memory);
+            Absolute(cpu, memory);
+            break;
         // case addressing_mode::AbsoluteX:
         // return "${:04X},X";
         // case addressing_mode::AbsoluteY:
@@ -68,19 +72,68 @@ RT6502::Byte RT6502::AddressingMode::Execute(const AddressingMode addrMode, Word
     }
 }
 
-RT6502::Byte RT6502::AddressingMode::Implicit(Word& pc, const Memory& memory) {
-    return 0;
+void RT6502::AddressingMode::Implicit(CPU& cpu, Memory& memory) {
+    // Exécuter l'instruction
+    cpu.IR->Func(cpu);
 }
 
-RT6502::Byte RT6502::AddressingMode::Immediate(Word& pc, const Memory& memory) {
-    return Decode::FetchByte(pc, memory);
+void RT6502::AddressingMode::Immediate(CPU& cpu, Memory& memory) {
+    // Simplement lire avec le PC
+    cpu.AddressBus = cpu.PC++;
+    memory.Read(cpu.AddressBus, cpu.DataBus);
+
+    // Exécuter l'instruction
+    cpu.IR->Func(cpu);
 }
 
-RT6502::Byte RT6502::AddressingMode::Zeropage(Word& pc, const Memory& memory) {
-    const auto addr = Decode::FetchByte(pc, memory);
-    return memory[addr];
+void RT6502::AddressingMode::Zeropage(CPU& cpu, Memory& memory) {
+    // Une lecture pour l'adresse du Zéro Page
+    cpu.AddressBus = cpu.PC++;
+    memory.Read(cpu.AddressBus, cpu.DataBus);
+
+    cpu.AddressRegister = cpu.DataBus;
+    cpu.AddressBus = cpu.AddressRegister;
+
+    if (cpu.IR->RW & Read) {
+        // Lecture emplacement mémoire
+        memory.Read(cpu.AddressBus, cpu.DataBus);
+    }
+
+    // Exécuter l'instruction
+    cpu.IR->Func(cpu);
+
+    if (cpu.IR->RW & Write) {
+        // Écriture emplacement mémoire
+        memory.Write(cpu.AddressBus, cpu.DataBus);
+    }
 }
 
-RT6502::Byte RT6502::AddressingMode::Absolute(Word& pc, const Memory& memory) {
-    return memory[Decode::FetchWord(pc, memory)];
+void RT6502::AddressingMode::Absolute(CPU& cpu, Memory& memory) {
+    // Lecture pour ADL
+    cpu.AddressBus = cpu.PC++;
+    memory.Read(cpu.AddressBus, cpu.DataBus);
+
+    cpu.AddressRegister = cpu.DataBus;
+
+    // Lecture pour ADH
+    cpu.AddressBus = cpu.PC++;
+    memory.Read(cpu.AddressBus, cpu.DataBus);
+
+    cpu.AddressRegister |= cpu.DataBus << 8;
+
+    // Mettre dans l'adresse
+    cpu.AddressBus = cpu.AddressRegister;
+
+    if (cpu.IR->RW & Read) {
+        // Lecture emplacement mémoire
+        memory.Read(cpu.AddressBus, cpu.DataBus);
+    }
+
+    // Exécuter l'instruction
+    cpu.IR->Func(cpu);
+
+    if (cpu.IR->RW & Write) {
+        // Écriture emplacement mémoire
+        memory.Write(cpu.AddressBus, cpu.DataBus);
+    }
 }

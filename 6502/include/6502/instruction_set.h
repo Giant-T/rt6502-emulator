@@ -19,24 +19,29 @@ struct Instruction {
     Byte Opcode;
     Byte Bytes;
     std::string Name;
-    const AddressingMode::AddressingMode AddrMode;
-    void (*Func)(Byte, CPU&, Memory&);
+    AddressingMode::AddressingMode AddrMode;
+    ReadWrite RW;
+    void (*Func)(CPU&);
 
     std::string Format() const noexcept {
         return AddressingMode::Format(AddrMode);
     }
 };
 
-void LDA(Byte, CPU&, Memory&);
-void TSX(Byte, CPU&, Memory&);
-void PHA(Byte, CPU&, Memory&);
+void LDA(CPU&);
+void STA(CPU&);
+void TSX(CPU&);
+// void PHA(CPU&, Memory&);
+void STX(CPU&);
 
-inline const std::map<Byte, Instruction> OPCODE_LIST = {
-    {0xA9, {0xA9, 2, "LDA", AddressingMode::AddressingMode::Immediate, LDA}},
-    {0xA5, {0xA5, 2, "LDA", AddressingMode::AddressingMode::Zeropage, LDA}},
-    {0xAD, {0xAD, 3, "LDA", AddressingMode::AddressingMode::Absolute, LDA}},
-    {0xBA, {0xBA, 1, "TSX", AddressingMode::AddressingMode::Implicit, TSX}},
-    {0x48, {0x48, 1, "PHA", AddressingMode::AddressingMode::Implicit, PHA}},
+inline const std::map<Byte, const Instruction> OPCODE_LIST = {
+    {0xA9, {0xA9, 2, "LDA", AddressingMode::AddressingMode::Immediate, Read, LDA}},
+    {0xA5, {0xA5, 2, "LDA", AddressingMode::AddressingMode::Zeropage, Read, LDA}},
+    {0xAD, {0xAD, 3, "LDA", AddressingMode::AddressingMode::Absolute, Read, LDA}},
+    {0x85, {0x85, 2, "STA", AddressingMode::AddressingMode::Zeropage, Write, STA}},
+    {0xBA, {0xBA, 1, "TSX", AddressingMode::AddressingMode::Implicit, Read, TSX}},
+    //{0x48, {0x48, 1, "PHA", AddressingMode::AddressingMode::Implicit, PHA}},
+    {0x86, {0x86, 1, "STX", AddressingMode::AddressingMode::Zeropage, Write, STX}},
 };
 
 }  // namespace RT6502::InstructionSet

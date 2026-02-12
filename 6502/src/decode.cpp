@@ -19,7 +19,7 @@ RT6502::Decode::Operation RT6502::Decode::Decode(Word pc, const Memory& memory) 
     return op;
 }
 
-RT6502::InstructionSet::Instruction RT6502::Decode::FetchInstruction(Word& pc, const Memory& memory) {
+const RT6502::InstructionSet::Instruction& RT6502::Decode::FetchInstruction(Word& pc, const Memory& memory) {
     const Byte opcode = FetchByte(pc, memory);
 
     return InstructionSet::OPCODE_LIST.at(opcode);

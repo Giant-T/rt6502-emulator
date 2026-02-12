@@ -12,10 +12,12 @@ void RT6502::RT6502::Reset() noexcept {
     Memory[0x0004] = 0xAD;  // LDA absolute
     Memory[0x0005] = 0x04;
     Memory[0x0006] = 0x00;
-    Memory[0x0007] = 0xBA;  // TSX implicit
-    Memory[0x0008] = 0x48;  // PHA immediate
-    Memory[0x0009] = 0xA9;  // LDA immediate
-    Memory[0x000A] = 0x0A;
+    Memory[0x0007] = 0x85;  // STA Zeropage
+    Memory[0x0008] = 0x0D;  
+    Memory[0x0009] = 0x86;  // STX Zeropage
+    Memory[0x000A] = 0x03;
+    Memory[0x000B] = 0xA9;  // LDA immediate
+    Memory[0x000C] = 0x0A;
 }
 
 void RT6502::RT6502::Execute() {
