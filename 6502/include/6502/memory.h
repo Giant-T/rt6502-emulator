@@ -2,7 +2,7 @@
 
 #include "types.h"
 
-namespace rt6502 {
+namespace RT6502 {
 
 class Memory {
    public:
@@ -11,7 +11,13 @@ class Memory {
 
     Memory();
 
-    void init() noexcept;
+    void Init() noexcept;
+
+    void Read(const Word& addrBus, Byte& dataBus) const;
+    void Write(const Word& addrBus, const Byte& dataBus);
+
+    Byte operator[](Word) const;
+    Byte& operator[](Word);
 };
 
-}  // namespace rt6502
+}  // namespace RT6502

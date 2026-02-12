@@ -1,4 +1,5 @@
 #include <6502/6502.h>
+#include <6502/decode.h>
 
 #include <cstdint>
 #include <cstdlib>
@@ -11,6 +12,8 @@
 #include <ftxui/dom/table.hpp>
 #include <ftxui/screen/color.hpp>
 #include <utility>
+
+#include "6502/memory.h"
 
 enum : uint8_t { TOP_SIZE = 18 };
 
@@ -28,21 +31,24 @@ ftxui::Component KeyboardEvents(ftxui::ScreenInteractive& screen, ftxui::Compone
     );
 }
 
-ftxui::Element RegistersTable(rt6502::rt6502& emulator) {
+ftxui::Element RegistersTable(RT6502::RT6502& emulator) {
+    const auto oper = RT6502::Decode::Decode(emulator.Cpu.PC, emulator.Mem);
+
     auto table = ftxui::Table({
         {"Register", "Values"},
-        {"PC", std::format("{:04X}", emulator.cpu.PC)},
-        {"SP", std::format("{:02X}", emulator.cpu.SP)},
-        {"A", std::format("{:02X}", emulator.cpu.A)},
-        {"X", std::format("{:02X}", emulator.cpu.X)},
-        {"Y", std::format("{:02X}", emulator.cpu.Y)},
-        {"N", std::to_string(emulator.cpu.PS.N)},
-        {"V", std::to_string(emulator.cpu.PS.O)},
-        {"B", std::to_string(emulator.cpu.PS.B)},
-        {"D", std::to_string(emulator.cpu.PS.D)},
-        {"I", std::to_string(emulator.cpu.PS.I)},
-        {"Z", std::to_string(emulator.cpu.PS.Z)},
-        {"C", std::to_string(emulator.cpu.PS.C)},
+        {"PC", std::format("{:04X}", emulator.Cpu.PC)},
+        {"SP", std::format("{:02X}", emulator.Cpu.SP)},
+        {"A", std::format("{:02X}", emulator.Cpu.A)},
+        {"X", std::format("{:02X}", emulator.Cpu.X)},
+        {"Y", std::format("{:02X}", emulator.Cpu.Y)},
+        {"N", std::to_string(emulator.Cpu.PS.N)},
+        {"V", std::to_string(emulator.Cpu.PS.V)},
+        {"B", std::to_string(emulator.Cpu.PS.B)},
+        {"D", std::to_string(emulator.Cpu.PS.D)},
+        {"I", std::to_string(emulator.Cpu.PS.I)},
+        {"Z", std::to_string(emulator.Cpu.PS.Z)},
+        {"C", std::to_string(emulator.Cpu.PS.C)},
+        {"Decode", oper.Display()},
     });
 
     table.SelectColumns(0, -1).Border();
@@ -54,7 +60,7 @@ ftxui::Element RegistersTable(rt6502::rt6502& emulator) {
     return table.Render();
 }
 
-ftxui::Component RegistersLayout(rt6502::rt6502& emulator) {
+ftxui::Component RegistersLayout(RT6502::RT6502& emulator) {
     return ftxui::Renderer(
         [&] {
             return ftxui::vbox({ftxui::text("Registers"), ftxui::separator(), RegistersTable(emulator)});
@@ -74,7 +80,7 @@ ftxui::Component AssemblyLayout() {
     );
 }
 
-ftxui::Component MemoryLayout(rt6502::rt6502& emulator) {
+ftxui::Component MemoryLayout(RT6502::RT6502& emulator) {
     static std::string test;
 
     ftxui::Component addressInput = ftxui::Input(&test, "0x20");
@@ -88,7 +94,7 @@ ftxui::Component MemoryLayout(rt6502::rt6502& emulator) {
     });
 }
 
-ftxui::Component AppLayout(int& topSize, int& registersSize, rt6502::rt6502& emulator) {
+ftxui::Component AppLayout(int& topSize, int& registersSize, RT6502::RT6502& emulator) {
     auto registers = RegistersLayout(emulator);
     auto assembly = AssemblyLayout();
     auto memory = MemoryLayout(emulator);
@@ -98,7 +104,7 @@ ftxui::Component AppLayout(int& topSize, int& registersSize, rt6502::rt6502& emu
     return ftxui::ResizableSplitTop(top, assembly, &topSize) | ftxui::border;
 }
 
-ftxui::Component App(ftxui::ScreenInteractive& screen, int& topSize, int& registersSize, rt6502::rt6502& emulator) {
+ftxui::Component App(ftxui::ScreenInteractive& screen, int& topSize, int& registersSize, RT6502::RT6502& emulator) {
     return KeyboardEvents(
         screen,
         AppLayout(topSize, registersSize, emulator)
@@ -106,8 +112,15 @@ ftxui::Component App(ftxui::ScreenInteractive& screen, int& topSize, int& regist
 }
 
 int main() {
-    rt6502::rt6502 emulator;
-    emulator.reset();
+    RT6502::RT6502 emulator;
+
+    emulator.Reset();
+    emulator.Reset();
+    emulator.Execute();
+    emulator.Execute();
+    emulator.Execute();
+    emulator.Execute();
+    emulator.Execute();
 
     auto screen = ftxui::ScreenInteractive::Fullscreen();
 
