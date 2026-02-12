@@ -6,7 +6,7 @@
 namespace RT6502 {
 struct RT6502 {
     CPU Cpu;
-    Memory Memory;
+    Memory Mem;
 
     void Reset() noexcept;
     void Execute();
