@@ -81,3 +81,26 @@ TEST_CASE("PHA Impl", "[Instruction][PHA]") {
     REQUIRE(+emulator.Cpu.SP == 0xFC);
     REQUIRE(+emulator.Mem.Data[0x01FD] == 0x25);
 }
+
+TEST_CASE("INC ZP", "[Instruction][INC]") {
+    RT6502::RT6502 emulator;
+    emulator.Reset();
+    emulator.Mem.Data[0x0000] = RT6502::InstructionSet::INS_INC_ZP;
+    emulator.Mem.Data[0x0001] = 0x25;
+    emulator.Mem.Data[0x0025] = 0x10;
+
+    emulator.Execute();
+    REQUIRE(+emulator.Mem.Data[0x0025] == 0x11);
+}
+
+TEST_CASE("INC ABS", "[Instruction][INC]") {
+    RT6502::RT6502 emulator;
+    emulator.Reset();
+    emulator.Mem.Data[0x0000] = RT6502::InstructionSet::INS_INC_ABS;
+    emulator.Mem.Data[0x0001] = 0x15;
+    emulator.Mem.Data[0x0002] = 0x10;
+    emulator.Mem.Data[0x1015] = 0x23;
+
+    emulator.Execute();
+    REQUIRE(+emulator.Mem.Data[0x1015] == 0x24);
+}

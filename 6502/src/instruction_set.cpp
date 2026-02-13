@@ -1,5 +1,8 @@
 #include "6502/instruction_set.h"
 
+void RT6502::InstructionSet::JSR(CPU&) {
+}
+
 /**
  *
  * @param cpu
@@ -30,4 +33,10 @@ void RT6502::InstructionSet::PHA(CPU& cpu) {
 
 void RT6502::InstructionSet::STX(CPU& cpu) {
     cpu.DataBus = cpu.X;
+}
+
+void RT6502::InstructionSet::INC(CPU& cpu) {
+    cpu.DataBus += 1;
+    cpu.PS.Z = cpu.DataBus == 0;
+    cpu.PS.N = cpu.DataBus >> 7;
 }
