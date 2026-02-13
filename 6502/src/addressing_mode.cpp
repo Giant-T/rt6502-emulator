@@ -73,27 +73,12 @@ void RT6502::AddressingMode::Execute(CPU& cpu, Memory& memory) {
 }
 
 void RT6502::AddressingMode::Implicit(CPU& cpu, Memory& memory) {
-    if (cpu.IR->RW & Read) {
-        // Lecture emplacement mémoire
-        memory.Read(cpu.AddressBus, cpu.DataBus);
-    }
-
-    // Exécuter l'instruction
-    cpu.IR->Func(cpu);
-
-    if (cpu.IR->RW & Write) {
-        // Écriture emplacement mémoire
-        memory.Write(cpu.AddressBus, cpu.DataBus);
-    }
 }
 
 void RT6502::AddressingMode::Immediate(CPU& cpu, Memory& memory) {
     // Simplement lire avec le PC
     cpu.AddressBus = cpu.PC++;
     memory.Read(cpu.AddressBus, cpu.DataBus);
-
-    // Exécuter l'instruction
-    cpu.IR->Func(cpu);
 }
 
 void RT6502::AddressingMode::Zeropage(CPU& cpu, Memory& memory) {
@@ -103,19 +88,6 @@ void RT6502::AddressingMode::Zeropage(CPU& cpu, Memory& memory) {
 
     cpu.AddressRegister = cpu.DataBus;
     cpu.AddressBus = cpu.AddressRegister;
-
-    if (cpu.IR->RW & Read) {
-        // Lecture emplacement mémoire
-        memory.Read(cpu.AddressBus, cpu.DataBus);
-    }
-
-    // Exécuter l'instruction
-    cpu.IR->Func(cpu);
-
-    if (cpu.IR->RW & Write) {
-        // Écriture emplacement mémoire
-        memory.Write(cpu.AddressBus, cpu.DataBus);
-    }
 }
 
 void RT6502::AddressingMode::Absolute(CPU& cpu, Memory& memory) {
@@ -133,17 +105,4 @@ void RT6502::AddressingMode::Absolute(CPU& cpu, Memory& memory) {
 
     // Mettre dans l'adresse
     cpu.AddressBus = cpu.AddressRegister;
-
-    if (cpu.IR->RW & Read) {
-        // Lecture emplacement mémoire
-        memory.Read(cpu.AddressBus, cpu.DataBus);
-    }
-
-    // Exécuter l'instruction
-    cpu.IR->Func(cpu);
-
-    if (cpu.IR->RW & Write) {
-        // Écriture emplacement mémoire
-        memory.Write(cpu.AddressBus, cpu.DataBus);
-    }
 }
