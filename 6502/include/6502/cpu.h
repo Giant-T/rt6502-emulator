@@ -43,7 +43,6 @@ class CPU {
      * @ref Procedure ["https://www.c64-wiki.com/wiki/Reset_(Process)"]
      */
     void Reset(Memory&) noexcept;
-    void Execute(Memory&);
 };
 
 }  // namespace RT6502

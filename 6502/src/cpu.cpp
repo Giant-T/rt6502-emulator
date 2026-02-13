@@ -19,29 +19,3 @@ void RT6502::CPU::Reset(Memory& memory) noexcept {
 
     memory.Init();  // TODO: Le déplacer ailleur, car n'est pas une opération normal du RESET
 }
-
-/**
- * Ici, on va exécuter une instruction au complet
- * On suit la séquence d'exécution décrit ici: https://www.cpcwiki.eu/index.php/MOS_6502
- * @param memory
- */
-void RT6502::CPU::Execute(Memory& memory) {
-    // Récupérer l'instruction et le mettre dans le IR
-    IR = &Decode::FetchInstruction(PC, memory);
-
-    // Récupérer l'opérande (c'est le mode d'adressage qui va gérer ça)
-    AddressingMode::Execute(*this, memory);
-
-    // Lecture mémoire / Lecture I/O (si nécessaire)
-    if (IR->RW & Read) {
-        memory.Read(AddressBus, DataBus);
-    }
-
-    // Exécuter l'instruction
-    IR->Func(*this);
-
-    // Écriture mémoire / Écriture I/O (si nécessaire)
-    if (IR->RW & Write) {
-        memory.Write(AddressBus, DataBus);
-    }
-}
