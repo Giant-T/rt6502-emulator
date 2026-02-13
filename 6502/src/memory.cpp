@@ -17,10 +17,10 @@ void RT6502::Memory::Write(const Word& addrBus, const Byte& dataBus) {
     Data[addrBus] = dataBus;
 }
 
-RT6502::Byte RT6502::Memory::operator[](const Word addr) const {
+RT6502::Byte RT6502::Memory::operator[](const Word& addr) const {
     return Data[addr];
 }
 
-RT6502::Byte& RT6502::Memory::operator[](const Word addr) {
+RT6502::Byte& RT6502::Memory::operator[](const Word& addr) {
     return Data[addr];
 }

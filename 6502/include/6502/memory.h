@@ -16,8 +16,8 @@ class Memory {
     void Read(const Word& addrBus, Byte& dataBus) const;
     void Write(const Word& addrBus, const Byte& dataBus);
 
-    Byte operator[](Word) const;
-    Byte& operator[](Word);
+    Byte operator[](const Word&) const;
+    Byte& operator[](const Word&);
 };
 
 }  // namespace RT6502

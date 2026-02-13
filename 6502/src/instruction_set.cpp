@@ -23,8 +23,8 @@ void RT6502::InstructionSet::TSX(CPU& cpu) {
 
 void RT6502::InstructionSet::PHA(CPU& cpu) {
     cpu.DataBus = cpu.A;
-    cpu.AddressBus = CPU::STACK_POINTER_PAGE << 8;
-    cpu.AddressBus |= cpu.SP;
+    cpu.AddressBus.Low = cpu.SP;
+    cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
     --cpu.SP;
 }
 

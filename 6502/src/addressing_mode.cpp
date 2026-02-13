@@ -101,7 +101,7 @@ void RT6502::AddressingMode::Absolute(CPU& cpu, Memory& memory) {
     cpu.AddressBus = cpu.PC++;
     memory.Read(cpu.AddressBus, cpu.DataBus);
 
-    cpu.AddressRegister |= cpu.DataBus << 8;
+    cpu.AddressRegister.High = cpu.DataBus;
 
     // Mettre dans l'adresse
     cpu.AddressBus = cpu.AddressRegister;

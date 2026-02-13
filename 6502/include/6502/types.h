@@ -1,11 +1,38 @@
 #pragma once
 
 #include <cstdint>
+#include <format>
 
 namespace RT6502 {
 
 using Byte = uint8_t;
-using Word = uint16_t;
+// using Word = uint16_t;
+
+union Word {
+    uint16_t Value;
+
+    struct {
+        Byte Low;
+        Byte High;
+    };
+
+    constexpr Word(const int& val) : Value(val) {}
+
+    constexpr Word operator++(int) {
+        const auto old = *this;
+        operator++();
+        return old;
+    }
+
+    constexpr Word& operator++() {
+        ++Value;
+        return *this;
+    }
+
+    operator uint16_t() const {
+        return Value;
+    }
+};
 
 struct Flags {
     Byte C : 1;  // Bit 0 - Carry
@@ -34,3 +61,10 @@ enum ReadWrite {
 };
 
 }  // namespace RT6502
+
+template <>
+struct std::formatter<RT6502::Word> : std::formatter<uint16_t> {
+    auto format(const RT6502::Word& id, std::format_context& ctx) const {
+        return std::formatter<uint16_t>::format(id.Value, ctx);
+    }
+};
