@@ -5,24 +5,6 @@
 RT6502::CPU::CPU() : PC(0), SP(STACK_POINTER_BEGIN), A(0), X(0), Y(0), PS(), RW(false), DataBus(0), AddressBus(0), AddressRegister(0), IR(nullptr) {
 }
 
-/**
- * Écriture du Stack
- * @param memory
- * @param value
- */
-void RT6502::CPU::StackPush(Memory& memory, const Byte value) {
-    memory[0x0100 + SP--] = value;
-}
-
-/**
- * Lecture du Stack
- * @param memory
- * @return
- */
-RT6502::Byte RT6502::CPU::StackPull(Memory& memory) {
-    return memory[0x0100 + SP++];
-}
-
 void RT6502::CPU::Reset(Memory& memory) noexcept {
     // Source : https://www.pagetable.com/?p=410
 

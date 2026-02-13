@@ -11,7 +11,7 @@ TEST_CASE("LDA Immediate", "[Instruction][LDA]") {
 
     emulator.Execute();
 
-    REQUIRE(emulator.Cpu.A == 0x17);
+    REQUIRE(+emulator.Cpu.A == 0x17);
 }
 
 TEST_CASE("LDA ZeroPage", "[Instruction][LDA]") {
@@ -24,7 +24,7 @@ TEST_CASE("LDA ZeroPage", "[Instruction][LDA]") {
 
     emulator.Execute();
 
-    REQUIRE(emulator.Cpu.A == 0xAD);
+    REQUIRE(+emulator.Cpu.A == 0xAD);
 }
 
 TEST_CASE("LDA Absolute", "[Instruction][LDA]") {
@@ -39,10 +39,10 @@ TEST_CASE("LDA Absolute", "[Instruction][LDA]") {
     emulator.Mem.Data[0x1234] = 0x2A;
 
     emulator.Execute();
-    REQUIRE(emulator.Cpu.A == 0x12);
+    REQUIRE(+emulator.Cpu.A == 0x12);
 
     emulator.Execute();
-    REQUIRE(emulator.Cpu.A == 0x2A);
+    REQUIRE(+emulator.Cpu.A == 0x2A);
 }
 
 TEST_CASE("STX ZeroPage", "[Instruction][STX]") {
@@ -53,9 +53,8 @@ TEST_CASE("STX ZeroPage", "[Instruction][STX]") {
     emulator.Mem.Data[0x0034] = 0x2A;
 
     emulator.Execute();
-    REQUIRE(emulator.Mem.Data[0x34] == 0x00);
+    REQUIRE(+emulator.Mem.Data[0x34] == 0x00);
 }
-
 
 TEST_CASE("TSX Impl", "[Instruction][TSX]") {
     RT6502::RT6502 emulator;
@@ -64,4 +63,21 @@ TEST_CASE("TSX Impl", "[Instruction][TSX]") {
 
     emulator.Execute();
     REQUIRE(+emulator.Cpu.X == 0xFD);
+}
+
+TEST_CASE("PHA Impl", "[Instruction][PHA]") {
+    RT6502::RT6502 emulator;
+    emulator.Reset();
+    emulator.Mem.Data[0x0000] = RT6502::InstructionSet::INS_LDA_IMM;
+    emulator.Mem.Data[0x0001] = 0x25;
+    emulator.Mem.Data[0x0002] = RT6502::InstructionSet::INS_PHA_IMP;
+
+    emulator.Execute();
+    REQUIRE(+emulator.Cpu.A == 0x25);
+    REQUIRE(+emulator.Cpu.SP == 0xFD);
+    REQUIRE(+emulator.Mem.Data[0x01FD] == 0x00);
+
+    emulator.Execute();
+    REQUIRE(+emulator.Cpu.SP == 0xFC);
+    REQUIRE(+emulator.Mem.Data[0x01FD] == 0x25);
 }

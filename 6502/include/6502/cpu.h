@@ -13,6 +13,7 @@ namespace RT6502 {
  */
 class CPU {
    public:
+    static constexpr Byte STACK_POINTER_PAGE = 0x01;
     static constexpr Byte STACK_POINTER_BEGIN = 0xFF;
     static constexpr Word NMI_VECTOR_ADDR = 0xFFFA;
     static constexpr Word RESET_VECTOR_ADDR = 0xFFFC;
@@ -37,9 +38,6 @@ class CPU {
     TimeStates CurrentState = T0;
 
     CPU();
-
-    void StackPush(Memory&, Byte);
-    Byte StackPull(Memory&);
 
     /**
      * @ref Procedure ["https://www.c64-wiki.com/wiki/Reset_(Process)"]

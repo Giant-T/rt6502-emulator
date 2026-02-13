@@ -2,7 +2,6 @@
 
 /**
  *
- * @param value
  * @param cpu
  * @ref source [http://www.6502.org/users/obelisk/6502/reference.html#LDA]
  */
@@ -22,9 +21,12 @@ void RT6502::InstructionSet::TSX(CPU& cpu) {
     cpu.PS.N = cpu.X >> 7;
 }
 
-// void RT6502::InstructionSet::PHA(CPU& cpu, Memory& memory) {
-//     cpu.StackPush(memory, cpu.A);
-// }
+void RT6502::InstructionSet::PHA(CPU& cpu) {
+    cpu.DataBus = cpu.A;
+    cpu.AddressBus = CPU::STACK_POINTER_PAGE << 8;
+    cpu.AddressBus |= cpu.SP;
+    --cpu.SP;
+}
 
 void RT6502::InstructionSet::STX(CPU& cpu) {
     cpu.DataBus = cpu.X;
