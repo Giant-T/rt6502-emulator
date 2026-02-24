@@ -87,14 +87,24 @@ std::vector<RT6502::InstrFuncPtr> RT6502::AddressingMode::Immediate(CPU& cpu) {
 }
 
 std::vector<RT6502::InstrFuncPtr> RT6502::AddressingMode::Zeropage(CPU& cpu) {
+    if (cpu.IR->RW == Read) {
+        return {
+            [&] {
+                // Une lecture pour obtenir l'adresse dans le Zéro Page
+                cpu.AddressBus = cpu.PC++;
+            },
+            [&] {
+                // La lecture pour obtenir la valeur à l'adresse
+                cpu.AddressRegister = cpu.DataBus;
+                cpu.AddressBus = cpu.AddressRegister;
+            }
+        };
+    }
+
     return {
         [&] {
-            // Une lecture pour l'adresse du Zéro Page
+            // Une lecture pour obtenir l'adresse dans le Zéro Page
             cpu.AddressBus = cpu.PC++;
-        },
-        [&] {
-            cpu.AddressRegister = cpu.DataBus;
-            cpu.AddressBus = cpu.AddressRegister;
         }
     };
 }

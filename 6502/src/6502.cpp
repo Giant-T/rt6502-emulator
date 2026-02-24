@@ -46,6 +46,22 @@ void RT6502::RT6502::ExecuteTick() {
     FonctionsToExecutes.front()();
     FonctionsToExecutes.pop();
 
+    // Gérer automatiquement le SYNC/Fetch à la fin de l'instruction
+    if (FonctionsToExecutes.empty()) {
+        if (Cpu.RW) {
+            // Si c'est une lecture, alors on fait le Fetch
+            Cpu.AddressBus = Cpu.PC++;
+            Cpu.SYNC = true;
+        } else {
+            // Sinon, on rajoute un cycle
+            FonctionsToExecutes.emplace([&] {
+                // C'est vide, car sera traité par le IF juste au dessus
+                // Cpu.AddressBus = Cpu.PC++;
+                // Cpu.SYNC = true;
+            });
+        }
+    }
+
     if (Cpu.RW) {
         Mem.Read(Cpu.AddressBus, Cpu.DataBus);
     } else {
