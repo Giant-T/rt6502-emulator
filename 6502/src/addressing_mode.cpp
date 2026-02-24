@@ -69,7 +69,12 @@ std::vector<RT6502::InstrFuncPtr> RT6502::AddressingMode::Execute(CPU& cpu) {
 }
 
 std::vector<RT6502::InstrFuncPtr> RT6502::AddressingMode::Implicit(CPU& cpu) {
-    return {};
+    return {
+        [&] {
+            // Dummy read
+            // Car on ne bouge pas le PC
+        }
+    };
 }
 
 std::vector<RT6502::InstrFuncPtr> RT6502::AddressingMode::Immediate(CPU& cpu) {

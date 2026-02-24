@@ -40,9 +40,6 @@ std::vector<RT6502::InstrFuncPtr> RT6502::InstructionSet::STA(CPU& cpu) {
 std::vector<RT6502::InstrFuncPtr> RT6502::InstructionSet::TSX(CPU& cpu) {
     return {
         [&] {
-
-        },
-        [&] {
             cpu.X = cpu.SP;
             cpu.PS.Z = cpu.X == 0;
             cpu.PS.N = cpu.X >> 7;
@@ -56,10 +53,6 @@ std::vector<RT6502::InstrFuncPtr> RT6502::InstructionSet::TSX(CPU& cpu) {
 
 std::vector<RT6502::InstrFuncPtr> RT6502::InstructionSet::PHA(CPU& cpu) {
     return {
-        [&] {
-            // TODO: Voir c'est quoi qui se passe à cette étape normalement...
-            // En ce moment c'est juste un dummy read
-        },
         [&] {
             cpu.RW = false;
             cpu.DataBus = cpu.A;
