@@ -22,6 +22,7 @@ void RT6502::RT6502::Execute() {
     // Exécuter l'instruction le nombre de cycles prédit
     while (cycles-- > 0) {
         ExecuteTick();
+        ++CyclesCounter;
     }
 }
 

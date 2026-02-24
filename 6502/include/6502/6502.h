@@ -10,6 +10,8 @@ struct RT6502 {
     CPU Cpu;
     Memory Mem;
 
+    size_t CyclesCounter = 0;
+
     std::queue<InstrFuncPtr> FonctionsToExecutes;
 
     void Reset() noexcept;
