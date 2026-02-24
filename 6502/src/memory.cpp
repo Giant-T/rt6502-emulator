@@ -3,6 +3,7 @@
 #include <algorithm>
 
 RT6502::Memory::Memory() : Data{} {
+    Init();
 }
 
 void RT6502::Memory::Init() noexcept {

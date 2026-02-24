@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <queue>
 
 #include "cpu.h"
 #include "memory.h"
@@ -10,11 +10,11 @@ struct RT6502 {
     CPU Cpu;
     Memory Mem;
 
-    std::vector<InstrFuncPtr> FonctionsToExecutes;
+    std::queue<InstrFuncPtr> FonctionsToExecutes;
 
     void Reset() noexcept;
     void Execute();
-    void ExecuteTick(const InstrFuncPtr& func);
+    void ExecuteTick();
 };
 
 }  // namespace RT6502

@@ -16,3 +16,4 @@ CMakeUserPresets.json
 /.vs
 /.cache
 /TestResults
+*.user

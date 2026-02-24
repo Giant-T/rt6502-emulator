@@ -2,7 +2,7 @@
 
 #include "6502/decode.h"
 
-RT6502::CPU::CPU() : PC(0), SP(STACK_POINTER_BEGIN), A(0), X(0), Y(0), PS(), RW(false), DataBus(0), AddressBus(0), AddressRegister(0), IR(nullptr) {
+RT6502::CPU::CPU() : PC(0), SP(STACK_POINTER_BEGIN), A(0), X(0), Y(0), PS(), RW(true), SYNC(true), DataBus(0), AddressBus(0), AddressRegister(0), IR(nullptr) {
 }
 
 void RT6502::CPU::Reset(Memory& memory) noexcept {
@@ -16,6 +16,4 @@ void RT6502::CPU::Reset(Memory& memory) noexcept {
     SP = 0xFD;  // TODO: Revalider
     PS = {};
     A = X = Y = 0;
-
-    memory.Init();  // TODO: Le déplacer ailleur, car n'est pas une opération normal du RESET
 }

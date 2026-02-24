@@ -11,12 +11,10 @@ RT6502::Decode::Operation RT6502::Decode::Decode(Word pc, const Memory& memory) 
     else if (instr.Bytes == 2)
         param = FetchByte(pc, memory);
 
-    Operation op = {
-        instr,
-        param
+    return {
+        .Info = instr,
+        .Param = param
     };
-
-    return op;
 }
 
 const RT6502::InstructionSet::Instruction& RT6502::Decode::FetchInstruction(Word& pc, const Memory& memory) {

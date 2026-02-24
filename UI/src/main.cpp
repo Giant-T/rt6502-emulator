@@ -12,6 +12,22 @@ using namespace ftxui;
 
 int main() {
     RT6502::RT6502 emulator;
+
+    // TEST: Insérer dans la mémoire
+    emulator.Mem[0x0000] = RT6502::InstructionSet::INS_LDA_IMM;  // LDA immediate
+    emulator.Mem[0x0001] = 0x0D;
+    emulator.Mem[0x0002] = RT6502::InstructionSet::INS_LDA_ZP;  // LDA zeropage
+    emulator.Mem[0x0003] = 0x02;
+    emulator.Mem[0x0004] = RT6502::InstructionSet::INS_LDA_ABS;  // LDA absolute
+    emulator.Mem[0x0005] = 0x04;
+    emulator.Mem[0x0006] = 0x00;
+    emulator.Mem[0x0007] = RT6502::InstructionSet::INS_STA_ZP;  // STA Zeropage
+    emulator.Mem[0x0008] = 0x0D;
+    emulator.Mem[0x0009] = RT6502::InstructionSet::INS_STX_ZP;  // STX Zeropage
+    emulator.Mem[0x000A] = 0x03;
+    emulator.Mem[0x000B] = RT6502::InstructionSet::INS_LDA_IMM;  // LDA immediate
+    emulator.Mem[0x000C] = 0x0A;
+
     emulator.Reset();
     emulator.Execute();
     emulator.Execute();

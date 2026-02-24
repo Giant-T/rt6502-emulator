@@ -28,7 +28,8 @@ class CPU {
 
     Flags PS;  // Processor Status
 
-    bool RW;  // Read or Write on memory. Read = 1, Write = 0; C'est la direction du transfert de données entre le processeur et les chips.
+    bool RW;    // Read or Write on memory. Read = 1, Write = 0; C'est la direction du transfert de données entre le processeur et les chips.
+    bool SYNC;  // 1 = OPCODE Fetch, 0 = no fetch
 
     Byte DataBus;                           // All instructions and data transfers between the processor and memory take place on these lines. Page 47
     Word AddressBus;                        // Also Address Register. Est utilisé pour accéder à la mémoire
