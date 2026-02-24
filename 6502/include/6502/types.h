@@ -2,11 +2,14 @@
 
 #include <cstdint>
 #include <format>
+#include <functional>
 
 namespace RT6502 {
 
 using Byte = uint8_t;
 // using Word = uint16_t;
+
+using InstrFuncPtr = std::function<void()>;
 
 union Word {
     uint16_t Value;

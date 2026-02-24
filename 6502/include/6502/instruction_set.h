@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <functional>
 #include <map>
 
 #include "addressing_mode.h"
@@ -33,20 +34,21 @@ struct Instruction {
     std::string Name;
     AddressingMode::AddressingMode AddrMode;
     ReadWrite RW;
-    void (*Func)(CPU&);
+    std::function<std::vector<InstrFuncPtr>(CPU&)> Func;
+    // void (*Func)(CPU&);
 
     std::string Format() const noexcept {
         return AddressingMode::Format(AddrMode);
     }
 };
 
-void JSR(CPU&);
-void LDA(CPU&);
-void STA(CPU&);
-void TSX(CPU&);
-void PHA(CPU&);
-void STX(CPU&);
-void INC(CPU&);
+std::vector<InstrFuncPtr> JSR(CPU&);
+std::vector<InstrFuncPtr> LDA(CPU&);
+std::vector<InstrFuncPtr> STA(CPU&);
+std::vector<InstrFuncPtr> TSX(CPU&);
+std::vector<InstrFuncPtr> PHA(CPU&);
+std::vector<InstrFuncPtr> STX(CPU&);
+std::vector<InstrFuncPtr> INC(CPU&);
 
 inline const std::map<Byte, const Instruction> OPCODE_LIST = {
     {INS_JSR_ABS, {INS_JSR_ABS, 3, "JSR", AddressingMode::AddressingMode::Absolute, Read, JSR}},

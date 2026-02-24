@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
-#include "6502/memory.h"
 #include "cpu.h"
 
 namespace RT6502::AddressingMode {
@@ -23,11 +23,11 @@ enum class AddressingMode {
 };
 
 std::string Format(AddressingMode);
-void Execute(CPU&, Memory&);
+std::vector<InstrFuncPtr> Execute(CPU&);
 
-void Implicit(CPU& cpu, Memory& memory);
-void Immediate(CPU& cpu, Memory& memory);
-void Zeropage(CPU& cpu, Memory& memory);
-void Absolute(CPU& cpu, Memory& memory);
+std::vector<InstrFuncPtr> Implicit(CPU& cpu);
+std::vector<InstrFuncPtr> Immediate(CPU& cpu);
+std::vector<InstrFuncPtr> Zeropage(CPU& cpu);
+std::vector<InstrFuncPtr> Absolute(CPU& cpu);
 
 }  // namespace RT6502::AddressingMode

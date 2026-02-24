@@ -101,6 +101,8 @@ TEST_CASE("INC ABS", "[Instruction][INC]") {
     emulator.Mem.Data[0x0002] = 0x10;
     emulator.Mem.Data[0x1015] = 0x23;
 
+    REQUIRE(+emulator.Mem.Data[0x1015] == 0x23);
+
     emulator.Execute();
     REQUIRE(+emulator.Mem.Data[0x1015] == 0x24);
 }

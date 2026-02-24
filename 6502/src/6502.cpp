@@ -32,21 +32,27 @@ void RT6502::RT6502::Execute() {
     Cpu.IR = &Decode::FetchInstruction(Cpu.PC, Mem);
 
     // Récupérer l'opérande (c'est le mode d'adressage qui va gérer ça)
-    AddressingMode::Execute(Cpu, Mem);
+    FonctionsToExecutes = AddressingMode::Execute(Cpu);
+
+    // Récupérer la liste des instructions à exécuter à chaque cycle
+    FonctionsToExecutes.append_range(Cpu.IR->Func(Cpu));
 
     // Exécuter l'instruction tant qu'elle n'est pas fini
-    do {
-        // Lecture mémoire / Lecture I/O (si nécessaire)
-        if (Cpu.IR->RW & Read) {
-            Mem.Read(Cpu.AddressBus, Cpu.DataBus);
-        }
+    for (const auto& func : FonctionsToExecutes) {
+        ExecuteTick(func);
+    }
+}
 
-        // Exécuter l'instruction
-        Cpu.IR->Func(Cpu);
+void RT6502::RT6502::ExecuteTick(const InstrFuncPtr& func) {
+    Cpu.RW = true;  // Remettre la ligne en Read par défaut
 
-        // Écriture mémoire / Écriture I/O (si nécessaire)
-        if (Cpu.IR->RW & Write) {
-            Mem.Write(Cpu.AddressBus, Cpu.DataBus);
-        }
-    } while (Cpu.CurrentState != T0);
+    // Exécuter l'instruction
+    func();
+
+    if (Cpu.RW) {
+        Mem.Read(Cpu.AddressBus, Cpu.DataBus);
+
+    } else {
+        Mem.Write(Cpu.AddressBus, Cpu.DataBus);
+    }
 }
