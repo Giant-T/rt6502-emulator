@@ -1,13 +1,60 @@
 #include "6502/instruction_set.h"
 
-std::vector<RT6502::QueuedInstr> RT6502::InstructionSet::JSR(CPU&) {
-    return {};
+/**
+ *
+ * @warning Ce n'est pas la bonne séquence d'exécution, mais on peut vivre avec
+ */
+std::vector<RT6502::QueuedInstr> RT6502::InstructionSet::JSR(CPU& cpu) {
+    return {
+        {[&] {
+            cpu.RW = false;
+            cpu.DataBus = cpu.PC.High;
+            cpu.AddressBus.Low = cpu.SP--;
+            cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
+        }},
+        {[&] {
+            cpu.RW = false;
+            cpu.DataBus = cpu.PC.Low;
+            cpu.AddressBus.Low = cpu.SP--;
+            cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
+        }},
+        {[&] {
+            cpu.PC = cpu.AddressRegister;
+        }}
+    };
 }
 
 std::vector<RT6502::QueuedInstr> RT6502::InstructionSet::JMP(CPU& cpu) {
     return {
         {[&] {
             cpu.PC = cpu.AddressBus;
+        }}
+    };
+}
+
+/**
+ *
+ * @warning Ce n'est pas la bonne séquence d'exécution, mais on peut vivre avec
+ */
+std::vector<RT6502::QueuedInstr> RT6502::InstructionSet::RTS(CPU& cpu) {
+    return {
+        {[&] {
+            cpu.SP++;
+        }},
+        {[&] {
+            cpu.AddressBus.Low = cpu.SP++;
+            cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
+        }},
+        {[&] {
+            cpu.AddressRegister.Low = cpu.DataBus;
+            cpu.AddressBus.Low = cpu.SP;
+            cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
+        }},
+        {[&] {
+            cpu.AddressRegister.High = cpu.DataBus;
+        }},
+        {[&] {
+            cpu.PC = cpu.AddressRegister;
         }}
     };
 }

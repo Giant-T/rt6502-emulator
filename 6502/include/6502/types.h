@@ -20,6 +20,7 @@ union Word {
     };
 
     constexpr Word(const int& val) : Value(val) {}
+    constexpr Word(const Byte& high, const Byte& low) : Low(low), High(high) {}
 
     constexpr Word operator++(int) {
         const auto old = *this;
