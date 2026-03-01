@@ -17,11 +17,16 @@
 namespace RT6502::InstructionSet {
 
 // opcodes
+static constexpr Byte INS_LDX_IMM = 0xA2;
+static constexpr Byte INS_LDX_ZP = 0xA6;
+static constexpr Byte INS_LDX_ABS = 0xAE;
 static constexpr Byte INS_LDA_IMM = 0xA9;
 static constexpr Byte INS_LDA_ZP = 0xA5;
 static constexpr Byte INS_LDA_ABS = 0xAD;
 static constexpr Byte INS_STA_ZP = 0x85;
+static constexpr Byte INS_STA_ABS = 0x8D;
 static constexpr Byte INS_STX_ZP = 0x86;
+static constexpr Byte INS_STX_ABS = 0x8E;
 static constexpr Byte INS_TSX_IMP = 0xBA;
 static constexpr Byte INS_PHA_IMP = 0x48;
 static constexpr Byte INS_JSR_ABS = 0x20;
@@ -35,7 +40,7 @@ struct Instruction {
     std::string Name;
     AddressingMode::AddressingMode AddrMode;
     ReadWrite RW;
-    std::function<std::vector<InstrFuncPtr>(CPU&)> Func;
+    std::function<std::vector<QueuedInstr>(CPU&)> Func;
     // void (*Func)(CPU&);
 
     std::string Format() const noexcept {
@@ -43,23 +48,29 @@ struct Instruction {
     }
 };
 
-std::vector<InstrFuncPtr> JSR(CPU&);
-std::vector<InstrFuncPtr> LDA(CPU&);
-std::vector<InstrFuncPtr> STA(CPU&);
-std::vector<InstrFuncPtr> TSX(CPU&);
-std::vector<InstrFuncPtr> PHA(CPU&);
-std::vector<InstrFuncPtr> STX(CPU&);
-std::vector<InstrFuncPtr> INC(CPU&);
+std::vector<QueuedInstr> JSR(CPU&);
+std::vector<QueuedInstr> LDX(CPU&);
+std::vector<QueuedInstr> LDA(CPU&);
+std::vector<QueuedInstr> STA(CPU&);
+std::vector<QueuedInstr> TSX(CPU&);
+std::vector<QueuedInstr> PHA(CPU&);
+std::vector<QueuedInstr> STX(CPU&);
+std::vector<QueuedInstr> INC(CPU&);
 
 inline const std::map<Byte, const Instruction> OPCODE_LIST = {
     {INS_JSR_ABS, {INS_JSR_ABS, 3, 6, "JSR", AddressingMode::AddressingMode::Absolute, Read, JSR}},
+    {INS_LDX_IMM, {INS_LDX_IMM, 2, 2, "LDX", AddressingMode::AddressingMode::Immediate, Read, LDX}},
+    {INS_LDX_ZP, {INS_LDX_ZP, 2, 3, "LDX", AddressingMode::AddressingMode::Zeropage, Read, LDX}},
+    {INS_LDX_ABS, {INS_LDX_ABS, 3, 4, "LDX", AddressingMode::AddressingMode::Absolute, Read, LDX}},
     {INS_LDA_IMM, {INS_LDA_IMM, 2, 2, "LDA", AddressingMode::AddressingMode::Immediate, Read, LDA}},
     {INS_LDA_ZP, {INS_LDA_ZP, 2, 3, "LDA", AddressingMode::AddressingMode::Zeropage, Read, LDA}},
     {INS_LDA_ABS, {INS_LDA_ABS, 3, 4, "LDA", AddressingMode::AddressingMode::Absolute, Read, LDA}},
     {INS_STA_ZP, {INS_STA_ZP, 2, 3, "STA", AddressingMode::AddressingMode::Zeropage, Write, STA}},
+    {INS_STA_ABS, {INS_STA_ABS, 3, 4, "STA", AddressingMode::AddressingMode::Absolute, Write, STA}},
+    {INS_STX_ZP, {INS_STX_ZP, 2, 3, "STX", AddressingMode::AddressingMode::Zeropage, Write, STX}},
+    {INS_STX_ABS, {INS_STX_ABS, 3, 4, "STX", AddressingMode::AddressingMode::Absolute, Write, STX}},
     {INS_TSX_IMP, {INS_TSX_IMP, 1, 2, "TSX", AddressingMode::AddressingMode::Implicit, Read, TSX}},
     {INS_PHA_IMP, {INS_PHA_IMP, 1, 3, "PHA", AddressingMode::AddressingMode::Implicit, Write, PHA}},
-    {INS_STX_ZP, {INS_STX_ZP, 2, 3, "STX", AddressingMode::AddressingMode::Zeropage, Write, STX}},
     {INS_INC_ZP, {INS_INC_ZP, 2, 5, "INC", AddressingMode::AddressingMode::Zeropage, Read, INC}},
     {INS_INC_ABS, {INS_INC_ABS, 3, 6, "INC", AddressingMode::AddressingMode::Absolute, Read, INC}},
 };

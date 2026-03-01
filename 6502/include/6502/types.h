@@ -63,6 +63,13 @@ enum ReadWrite {
     RMW = Read | Write
 };
 
+struct QueuedInstr {
+    InstrFuncPtr Func;
+    bool RunNext;
+
+    QueuedInstr(const InstrFuncPtr& func, const bool runNext = false) : Func(func), RunNext(runNext) {}
+};
+
 }  // namespace RT6502
 
 template <>

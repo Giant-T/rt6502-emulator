@@ -12,7 +12,7 @@ struct RT6502 {
 
     size_t CyclesCounter = 0;
 
-    std::queue<InstrFuncPtr> FonctionsToExecutes;
+    std::queue<QueuedInstr> FonctionsToExecutes;
 
     void Reset() noexcept;
     void Execute();

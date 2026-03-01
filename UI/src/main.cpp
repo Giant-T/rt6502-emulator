@@ -35,7 +35,7 @@ int main() {
     emulator.Execute();
     emulator.Execute();
 
-    const auto oper = RT6502::Decode::Decode(emulator.Cpu.PC, emulator.Mem);
+    const auto oper = RT6502::Decode::Decode(emulator.Cpu.PC - 1, emulator.Mem);
 
     auto table = Table({
         {"Register", "Values"},

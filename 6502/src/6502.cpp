@@ -42,9 +42,13 @@ void RT6502::RT6502::ExecuteTick() {
         Cpu.SYNC = false;
     }
 
-    // Exécuter l'instruction
-    FonctionsToExecutes.front()();
-    FonctionsToExecutes.pop();
+    bool execNext;
+    do {
+        // Exécuter l'instruction
+        FonctionsToExecutes.front().Func();
+        execNext = FonctionsToExecutes.front().RunNext;
+        FonctionsToExecutes.pop();
+    } while (execNext);
 
     // Gérer automatiquement le SYNC/Fetch à la fin de l'instruction
     if (FonctionsToExecutes.empty()) {

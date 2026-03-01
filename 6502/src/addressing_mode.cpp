@@ -35,7 +35,7 @@ std::string RT6502::AddressingMode::Format(const AddressingMode addrMode) {
     }
 }
 
-std::vector<RT6502::InstrFuncPtr> RT6502::AddressingMode::Execute(CPU& cpu) {
+std::vector<RT6502::QueuedInstr> RT6502::AddressingMode::Execute(CPU& cpu) {
     switch (cpu.IR->AddrMode) {
         case AddressingMode::Implicit:
             return Implicit(cpu);
@@ -68,64 +68,57 @@ std::vector<RT6502::InstrFuncPtr> RT6502::AddressingMode::Execute(CPU& cpu) {
     }
 }
 
-std::vector<RT6502::InstrFuncPtr> RT6502::AddressingMode::Implicit(CPU& cpu) {
+std::vector<RT6502::QueuedInstr> RT6502::AddressingMode::Implicit(CPU& cpu) {
     return {
-        [&] {
+        {[&] {
             // Dummy read
             // Car on ne bouge pas le PC
-        }
+        }}
     };
 }
 
-std::vector<RT6502::InstrFuncPtr> RT6502::AddressingMode::Immediate(CPU& cpu) {
+std::vector<RT6502::QueuedInstr> RT6502::AddressingMode::Immediate(CPU& cpu) {
     return {
-        [&] {
+        {[&] {
             // Simplement lire avec le PC
             cpu.AddressBus = cpu.PC++;
-        }
+        }}
     };
 }
 
-std::vector<RT6502::InstrFuncPtr> RT6502::AddressingMode::Zeropage(CPU& cpu) {
-    if (cpu.IR->RW == Read) {
-        return {
-            [&] {
-                // Une lecture pour obtenir l'adresse dans le Zéro Page
-                cpu.AddressBus = cpu.PC++;
-            },
-            [&] {
-                // La lecture pour obtenir la valeur à l'adresse
-                cpu.AddressRegister = cpu.DataBus;
-                cpu.AddressBus = cpu.AddressRegister;
-            }
-        };
-    }
-
+std::vector<RT6502::QueuedInstr> RT6502::AddressingMode::Zeropage(CPU& cpu) {
     return {
-        [&] {
+        {[&] {
             // Une lecture pour obtenir l'adresse dans le Zéro Page
             cpu.AddressBus = cpu.PC++;
-        }
+        }},
+        {[&] {
+             // La lecture pour obtenir la valeur à l'adresse
+             cpu.AddressRegister = cpu.DataBus;
+             cpu.AddressBus = cpu.AddressRegister;
+         },
+         cpu.IR->RW == Write}
     };
 }
 
-std::vector<RT6502::InstrFuncPtr> RT6502::AddressingMode::Absolute(CPU& cpu) {
+std::vector<RT6502::QueuedInstr> RT6502::AddressingMode::Absolute(CPU& cpu) {
     return {
-        [&] {
+        {[&] {
             // Lecture pour ADL
             cpu.AddressBus = cpu.PC++;
-        },
-        [&] {
+        }},
+        {[&] {
             cpu.AddressRegister = cpu.DataBus;
 
             // Lecture pour ADH
             cpu.AddressBus = cpu.PC++;
-        },
-        [&] {
-            cpu.AddressRegister.High = cpu.DataBus;
+        }},
+        {[&] {
+             cpu.AddressRegister.High = cpu.DataBus;
 
-            // Mettre dans l'adresse
-            cpu.AddressBus = cpu.AddressRegister;
-        },
+             // Mettre dans l'adresse
+             cpu.AddressBus = cpu.AddressRegister;
+         },
+         cpu.IR->RW == Write},
     };
 }
