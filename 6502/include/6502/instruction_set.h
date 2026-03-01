@@ -17,6 +17,8 @@
 namespace RT6502::InstructionSet {
 
 // opcodes
+static constexpr Byte INS_JSR_ABS = 0x20;
+static constexpr Byte INS_JMP_ABS = 0x4C;
 static constexpr Byte INS_LDX_IMM = 0xA2;
 static constexpr Byte INS_LDX_ZP = 0xA6;
 static constexpr Byte INS_LDX_ABS = 0xAE;
@@ -29,7 +31,6 @@ static constexpr Byte INS_STX_ZP = 0x86;
 static constexpr Byte INS_STX_ABS = 0x8E;
 static constexpr Byte INS_TSX_IMP = 0xBA;
 static constexpr Byte INS_PHA_IMP = 0x48;
-static constexpr Byte INS_JSR_ABS = 0x20;
 static constexpr Byte INS_INC_ZP = 0xE6;
 static constexpr Byte INS_INC_ABS = 0xEE;
 
@@ -49,6 +50,7 @@ struct Instruction {
 };
 
 std::vector<QueuedInstr> JSR(CPU&);
+std::vector<QueuedInstr> JMP(CPU&);
 std::vector<QueuedInstr> LDX(CPU&);
 std::vector<QueuedInstr> LDA(CPU&);
 std::vector<QueuedInstr> STA(CPU&);
@@ -59,6 +61,7 @@ std::vector<QueuedInstr> INC(CPU&);
 
 inline const std::map<Byte, const Instruction> OPCODE_LIST = {
     {INS_JSR_ABS, {INS_JSR_ABS, 3, 6, "JSR", AddressingMode::AddressingMode::Absolute, Read, JSR}},
+    {INS_JMP_ABS, {INS_JMP_ABS, 3, 3, "JMP", AddressingMode::AddressingMode::Absolute, Write, JMP}},
     {INS_LDX_IMM, {INS_LDX_IMM, 2, 2, "LDX", AddressingMode::AddressingMode::Immediate, Read, LDX}},
     {INS_LDX_ZP, {INS_LDX_ZP, 2, 3, "LDX", AddressingMode::AddressingMode::Zeropage, Read, LDX}},
     {INS_LDX_ABS, {INS_LDX_ABS, 3, 4, "LDX", AddressingMode::AddressingMode::Absolute, Read, LDX}},

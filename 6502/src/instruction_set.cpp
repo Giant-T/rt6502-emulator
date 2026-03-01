@@ -4,6 +4,14 @@ std::vector<RT6502::QueuedInstr> RT6502::InstructionSet::JSR(CPU&) {
     return {};
 }
 
+std::vector<RT6502::QueuedInstr> RT6502::InstructionSet::JMP(CPU& cpu) {
+    return {
+        {[&] {
+            cpu.PC = cpu.AddressBus;
+        }}
+    };
+}
+
 std::vector<RT6502::QueuedInstr> RT6502::InstructionSet::LDX(CPU& cpu) {
     return {
         {[&] {
@@ -40,13 +48,11 @@ std::vector<RT6502::QueuedInstr> RT6502::InstructionSet::STA(CPU& cpu) {
 
 std::vector<RT6502::QueuedInstr> RT6502::InstructionSet::TSX(CPU& cpu) {
     return {
-        {
-            [&] {
-                cpu.X = cpu.SP;
-                cpu.PS.Z = cpu.X == 0;
-                cpu.PS.N = cpu.X >> 7;
-            },
-        }
+        {[&] {
+            cpu.X = cpu.SP;
+            cpu.PS.Z = cpu.X == 0;
+            cpu.PS.N = cpu.X >> 7;
+        }}
     };
 }
 
