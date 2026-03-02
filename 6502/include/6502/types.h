@@ -67,8 +67,9 @@ enum ReadWrite {
 
 struct QueuedInstr {
     std::function<std::optional<QueuedInstr>()> Func;
-    bool RunNext;
 
+    template <typename T>
+    QueuedInstr(const T& f) : Func(f) {}
 
     std::optional<QueuedInstr> operator()() const {
         return Func();

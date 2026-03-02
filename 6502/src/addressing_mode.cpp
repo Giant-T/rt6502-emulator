@@ -69,79 +69,71 @@ RT6502::QueuedInstr RT6502::AddressingMode::Execute(CPU& cpu) {
 }
 
 RT6502::QueuedInstr RT6502::AddressingMode::Implicit(CPU& cpu) {
-    return {
-        [&] {
-            // Dummy read
-            // Car on ne bouge pas le PC
-            return cpu.IR->Func(cpu);
-        }
+    return [&] {
+        // Dummy read
+        // Car on ne bouge pas le PC
+        return cpu.IR->Func(cpu);
     };
 }
 
 RT6502::QueuedInstr RT6502::AddressingMode::Immediate(CPU& cpu) {
-    return {[&] {
+    return [&] {
         // Simplement lire avec le PC
         cpu.AddressBus = cpu.PC++;
 
         return cpu.IR->Func(cpu);
-    }};
+    };
 }
 
 RT6502::QueuedInstr RT6502::AddressingMode::Zeropage(CPU& cpu) {
-    return QueuedInstr{
-        [&] {
-            // Une lecture pour obtenir l'adresse dans le Zéro Page
-            cpu.AddressBus = cpu.PC++;
+    return [&] {
+        // Une lecture pour obtenir l'adresse dans le Zéro Page
+        cpu.AddressBus = cpu.PC++;
 
-            return QueuedInstr{
-                [&] {
-                    // La lecture pour obtenir la valeur à l'adresse
-                    cpu.AddressRegister = cpu.DataBus;
-                    cpu.AddressBus = cpu.AddressRegister;
+        return [&] -> std::optional<QueuedInstr> {
+            // La lecture pour obtenir la valeur à l'adresse
+            cpu.AddressRegister = cpu.DataBus;
+            cpu.AddressBus = cpu.AddressRegister;
 
-                    return cpu.IR->Func(cpu);
-                },
-                cpu.IR->RW == Write
-            };
-        }
+            if (cpu.IR->RW == Write) {
+                return cpu.IR->Func(cpu)();
+            }
+
+            return cpu.IR->Func(cpu);
+        };
     };
 }
 
 RT6502::QueuedInstr RT6502::AddressingMode::Relative(CPU& cpu) {
-    return {
-        {[&] {
-            cpu.AddressBus = cpu.PC++;
-            return cpu.IR->Func(cpu);
-        }}
+    return [&] {
+        cpu.AddressBus = cpu.PC++;
+        return cpu.IR->Func(cpu);
     };
 }
 
 RT6502::QueuedInstr RT6502::AddressingMode::Absolute(CPU& cpu) {
-    return {
-        {[&] {
-            // Lecture pour ADL
+    return [&] {
+        // Lecture pour ADL
+        cpu.AddressBus = cpu.PC++;
+
+        return [&] {
+            cpu.AddressRegister = cpu.DataBus;
+
+            // Lecture pour ADH
             cpu.AddressBus = cpu.PC++;
 
-            return QueuedInstr{
-                [&] {
-                    cpu.AddressRegister = cpu.DataBus;
+            return [&] -> std::optional<QueuedInstr> {
+                cpu.AddressRegister.High = cpu.DataBus;
 
-                    // Lecture pour ADH
-                    cpu.AddressBus = cpu.PC++;
+                // Mettre dans l'adresse
+                cpu.AddressBus = cpu.AddressRegister;
 
-                    return QueuedInstr{
-                        [&] {
-                            cpu.AddressRegister.High = cpu.DataBus;
-
-                            // Mettre dans l'adresse
-                            cpu.AddressBus = cpu.AddressRegister;
-
-                            return cpu.IR->Func(cpu);
-                        },
-                        cpu.IR->RW == Write
-                    };
+                if (cpu.IR->RW == Write) {
+                    return cpu.IR->Func(cpu)();
                 }
+
+                return cpu.IR->Func(cpu);
             };
-        }},
+        };
     };
 }
