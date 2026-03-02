@@ -3,13 +3,14 @@
 #include <cstdint>
 #include <format>
 #include <functional>
+#include <optional>
 
 namespace RT6502 {
 
 using Byte = uint8_t;
 // using Word = uint16_t;
 
-using InstrFuncPtr = std::function<void()>;
+// using InstrFuncPtr = std::function<void()>;
 
 union Word {
     uint16_t Value;
@@ -65,10 +66,13 @@ enum ReadWrite {
 };
 
 struct QueuedInstr {
-    InstrFuncPtr Func;
+    std::function<std::optional<QueuedInstr>()> Func;
     bool RunNext;
 
-    QueuedInstr(const InstrFuncPtr& func, const bool runNext = false) : Func(func), RunNext(runNext) {}
+
+    std::optional<QueuedInstr> operator()() const {
+        return Func();
+    }
 };
 
 }  // namespace RT6502

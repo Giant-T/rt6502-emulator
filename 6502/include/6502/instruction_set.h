@@ -37,6 +37,7 @@ static constexpr Byte INS_CMP_ZP = 0xC5;
 static constexpr Byte INS_CMP_ABS = 0xCD;
 static constexpr Byte INS_INC_ZP = 0xE6;
 static constexpr Byte INS_INC_ABS = 0xEE;
+static constexpr Byte INS_BEQ_REL = 0xF0;
 
 struct Instruction {
     Byte Opcode;
@@ -45,7 +46,7 @@ struct Instruction {
     std::string Name;
     AddressingMode::AddressingMode AddrMode;
     ReadWrite RW;
-    std::function<std::vector<QueuedInstr>(CPU&)> Func;
+    std::function<QueuedInstr(CPU&)> Func;
     // void (*Func)(CPU&);
 
     std::string Format() const noexcept {
@@ -53,17 +54,18 @@ struct Instruction {
     }
 };
 
-std::vector<QueuedInstr> JSR(CPU&);
-std::vector<QueuedInstr> JMP(CPU&);
-std::vector<QueuedInstr> RTS(CPU&);
-std::vector<QueuedInstr> LDX(CPU&);
-std::vector<QueuedInstr> LDA(CPU&);
-std::vector<QueuedInstr> STA(CPU&);
-std::vector<QueuedInstr> TSX(CPU&);
-std::vector<QueuedInstr> PHA(CPU&);
-std::vector<QueuedInstr> STX(CPU&);
-std::vector<QueuedInstr> CMP(CPU&);
-std::vector<QueuedInstr> INC(CPU&);
+QueuedInstr JSR(CPU&);
+QueuedInstr JMP(CPU&);
+QueuedInstr RTS(CPU&);
+QueuedInstr LDX(CPU&);
+QueuedInstr LDA(CPU&);
+QueuedInstr STA(CPU&);
+QueuedInstr TSX(CPU&);
+QueuedInstr PHA(CPU&);
+QueuedInstr STX(CPU&);
+QueuedInstr CMP(CPU&);
+QueuedInstr INC(CPU&);
+QueuedInstr BEQ(CPU&);
 
 inline const std::map<Byte, const Instruction> OPCODE_LIST = {
     {INS_JSR_ABS, {INS_JSR_ABS, 3, 6, "JSR", AddressingMode::AddressingMode::Absolute, Read, JSR}},
@@ -86,6 +88,7 @@ inline const std::map<Byte, const Instruction> OPCODE_LIST = {
     {INS_CMP_ABS, {INS_CMP_ABS, 3, 4, "CMP", AddressingMode::AddressingMode::Absolute, Read, CMP}},
     {INS_INC_ZP, {INS_INC_ZP, 2, 5, "INC", AddressingMode::AddressingMode::Zeropage, Read, INC}},
     {INS_INC_ABS, {INS_INC_ABS, 3, 6, "INC", AddressingMode::AddressingMode::Absolute, Read, INC}},
+    {INS_BEQ_REL, {INS_BEQ_REL, 2, 2, "BEQ", AddressingMode::AddressingMode::Relative, Read, BEQ}},
 };
 
 }  // namespace RT6502::InstructionSet

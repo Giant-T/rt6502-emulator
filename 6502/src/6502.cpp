@@ -33,11 +33,7 @@ void RT6502::RT6502::ExecuteTick() {
         // Décoder la prochaine instruction
         Cpu.IR = &InstructionSet::OPCODE_LIST.at(Cpu.DataBus);
 
-        // Récupérer l'opérande (c'est le mode d'adressage qui va gérer ça)
-        FonctionsToExecutes.push_range(AddressingMode::Execute(Cpu));
-
-        // Récupérer la liste des instructions à exécuter à chaque cycle
-        FonctionsToExecutes.push_range(Cpu.IR->Func(Cpu));
+        FonctionsToExecutes.emplace(AddressingMode::Execute(Cpu));
 
         Cpu.SYNC = false;
     }
@@ -45,13 +41,12 @@ void RT6502::RT6502::ExecuteTick() {
     bool execNext;
     do {
         // Exécuter l'instruction
-        FonctionsToExecutes.front().Func();
-        execNext = FonctionsToExecutes.front().RunNext;
-        FonctionsToExecutes.pop();
+        execNext = FonctionsToExecutes.value().RunNext;
+        FonctionsToExecutes = FonctionsToExecutes.value()();
     } while (execNext);
 
     // Gérer automatiquement le SYNC/Fetch à la fin de l'instruction
-    if (FonctionsToExecutes.empty()) {
+    if (!FonctionsToExecutes.has_value()) {
         if (Cpu.RW) {
             // Si c'est une lecture, alors on fait le Fetch
             Cpu.AddressBus = Cpu.PC++;
@@ -62,6 +57,7 @@ void RT6502::RT6502::ExecuteTick() {
                 // C'est vide, car sera traité par le IF juste au dessus
                 // Cpu.AddressBus = Cpu.PC++;
                 // Cpu.SYNC = true;
+                return std::nullopt;
             });
         }
     }

@@ -23,11 +23,12 @@ enum class AddressingMode {
 };
 
 std::string Format(AddressingMode);
-std::vector<QueuedInstr> Execute(CPU&);
+QueuedInstr Execute(CPU&);
 
-std::vector<QueuedInstr> Implicit(CPU& cpu);
-std::vector<QueuedInstr> Immediate(CPU& cpu);
-std::vector<QueuedInstr> Zeropage(CPU& cpu);
-std::vector<QueuedInstr> Absolute(CPU& cpu);
+QueuedInstr Implicit(CPU& cpu);
+QueuedInstr Immediate(CPU& cpu);
+QueuedInstr Zeropage(CPU& cpu);
+QueuedInstr Relative(CPU& cpu);
+QueuedInstr Absolute(CPU& cpu);
 
 }  // namespace RT6502::AddressingMode
