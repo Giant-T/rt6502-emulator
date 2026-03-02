@@ -16,14 +16,10 @@ void RT6502::RT6502::Reset() noexcept {
  * On suit la séquence d'exécution décrit ici: https://www.cpcwiki.eu/index.php/MOS_6502
  */
 void RT6502::RT6502::Execute() {
-    // Déterminer le nombre de cycle pour la prochaine instruction
-    auto cycles = InstructionSet::OPCODE_LIST.at(Cpu.DataBus).Cycles;
-
-    // Exécuter l'instruction le nombre de cycles prédit
-    while (cycles-- > 0) {
+    do {
         ExecuteTick();
         ++CyclesCounter;
-    }
+    } while (FonctionsToExecutes.has_value());
 }
 
 void RT6502::RT6502::ExecuteTick() {
