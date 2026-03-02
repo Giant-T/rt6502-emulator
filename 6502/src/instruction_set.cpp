@@ -123,6 +123,16 @@ std::vector<RT6502::QueuedInstr> RT6502::InstructionSet::STX(CPU& cpu) {
     };
 }
 
+std::vector<RT6502::QueuedInstr> RT6502::InstructionSet::CMP(CPU& cpu) {
+    return {
+        {[&] {
+            cpu.PS.C = cpu.A >= cpu.DataBus;
+            cpu.PS.Z = cpu.A == cpu.DataBus;
+            cpu.PS.N = (cpu.A - cpu.DataBus) >> 7;
+        }}
+    };
+}
+
 std::vector<RT6502::QueuedInstr> RT6502::InstructionSet::INC(CPU& cpu) {
     return {
         {[&] {
