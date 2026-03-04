@@ -14,13 +14,12 @@ if (DEFINED ENV{NIX_STORE})
 else()
     include(FetchContent)
 
-    set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
     set(FETCHCONTENT_QUIET OFF)
 
     FetchContent_Declare(
         Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG v3.12.0   
+        GIT_TAG v3.13.0   
     )
 
     FetchContent_MakeAvailable(Catch2)
