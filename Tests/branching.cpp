@@ -1,122 +1,144 @@
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 #include "6502/6502.h"
 #include "6502/instruction_set.h"
+
+using namespace RT6502::InstructionSet;
 
 TEST_CASE("BEQ Relative", "[Instruction][BEQ][Rel]") {
     size_t cyclesCounters = 0;
     size_t bytesCounters = 1;
 
+    struct Params {
+        RT6502::Byte Instruction;
+        RT6502::Byte InstructionLoad;
+        RT6502::Byte& Reg;
+        std::function<void()> Branch;
+        std::function<void()> NoBranch;
+    };
+
     RT6502::RT6502 emulator;
-    emulator.Mem[0x0000] = RT6502::InstructionSet::INS_LDA_IMM;
-    emulator.Mem[0x0001] = 0x11;
-    emulator.Mem[0x0002] = RT6502::InstructionSet::INS_CMP_IMM;
-    emulator.Mem[0x0003] = 0x10;
-    emulator.Mem[0x0004] = RT6502::InstructionSet::INS_BEQ_REL;  // Pas de branchement
-    emulator.Mem[0x0005] = 0x30;
-    emulator.Mem[0x0006] = RT6502::InstructionSet::INS_LDX_IMM;
-    emulator.Mem[0x0007] = 0x01;
 
-    emulator.Mem[0x0008] = RT6502::InstructionSet::INS_LDA_IMM;
-    emulator.Mem[0x0009] = 0x10;
-    emulator.Mem[0x000A] = RT6502::InstructionSet::INS_CMP_IMM;
-    emulator.Mem[0x000B] = 0x10;
-    emulator.Mem[0x000C] = RT6502::InstructionSet::INS_BEQ_REL;  // Branchement
-    emulator.Mem[0x000D] = 0x30;
-    emulator.Mem[0x000E] = RT6502::InstructionSet::INS_LDX_IMM;
-    emulator.Mem[0x000F] = 0x02;
+    const auto [instruction, instruction_load, reg, branch, nobranch] = GENERATE_REF(
+        Params{INS_BEQ_REL, INS_LDX_IMM, emulator.Cpu.X, [&] { emulator.Cpu.PS.Z = 1; }, [&] { emulator.Cpu.PS.Z = 0; }}
+    );
 
-    emulator.Mem[0x003E] = RT6502::InstructionSet::INS_LDX_IMM;
-    emulator.Mem[0x003F] = 0x03;
-    emulator.Mem[0x0040] = RT6502::InstructionSet::INS_CMP_IMM;
-    emulator.Mem[0x0041] = 0x10;
-    emulator.Mem[0x0042] = RT6502::InstructionSet::INS_BEQ_REL;  // Branchement vers l'arrière
-    emulator.Mem[0x0043] = 0xCA;
+    INFO(OPCODE_LIST.at(instruction).Name);
+
+    emulator.Mem[0x0000] = instruction;  // Pas de branchement
+    emulator.Mem[0x0001] = 0x30;
+    emulator.Mem[0x0002] = instruction_load;
+    emulator.Mem[0x0003] = 0x01;
+    emulator.Mem[0x0004] = instruction;  // Branchement
+    emulator.Mem[0x0005] = 0x31;
+    emulator.Mem[0x0006] = instruction_load;
+    emulator.Mem[0x0007] = 0x02;
+    emulator.Mem[0x0008] = INS_JMP_ABS;  // Aller sur le bord d'une page
+    emulator.Mem[0x0009] = 0xF0;
+    emulator.Mem[0x000A] = 0x00;
+
+    emulator.Mem[0x0037] = instruction_load;
+    emulator.Mem[0x0038] = 0x03;
+    emulator.Mem[0x0039] = instruction;  // Branchement vers l'arrière
+    emulator.Mem[0x003A] = 0xCB;
+
+    emulator.Mem[0x00F0] = instruction;  // Branchement avec traverse de page
+    emulator.Mem[0x00F1] = 0x70;
+
+    emulator.Mem[0x0162] = instruction_load;
+    emulator.Mem[0x0163] = 0x04;
 
     emulator.Reset();
 
+    // Scénario pas de branchement
+
+    nobranch();
+
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction_load).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction_load).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
-
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_BEQ_REL).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_BEQ_REL).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
-
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
-    REQUIRE(emulator.Cpu.X == 0x01);
+    REQUIRE(+reg == 0x01);
 
     // Scénario avec branchement
 
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    branch();
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
-
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_BEQ_REL).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_BEQ_REL).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     cyclesCounters++;
+    bytesCounters = 0x38;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == 0x3F);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction_load).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction_load).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == 0x41);
-    REQUIRE(emulator.Cpu.X == 0x03);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+reg == 0x03);
 
     // Branchement vers l'arrière
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == 0x43);
+
+    branch();
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_BEQ_REL).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_BEQ_REL).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     cyclesCounters++;
+    bytesCounters = 0x07;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == 0x0F);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDX_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDX_IMM).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction_load).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction_load).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == 0x11);
-    REQUIRE(emulator.Cpu.X == 0x02);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+reg == 0x02);
+
+    // Sauter sur le bord d'une page
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(INS_JMP_ABS).Cycles;
+    bytesCounters += OPCODE_LIST.at(INS_JMP_ABS).Bytes;
+    bytesCounters = 0xF1;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+
+    // Branchement avec traverse de page
+    branch();
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    cyclesCounters += 2;
+    bytesCounters = 0x0163;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction_load).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction_load).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+reg == 0x04);
 }

@@ -161,14 +161,21 @@ RT6502::QueuedInstr RT6502::InstructionSet::BEQ(CPU& cpu) {
     return [&] -> std::optional<QueuedInstr> {
         cpu.AddressBus = cpu.PC;
         cpu.AddressRegister = cpu.PC;
-        cpu.AddressRegister.Low += cpu.DataBus;
+        cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
 
         if (cpu.PS.Z) {
             // Faire le branchement
-            return [&] {
-                cpu.PC = cpu.AddressRegister;
+            return [&] -> std::optional<QueuedInstr> {
+                cpu.PC.Low = cpu.AddressRegister.Low;
 
-                // TODO: Ajouter le cas où on traverse une page
+                // Si on traverse une page
+                if (cpu.AddressRegister.High != cpu.PC.High) {
+                    return [&] {
+                        cpu.PC.High = cpu.AddressRegister.High;
+
+                        return std::nullopt;
+                    };
+                }
 
                 return std::nullopt;
             };

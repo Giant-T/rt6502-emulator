@@ -34,6 +34,14 @@ union Word {
         return *this;
     }
 
+    constexpr void operator+=(const Byte rvalue) {
+        Value += rvalue;
+    }
+
+    constexpr void operator+=(const int8_t rvalue) {
+        Value += rvalue;
+    }
+
     operator uint16_t() const {
         return Value;
     }
