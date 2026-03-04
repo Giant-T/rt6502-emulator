@@ -20,6 +20,9 @@ namespace RT6502::InstructionSet {
 static constexpr Byte INS_JSR_ABS = 0x20;
 static constexpr Byte INS_JMP_ABS = 0x4C;
 static constexpr Byte INS_RTS_IMP = 0x60;
+static constexpr Byte INS_ADC_IMM = 0x69;
+static constexpr Byte INS_ADC_ZP = 0x65;
+static constexpr Byte INS_ADC_ABS = 0x6D;
 static constexpr Byte INS_LDX_IMM = 0xA2;
 static constexpr Byte INS_LDX_ZP = 0xA6;
 static constexpr Byte INS_LDX_ABS = 0xAE;
@@ -56,6 +59,7 @@ struct Instruction {
 QueuedInstr JSR(CPU&);
 QueuedInstr JMP(CPU&);
 QueuedInstr RTS(CPU&);
+QueuedInstr ADC(CPU&);
 QueuedInstr LDX(CPU&);
 QueuedInstr LDA(CPU&);
 QueuedInstr STA(CPU&);
@@ -70,6 +74,9 @@ inline const std::map<Byte, const Instruction> OPCODE_LIST = {
     {INS_JSR_ABS, {INS_JSR_ABS, 3, 6, "JSR", AddressingMode::AddressingMode::Absolute, Read, JSR}},
     {INS_JMP_ABS, {INS_JMP_ABS, 3, 3, "JMP", AddressingMode::AddressingMode::Absolute, Write, JMP}},
     {INS_RTS_IMP, {INS_RTS_IMP, 1, 6, "RTS", AddressingMode::AddressingMode::Implicit, Read, RTS}},
+    {INS_ADC_IMM, {INS_ADC_IMM, 2, 2, "ADC", AddressingMode::AddressingMode::Immediate, Read, ADC}},
+    {INS_ADC_ZP, {INS_ADC_ZP, 2, 3, "ADC", AddressingMode::AddressingMode::Zeropage, Read, ADC}},
+    {INS_ADC_ABS, {INS_ADC_ABS, 3, 4, "ADC", AddressingMode::AddressingMode::Absolute, Read, ADC}},
     {INS_LDX_IMM, {INS_LDX_IMM, 2, 2, "LDX", AddressingMode::AddressingMode::Immediate, Read, LDX}},
     {INS_LDX_ZP, {INS_LDX_ZP, 2, 3, "LDX", AddressingMode::AddressingMode::Zeropage, Read, LDX}},
     {INS_LDX_ABS, {INS_LDX_ABS, 3, 4, "LDX", AddressingMode::AddressingMode::Absolute, Read, LDX}},

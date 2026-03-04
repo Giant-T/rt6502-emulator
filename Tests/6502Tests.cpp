@@ -16,24 +16,24 @@ TEST_CASE("TSX Impl", "[Instruction][TSX][Impl]") {
     emulator.Execute();
     cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_TSX_IMP).Cycles;
     bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_TSX_IMP).Bytes;
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(+emulator.Cpu.X == 0xFD);
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+emulator.Cpu.X == 0xFD);
 
     emulator.Execute();
     cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_TSX_IMP).Cycles;
     bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_TSX_IMP).Bytes;
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(+emulator.Cpu.X == 0xFD);
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+emulator.Cpu.X == 0xFD);
 
     emulator.Execute();
     cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_TSX_IMP).Cycles;
     bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_TSX_IMP).Bytes;
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(+emulator.Cpu.X == 0xFD);
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+emulator.Cpu.X == 0xFD);
 }

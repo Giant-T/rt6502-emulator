@@ -62,6 +62,20 @@ RT6502::QueuedInstr RT6502::InstructionSet::RTS(CPU& cpu) {
     };
 }
 
+RT6502::QueuedInstr RT6502::InstructionSet::ADC(CPU& cpu) {
+    return [&] {
+        const Word result = static_cast<Word>(cpu.A) + static_cast<Word>(cpu.DataBus) + static_cast<Word>(cpu.PS.C);
+
+        cpu.PS.V = (~(cpu.A ^ cpu.DataBus) & (cpu.A ^ result.Low)) >> 7;
+        cpu.A = static_cast<Byte>(result);
+        cpu.PS.C = cpu.A != result;
+        cpu.PS.Z = cpu.A == 0;
+        cpu.PS.N = cpu.A >> 7;
+
+        return std::nullopt;
+    };
+}
+
 RT6502::QueuedInstr RT6502::InstructionSet::LDX(CPU& cpu) {
     return [&] {
         cpu.X = cpu.DataBus;
