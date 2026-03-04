@@ -25,7 +25,7 @@ else()
     FetchContent_MakeAvailable(Catch2)
 endif()
 
-add_executable(unit_tests "6502Tests.cpp")
+add_executable(unit_tests "6502Tests.cpp" "branching.cpp" "jump.cpp" "compare.cpp" "stack.cpp" "store.cpp" "load.cpp" "memory.cpp")
 
 target_link_libraries(unit_tests 
     PRIVATE 
