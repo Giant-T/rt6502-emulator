@@ -143,8 +143,23 @@ RT6502::QueuedInstr RT6502::InstructionSet::INC(CPU& cpu) {
     };
 }
 
-RT6502::QueuedInstr RT6502::InstructionSet::BEQ(CPU&) {
-    return [&] {
+RT6502::QueuedInstr RT6502::InstructionSet::BEQ(CPU& cpu) {
+    return [&] -> std::optional<QueuedInstr> {
+        cpu.AddressBus = cpu.PC;
+        cpu.AddressRegister = cpu.PC;
+        cpu.AddressRegister.Low += cpu.DataBus;
+
+        if (cpu.PS.Z) {
+            // Faire le branchement
+            return [&] {
+                cpu.PC = cpu.AddressRegister;
+
+                // TODO: Ajouter le cas où on traverse une page
+
+                return std::nullopt;
+            };
+        }
+
         return std::nullopt;
     };
 }

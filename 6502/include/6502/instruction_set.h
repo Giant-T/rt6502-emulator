@@ -47,7 +47,6 @@ struct Instruction {
     AddressingMode::AddressingMode AddrMode;
     ReadWrite RW;
     std::function<QueuedInstr(CPU&)> Func;
-    // void (*Func)(CPU&);
 
     std::string Format() const noexcept {
         return AddressingMode::Format(AddrMode);

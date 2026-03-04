@@ -1,6 +1,6 @@
 #pragma once
 
-#include <queue>
+#include <optional>
 
 #include "cpu.h"
 #include "memory.h"
