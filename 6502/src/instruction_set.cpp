@@ -157,6 +157,202 @@ RT6502::QueuedInstr RT6502::InstructionSet::INC(CPU& cpu) {
     };
 }
 
+RT6502::QueuedInstr RT6502::InstructionSet::BPL(CPU& cpu) {
+    return [&] -> std::optional<QueuedInstr> {
+        cpu.AddressBus = cpu.PC;
+        cpu.AddressRegister = cpu.PC;
+        cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
+
+        if (!cpu.PS.N) {
+            // Faire le branchement
+            return [&] -> std::optional<QueuedInstr> {
+                cpu.PC.Low = cpu.AddressRegister.Low;
+
+                // Si on traverse une page
+                if (cpu.AddressRegister.High != cpu.PC.High) {
+                    return [&] {
+                        cpu.PC.High = cpu.AddressRegister.High;
+
+                        return std::nullopt;
+                    };
+                }
+
+                return std::nullopt;
+            };
+        }
+
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::BMI(CPU& cpu) {
+    return [&] -> std::optional<QueuedInstr> {
+        cpu.AddressBus = cpu.PC;
+        cpu.AddressRegister = cpu.PC;
+        cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
+
+        if (cpu.PS.N) {
+            // Faire le branchement
+            return [&] -> std::optional<QueuedInstr> {
+                cpu.PC.Low = cpu.AddressRegister.Low;
+
+                // Si on traverse une page
+                if (cpu.AddressRegister.High != cpu.PC.High) {
+                    return [&] {
+                        cpu.PC.High = cpu.AddressRegister.High;
+
+                        return std::nullopt;
+                    };
+                }
+
+                return std::nullopt;
+            };
+        }
+
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::BVC(CPU& cpu) {
+    return [&] -> std::optional<QueuedInstr> {
+        cpu.AddressBus = cpu.PC;
+        cpu.AddressRegister = cpu.PC;
+        cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
+
+        if (!cpu.PS.V) {
+            // Faire le branchement
+            return [&] -> std::optional<QueuedInstr> {
+                cpu.PC.Low = cpu.AddressRegister.Low;
+
+                // Si on traverse une page
+                if (cpu.AddressRegister.High != cpu.PC.High) {
+                    return [&] {
+                        cpu.PC.High = cpu.AddressRegister.High;
+
+                        return std::nullopt;
+                    };
+                }
+
+                return std::nullopt;
+            };
+        }
+
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::BVS(CPU& cpu) {
+    return [&] -> std::optional<QueuedInstr> {
+        cpu.AddressBus = cpu.PC;
+        cpu.AddressRegister = cpu.PC;
+        cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
+
+        if (cpu.PS.V) {
+            // Faire le branchement
+            return [&] -> std::optional<QueuedInstr> {
+                cpu.PC.Low = cpu.AddressRegister.Low;
+
+                // Si on traverse une page
+                if (cpu.AddressRegister.High != cpu.PC.High) {
+                    return [&] {
+                        cpu.PC.High = cpu.AddressRegister.High;
+
+                        return std::nullopt;
+                    };
+                }
+
+                return std::nullopt;
+            };
+        }
+
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::BCC(CPU& cpu) {
+    return [&] -> std::optional<QueuedInstr> {
+        cpu.AddressBus = cpu.PC;
+        cpu.AddressRegister = cpu.PC;
+        cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
+
+        if (!cpu.PS.C) {
+            // Faire le branchement
+            return [&] -> std::optional<QueuedInstr> {
+                cpu.PC.Low = cpu.AddressRegister.Low;
+
+                // Si on traverse une page
+                if (cpu.AddressRegister.High != cpu.PC.High) {
+                    return [&] {
+                        cpu.PC.High = cpu.AddressRegister.High;
+
+                        return std::nullopt;
+                    };
+                }
+
+                return std::nullopt;
+            };
+        }
+
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::BCS(CPU& cpu) {
+    return [&] -> std::optional<QueuedInstr> {
+        cpu.AddressBus = cpu.PC;
+        cpu.AddressRegister = cpu.PC;
+        cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
+
+        if (cpu.PS.C) {
+            // Faire le branchement
+            return [&] -> std::optional<QueuedInstr> {
+                cpu.PC.Low = cpu.AddressRegister.Low;
+
+                // Si on traverse une page
+                if (cpu.AddressRegister.High != cpu.PC.High) {
+                    return [&] {
+                        cpu.PC.High = cpu.AddressRegister.High;
+
+                        return std::nullopt;
+                    };
+                }
+
+                return std::nullopt;
+            };
+        }
+
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::BNE(CPU& cpu) {
+    return [&] -> std::optional<QueuedInstr> {
+        cpu.AddressBus = cpu.PC;
+        cpu.AddressRegister = cpu.PC;
+        cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
+
+        if (!cpu.PS.Z) {
+            // Faire le branchement
+            return [&] -> std::optional<QueuedInstr> {
+                cpu.PC.Low = cpu.AddressRegister.Low;
+
+                // Si on traverse une page
+                if (cpu.AddressRegister.High != cpu.PC.High) {
+                    return [&] {
+                        cpu.PC.High = cpu.AddressRegister.High;
+
+                        return std::nullopt;
+                    };
+                }
+
+                return std::nullopt;
+            };
+        }
+
+        return std::nullopt;
+    };
+}
+
 RT6502::QueuedInstr RT6502::InstructionSet::BEQ(CPU& cpu) {
     return [&] -> std::optional<QueuedInstr> {
         cpu.AddressBus = cpu.PC;

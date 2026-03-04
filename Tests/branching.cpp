@@ -6,7 +6,7 @@
 
 using namespace RT6502::InstructionSet;
 
-TEST_CASE("BEQ Relative", "[Instruction][BEQ][Rel]") {
+TEST_CASE("BPL BMI BVC BVS BCC BCS BNE BEQ Relative", "[Instruction][BPL][BMI][BVC][BVS][BCC][BCS][BNE][BEQ][Rel]") {
     size_t cyclesCounters = 0;
     size_t bytesCounters = 1;
 
@@ -21,6 +21,13 @@ TEST_CASE("BEQ Relative", "[Instruction][BEQ][Rel]") {
     RT6502::RT6502 emulator;
 
     const auto [instruction, instruction_load, reg, branch, nobranch] = GENERATE_REF(
+        Params{INS_BPL_REL, INS_LDX_IMM, emulator.Cpu.X, [&] { emulator.Cpu.PS.N = 0; }, [&] { emulator.Cpu.PS.N = 1; }},
+        Params{INS_BMI_REL, INS_LDX_IMM, emulator.Cpu.X, [&] { emulator.Cpu.PS.N = 1; }, [&] { emulator.Cpu.PS.N = 0; }},
+        Params{INS_BVC_REL, INS_LDX_IMM, emulator.Cpu.X, [&] { emulator.Cpu.PS.V = 0; }, [&] { emulator.Cpu.PS.V = 1; }},
+        Params{INS_BVS_REL, INS_LDX_IMM, emulator.Cpu.X, [&] { emulator.Cpu.PS.V = 1; }, [&] { emulator.Cpu.PS.V = 0; }},
+        Params{INS_BCC_REL, INS_LDX_IMM, emulator.Cpu.X, [&] { emulator.Cpu.PS.C = 0; }, [&] { emulator.Cpu.PS.C = 1; }},
+        Params{INS_BCS_REL, INS_LDX_IMM, emulator.Cpu.X, [&] { emulator.Cpu.PS.C = 1; }, [&] { emulator.Cpu.PS.C = 0; }},
+        Params{INS_BNE_REL, INS_LDX_IMM, emulator.Cpu.X, [&] { emulator.Cpu.PS.Z = 0; }, [&] { emulator.Cpu.PS.Z = 1; }},
         Params{INS_BEQ_REL, INS_LDX_IMM, emulator.Cpu.X, [&] { emulator.Cpu.PS.Z = 1; }, [&] { emulator.Cpu.PS.Z = 0; }}
     );
 

@@ -40,6 +40,13 @@ static constexpr Byte INS_CMP_ZP = 0xC5;
 static constexpr Byte INS_CMP_ABS = 0xCD;
 static constexpr Byte INS_INC_ZP = 0xE6;
 static constexpr Byte INS_INC_ABS = 0xEE;
+static constexpr Byte INS_BPL_REL = 0x10;
+static constexpr Byte INS_BMI_REL = 0x30;
+static constexpr Byte INS_BVC_REL = 0x50;
+static constexpr Byte INS_BVS_REL = 0x70;
+static constexpr Byte INS_BCC_REL = 0x90;
+static constexpr Byte INS_BCS_REL = 0xB0;
+static constexpr Byte INS_BNE_REL = 0xD0;
 static constexpr Byte INS_BEQ_REL = 0xF0;
 
 struct Instruction {
@@ -68,6 +75,13 @@ QueuedInstr PHA(CPU&);
 QueuedInstr STX(CPU&);
 QueuedInstr CMP(CPU&);
 QueuedInstr INC(CPU&);
+QueuedInstr BPL(CPU&);
+QueuedInstr BMI(CPU&);
+QueuedInstr BVC(CPU&);
+QueuedInstr BVS(CPU&);
+QueuedInstr BCC(CPU&);
+QueuedInstr BCS(CPU&);
+QueuedInstr BNE(CPU&);
 QueuedInstr BEQ(CPU&);
 
 inline const std::map<Byte, const Instruction> OPCODE_LIST = {
@@ -94,6 +108,13 @@ inline const std::map<Byte, const Instruction> OPCODE_LIST = {
     {INS_CMP_ABS, {INS_CMP_ABS, 3, 4, "CMP", AddressingMode::AddressingMode::Absolute, Read, CMP}},
     {INS_INC_ZP, {INS_INC_ZP, 2, 5, "INC", AddressingMode::AddressingMode::Zeropage, Read, INC}},
     {INS_INC_ABS, {INS_INC_ABS, 3, 6, "INC", AddressingMode::AddressingMode::Absolute, Read, INC}},
+    {INS_BPL_REL, {INS_BPL_REL, 2, 2, "BPL", AddressingMode::AddressingMode::Relative, Read, BPL}},
+    {INS_BMI_REL, {INS_BMI_REL, 2, 2, "BMI", AddressingMode::AddressingMode::Relative, Read, BMI}},
+    {INS_BVC_REL, {INS_BVC_REL, 2, 2, "BVC", AddressingMode::AddressingMode::Relative, Read, BVC}},
+    {INS_BVS_REL, {INS_BVS_REL, 2, 2, "BVS", AddressingMode::AddressingMode::Relative, Read, BVS}},
+    {INS_BCC_REL, {INS_BCC_REL, 2, 2, "BCC", AddressingMode::AddressingMode::Relative, Read, BCC}},
+    {INS_BCS_REL, {INS_BCS_REL, 2, 2, "BCS", AddressingMode::AddressingMode::Relative, Read, BCS}},
+    {INS_BNE_REL, {INS_BNE_REL, 2, 2, "BNE", AddressingMode::AddressingMode::Relative, Read, BNE}},
     {INS_BEQ_REL, {INS_BEQ_REL, 2, 2, "BEQ", AddressingMode::AddressingMode::Relative, Read, BEQ}},
 };
 
