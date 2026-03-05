@@ -56,6 +56,10 @@ struct Flags {
     Byte _ : 1;  // Bit 5 - Expansion (Unused)
     Byte V : 1;  // Bit 6 - Overflow
     Byte N : 1;  // Bit 7 - Negative Result
+
+    operator Byte() const {
+        return std::bit_cast<Byte>(*this);
+    }
 };
 
 enum TimeStates {

@@ -131,6 +131,16 @@ RT6502::QueuedInstr RT6502::InstructionSet::TSX(CPU& cpu) {
     };
 }
 
+RT6502::QueuedInstr RT6502::InstructionSet::PHP(CPU& cpu) {
+    return [&] {
+        cpu.RW = false;
+        cpu.DataBus = cpu.PS;
+        cpu.AddressBus.Low = cpu.SP--;
+        cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
+        return std::nullopt;
+    };
+}
+
 RT6502::QueuedInstr RT6502::InstructionSet::PHA(CPU& cpu) {
     return [&] {
         cpu.RW = false;

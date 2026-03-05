@@ -15,6 +15,7 @@ class CPU {
    public:
     static constexpr Byte STACK_POINTER_PAGE = 0x01;
     static constexpr Byte STACK_POINTER_BEGIN = 0xFF;
+    static constexpr Word STACK_POINTER_ADDRESS = 0x01FF;
     static constexpr Word NMI_VECTOR_ADDR = 0xFFFA;
     static constexpr Word RESET_VECTOR_ADDR = 0xFFFC;
     static constexpr Word IRQBRK_VECTOR_ADDR = 0xFFFE;

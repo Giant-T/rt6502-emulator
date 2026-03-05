@@ -111,7 +111,7 @@ TEST_CASE("RTS Impl", "[Instruction][RTS][Impl]") {
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == 0x0003 + 1);
-    REQUIRE(emulator.Cpu.SP == 0xFD);
+    REQUIRE(emulator.Cpu.SP == RT6502::CPU::STACK_POINTER_BEGIN);
 
     emulator.Execute();
     cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDX_IMM).Cycles;

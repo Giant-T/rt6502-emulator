@@ -19,7 +19,7 @@ TEST_CASE("TSX Impl", "[Instruction][TSX][Impl]") {
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
-    REQUIRE(+emulator.Cpu.X == 0xFD);
+    REQUIRE(+emulator.Cpu.X == RT6502::CPU::STACK_POINTER_BEGIN);
 
     emulator.Execute();
     cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_TSX_IMP).Cycles;
@@ -27,7 +27,7 @@ TEST_CASE("TSX Impl", "[Instruction][TSX][Impl]") {
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
-    REQUIRE(+emulator.Cpu.X == 0xFD);
+    REQUIRE(+emulator.Cpu.X == RT6502::CPU::STACK_POINTER_BEGIN);
 
     emulator.Execute();
     cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_TSX_IMP).Cycles;
@@ -35,5 +35,5 @@ TEST_CASE("TSX Impl", "[Instruction][TSX][Impl]") {
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
-    REQUIRE(+emulator.Cpu.X == 0xFD);
+    REQUIRE(+emulator.Cpu.X == RT6502::CPU::STACK_POINTER_BEGIN);
 }

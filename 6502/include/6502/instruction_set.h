@@ -41,6 +41,7 @@ static constexpr Byte INS_STX_ZP = 0x86;
 static constexpr Byte INS_STX_ABS = 0x8E;
 
 static constexpr Byte INS_TSX_IMP = 0xBA;
+static constexpr Byte INS_PHP_IMP = 0x08;
 static constexpr Byte INS_PHA_IMP = 0x48;
 
 static constexpr Byte INS_CMP_IMM = 0xC9;
@@ -82,6 +83,7 @@ QueuedInstr LDX(CPU&);
 QueuedInstr LDA(CPU&);
 QueuedInstr STA(CPU&);
 QueuedInstr TSX(CPU&);
+QueuedInstr PHP(CPU&);
 QueuedInstr PHA(CPU&);
 QueuedInstr STX(CPU&);
 QueuedInstr CMP(CPU&);
@@ -115,6 +117,7 @@ inline const std::map<Byte, const Instruction> OPCODE_LIST = {
     {INS_STX_ZP, {INS_STX_ZP, 2, 3, "STX", AddressingMode::AddressingMode::Zeropage, Write, STX}},
     {INS_STX_ABS, {INS_STX_ABS, 3, 4, "STX", AddressingMode::AddressingMode::Absolute, Write, STX}},
     {INS_TSX_IMP, {INS_TSX_IMP, 1, 2, "TSX", AddressingMode::AddressingMode::Implicit, Read, TSX}},
+    {INS_PHP_IMP, {INS_PHP_IMP, 1, 3, "PHP", AddressingMode::AddressingMode::Implicit, Write, PHP}},
     {INS_PHA_IMP, {INS_PHA_IMP, 1, 3, "PHA", AddressingMode::AddressingMode::Implicit, Write, PHA}},
     {INS_CMP_IMM, {INS_CMP_IMM, 2, 2, "CMP", AddressingMode::AddressingMode::Immediate, Read, CMP}},
     {INS_CMP_ZP, {INS_CMP_ZP, 2, 3, "CMP", AddressingMode::AddressingMode::Zeropage, Read, CMP}},

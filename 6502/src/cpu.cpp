@@ -13,7 +13,7 @@ void RT6502::CPU::Reset(Memory& memory) noexcept {
     // PC = l'adresse que contient le RESET VECTOR
     PC = Decode::FetchWord(PC, memory);
 
-    SP = 0xFD;  // TODO: Revalider
+    SP = STACK_POINTER_BEGIN;  // TODO: Revalider
     PS = {};
     A = X = Y = 0;
 }
