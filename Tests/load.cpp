@@ -4,8 +4,10 @@
 #include "6502/6502.h"
 #include "6502/instruction_set.h"
 
+using namespace RT6502::InstructionSet;
+
 struct Params {
-    RT6502::Byte Instruction;
+    Opcodes Instruction;
     RT6502::Byte& Reg;
 };
 
@@ -15,12 +17,12 @@ TEST_CASE("LDA LDX LDY Immediate", "[Instruction][LDX][LDA][LDY][Imm]") {
     RT6502::RT6502 emulator;
 
     const auto [instruction, reg] = GENERATE_REF(
-        Params{RT6502::InstructionSet::INS_LDA_IMM, emulator.Cpu.A},
-        Params{RT6502::InstructionSet::INS_LDX_IMM, emulator.Cpu.X},
-        Params{RT6502::InstructionSet::INS_LDY_IMM, emulator.Cpu.Y}
+        Params{INS_LDA_IMM, emulator.Cpu.A},
+        Params{INS_LDX_IMM, emulator.Cpu.X},
+        Params{INS_LDY_IMM, emulator.Cpu.Y}
     );
 
-    INFO(RT6502::InstructionSet::OPCODE_LIST.at(instruction).Name);
+    INFO(OPCODE_LIST.at(instruction).Name);
 
     emulator.Mem[0x0000] = instruction;
     emulator.Mem[0x0001] = 0x17;
@@ -33,32 +35,32 @@ TEST_CASE("LDA LDX LDY Immediate", "[Instruction][LDX][LDA][LDY][Imm]") {
     emulator.Reset();
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
     REQUIRE(+reg == 0x17);
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
     REQUIRE(+reg == 0x25);
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
     REQUIRE(+reg == 0xAD);
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
@@ -71,12 +73,12 @@ TEST_CASE("LDA LDX LDY ZeroPage", "[Instruction][LDX][LDA][LDY][ZP]") {
     RT6502::RT6502 emulator;
 
     const auto [instruction, reg] = GENERATE_REF(
-        Params{RT6502::InstructionSet::INS_LDA_ZP, emulator.Cpu.A},
-        Params{RT6502::InstructionSet::INS_LDX_ZP, emulator.Cpu.X},
-        Params{RT6502::InstructionSet::INS_LDY_ZP, emulator.Cpu.Y}
+        Params{INS_LDA_ZP, emulator.Cpu.A},
+        Params{INS_LDX_ZP, emulator.Cpu.X},
+        Params{INS_LDY_ZP, emulator.Cpu.Y}
     );
 
-    INFO(RT6502::InstructionSet::OPCODE_LIST.at(instruction).Name);
+    INFO(OPCODE_LIST.at(instruction).Name);
 
     emulator.Mem[0x0000] = instruction;
     emulator.Mem[0x0001] = 0xA1;
@@ -90,24 +92,24 @@ TEST_CASE("LDA LDX LDY ZeroPage", "[Instruction][LDX][LDA][LDY][ZP]") {
     emulator.Reset();
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
     REQUIRE(+reg == 0x12);
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
     REQUIRE(+reg == 0x23);
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
@@ -120,12 +122,12 @@ TEST_CASE("LDA LDX LDY Absolute", "[Instruction][LDX][LDA][LDY][ABS]") {
     RT6502::RT6502 emulator;
 
     const auto [instruction, reg] = GENERATE_REF(
-        Params{RT6502::InstructionSet::INS_LDA_ABS, emulator.Cpu.A},
-        Params{RT6502::InstructionSet::INS_LDX_ABS, emulator.Cpu.X},
-        Params{RT6502::InstructionSet::INS_LDY_ABS, emulator.Cpu.Y}
+        Params{INS_LDA_ABS, emulator.Cpu.A},
+        Params{INS_LDX_ABS, emulator.Cpu.X},
+        Params{INS_LDY_ABS, emulator.Cpu.Y}
     );
 
-    INFO(RT6502::InstructionSet::OPCODE_LIST.at(instruction).Name);
+    INFO(OPCODE_LIST.at(instruction).Name);
 
     emulator.Mem[0x0000] = instruction;
     emulator.Mem[0x0001] = 0x05;
@@ -137,16 +139,16 @@ TEST_CASE("LDA LDX LDY Absolute", "[Instruction][LDX][LDA][LDY][ABS]") {
     emulator.Reset();
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
     REQUIRE(+reg == 0x12);
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);

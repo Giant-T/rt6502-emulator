@@ -27,7 +27,7 @@ void RT6502::RT6502::ExecuteTick() {
 
     if (Cpu.SYNC) {
         // Décoder la prochaine instruction
-        Cpu.IR = &InstructionSet::OPCODE_LIST.at(Cpu.DataBus);
+        Cpu.IR = &InstructionSet::OPCODE_LIST.at(static_cast<InstructionSet::Opcodes>(Cpu.DataBus));
 
         FonctionsToExecutes.emplace(AddressingMode::Execute(Cpu));
 

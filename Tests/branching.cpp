@@ -11,8 +11,8 @@ TEST_CASE("BPL BMI BVC BVS BCC BCS BNE BEQ Relative", "[Instruction][BPL][BMI][B
     size_t bytesCounters = 1;
 
     struct Params {
-        RT6502::Byte Instruction;
-        RT6502::Byte InstructionLoad;
+        Opcodes Instruction;
+        Opcodes InstructionLoad;
         RT6502::Byte& Reg;
         std::function<void()> Branch;
         std::function<void()> NoBranch;

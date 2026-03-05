@@ -7,7 +7,7 @@
 using namespace RT6502::InstructionSet;
 
 struct Params {
-    RT6502::Byte Instruction;
+    Opcodes Instruction;
     RT6502::Byte& Reg;
 };
 

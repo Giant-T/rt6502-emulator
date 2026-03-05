@@ -1,9 +1,9 @@
 #include "6502/decode.h"
 
 RT6502::Decode::Operation RT6502::Decode::Decode(Word pc, const Memory& memory) {
-    const Byte opcode = FetchByte(pc, memory);
+    const auto opcode = FetchByte(pc, memory);
 
-    const auto& instr = InstructionSet::OPCODE_LIST.at(opcode);
+    const auto& instr = InstructionSet::OPCODE_LIST.at(static_cast<InstructionSet::Opcodes>(opcode));
 
     Word param = 0;
     if (instr.Bytes == 3)
@@ -18,9 +18,9 @@ RT6502::Decode::Operation RT6502::Decode::Decode(Word pc, const Memory& memory) 
 }
 
 const RT6502::InstructionSet::Instruction& RT6502::Decode::FetchInstruction(Word& pc, const Memory& memory) {
-    const Byte opcode = FetchByte(pc, memory);
+    const auto opcode = FetchByte(pc, memory);
 
-    return InstructionSet::OPCODE_LIST.at(opcode);
+    return InstructionSet::OPCODE_LIST.at(static_cast<InstructionSet::Opcodes>(opcode));
 }
 
 RT6502::Byte RT6502::Decode::FetchByte(Word& pc, const Memory& memory) noexcept {

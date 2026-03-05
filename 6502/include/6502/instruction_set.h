@@ -17,58 +17,62 @@
 namespace RT6502::InstructionSet {
 
 // opcodes
-static constexpr Byte INS_ASL_ZP = 0x06;
-static constexpr Byte INS_ASL_ABS = 0x0E;
+enum Opcodes : Byte {
 
-static constexpr Byte INS_JSR_ABS = 0x20;
-static constexpr Byte INS_JMP_ABS = 0x4C;
-static constexpr Byte INS_RTS_IMP = 0x60;
+    INS_ASL_ZP = 0x06,
+    INS_ASL_ABS = 0x0E,
 
-static constexpr Byte INS_ADC_IMM = 0x69;
-static constexpr Byte INS_ADC_ZP = 0x65;
-static constexpr Byte INS_ADC_ABS = 0x6D;
+    INS_JSR_ABS = 0x20,
+    INS_JMP_ABS = 0x4C,
+    INS_RTS_IMP = 0x60,
 
-static constexpr Byte INS_LDY_IMM = 0xA0;
-static constexpr Byte INS_LDY_ZP = 0xA4;
-static constexpr Byte INS_LDY_ABS = 0xAC;
-static constexpr Byte INS_LDX_IMM = 0xA2;
-static constexpr Byte INS_LDX_ZP = 0xA6;
-static constexpr Byte INS_LDX_ABS = 0xAE;
-static constexpr Byte INS_LDA_IMM = 0xA9;
-static constexpr Byte INS_LDA_ZP = 0xA5;
-static constexpr Byte INS_LDA_ABS = 0xAD;
+    INS_ADC_IMM = 0x69,
+    INS_ADC_ZP = 0x65,
+    INS_ADC_ABS = 0x6D,
 
-static constexpr Byte INS_STY_ZP = 0x84;
-static constexpr Byte INS_STY_ABS = 0x8C;
-static constexpr Byte INS_STA_ZP = 0x85;
-static constexpr Byte INS_STA_ABS = 0x8D;
-static constexpr Byte INS_STX_ZP = 0x86;
-static constexpr Byte INS_STX_ABS = 0x8E;
+    INS_LDY_IMM = 0xA0,
+    INS_LDY_ZP = 0xA4,
+    INS_LDY_ABS = 0xAC,
+    INS_LDX_IMM = 0xA2,
+    INS_LDX_ZP = 0xA6,
+    INS_LDX_ABS = 0xAE,
+    INS_LDA_IMM = 0xA9,
+    INS_LDA_ZP = 0xA5,
+    INS_LDA_ABS = 0xAD,
 
-static constexpr Byte INS_TSX_IMP = 0xBA;
-static constexpr Byte INS_PHP_IMP = 0x08;
-static constexpr Byte INS_PLP_IMP = 0x28;
-static constexpr Byte INS_PHA_IMP = 0x48;
-static constexpr Byte INS_PLA_IMP = 0x68;
+    INS_STY_ZP = 0x84,
+    INS_STY_ABS = 0x8C,
+    INS_STA_ZP = 0x85,
+    INS_STA_ABS = 0x8D,
+    INS_STX_ZP = 0x86,
+    INS_STX_ABS = 0x8E,
 
-static constexpr Byte INS_CMP_IMM = 0xC9;
-static constexpr Byte INS_CMP_ZP = 0xC5;
-static constexpr Byte INS_CMP_ABS = 0xCD;
+    INS_TSX_IMP = 0xBA,
+    INS_PHP_IMP = 0x08,
+    INS_PLP_IMP = 0x28,
+    INS_PHA_IMP = 0x48,
+    INS_PLA_IMP = 0x68,
 
-static constexpr Byte INS_INC_ZP = 0xE6;
-static constexpr Byte INS_INC_ABS = 0xEE;
+    INS_CMP_IMM = 0xC9,
+    INS_CMP_ZP = 0xC5,
+    INS_CMP_ABS = 0xCD,
 
-static constexpr Byte INS_BPL_REL = 0x10;
-static constexpr Byte INS_BMI_REL = 0x30;
-static constexpr Byte INS_BVC_REL = 0x50;
-static constexpr Byte INS_BVS_REL = 0x70;
-static constexpr Byte INS_BCC_REL = 0x90;
-static constexpr Byte INS_BCS_REL = 0xB0;
-static constexpr Byte INS_BNE_REL = 0xD0;
-static constexpr Byte INS_BEQ_REL = 0xF0;
+    INS_INC_ZP = 0xE6,
+    INS_INC_ABS = 0xEE,
+
+    INS_BPL_REL = 0x10,
+    INS_BMI_REL = 0x30,
+    INS_BVC_REL = 0x50,
+    INS_BVS_REL = 0x70,
+    INS_BCC_REL = 0x90,
+    INS_BCS_REL = 0xB0,
+    INS_BNE_REL = 0xD0,
+    INS_BEQ_REL = 0xF0,
+
+};
 
 struct Instruction {
-    Byte Opcode;
+    Opcodes Opcode;
     Byte Bytes;
     Byte Cycles;
     std::string Name;
@@ -108,7 +112,7 @@ QueuedInstr BCS(CPU&);
 QueuedInstr BNE(CPU&);
 QueuedInstr BEQ(CPU&);
 
-inline const std::map<Byte, const Instruction> OPCODE_LIST = {
+inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_ASL_ZP, {INS_ASL_ZP, 2, 5, "ASL", AddressingMode::AddressingMode::Zeropage, Read, ASL}},
     {INS_ASL_ABS, {INS_ASL_ABS, 3, 6, "ASL", AddressingMode::AddressingMode::Absolute, Read, ASL}},
     {INS_JSR_ABS, {INS_JSR_ABS, 3, 6, "JSR", AddressingMode::AddressingMode::Absolute, Read, JSR}},

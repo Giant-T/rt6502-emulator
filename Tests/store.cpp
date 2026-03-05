@@ -4,9 +4,11 @@
 #include "6502/6502.h"
 #include "6502/instruction_set.h"
 
+using namespace RT6502::InstructionSet;
+
 struct Params {
-    RT6502::Byte Instruction;
-    RT6502::Byte InstructionLoad;
+    Opcodes Instruction;
+    Opcodes InstructionLoad;
     RT6502::Byte& Reg;
 };
 
@@ -17,12 +19,12 @@ TEST_CASE("STA STX STY ZeroPage", "[Instruction][STA][STX][STY][ZP]") {
     RT6502::RT6502 emulator;
 
     const auto [instruction, instruction_load, reg] = GENERATE_REF(
-        Params{RT6502::InstructionSet::INS_STA_ZP, RT6502::InstructionSet::INS_LDA_IMM, emulator.Cpu.A},
-        Params{RT6502::InstructionSet::INS_STY_ZP, RT6502::InstructionSet::INS_LDY_IMM, emulator.Cpu.Y},
-        Params{RT6502::InstructionSet::INS_STX_ZP, RT6502::InstructionSet::INS_LDX_IMM, emulator.Cpu.X}
+        Params{INS_STA_ZP, INS_LDA_IMM, emulator.Cpu.A},
+        Params{INS_STY_ZP, INS_LDY_IMM, emulator.Cpu.Y},
+        Params{INS_STX_ZP, INS_LDX_IMM, emulator.Cpu.X}
     );
 
-    INFO(RT6502::InstructionSet::OPCODE_LIST.at(instruction).Name);
+    INFO(OPCODE_LIST.at(instruction).Name);
 
     emulator.Mem[0x0000] = instruction_load;
     emulator.Mem[0x0001] = 0x17;
@@ -36,24 +38,24 @@ TEST_CASE("STA STX STY ZeroPage", "[Instruction][STA][STX][STY][ZP]") {
     emulator.Reset();
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction_load).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction_load).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction_load).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction_load).Bytes;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
     REQUIRE(+emulator.Mem[0x34] == +reg);
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction_load).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction_load).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction_load).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction_load).Bytes;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
@@ -67,12 +69,12 @@ TEST_CASE("STA STX STY Absolute", "[Instruction][STA][STX][STY][ABS]") {
     RT6502::RT6502 emulator;
 
     const auto [instruction, instruction_load, reg] = GENERATE_REF(
-        Params{RT6502::InstructionSet::INS_STA_ABS, RT6502::InstructionSet::INS_LDA_IMM, emulator.Cpu.A},
-        Params{RT6502::InstructionSet::INS_STY_ABS, RT6502::InstructionSet::INS_LDY_IMM, emulator.Cpu.Y},
-        Params{RT6502::InstructionSet::INS_STX_ABS, RT6502::InstructionSet::INS_LDX_IMM, emulator.Cpu.X}
+        Params{INS_STA_ABS, INS_LDA_IMM, emulator.Cpu.A},
+        Params{INS_STY_ABS, INS_LDY_IMM, emulator.Cpu.Y},
+        Params{INS_STX_ABS, INS_LDX_IMM, emulator.Cpu.X}
     );
 
-    INFO(RT6502::InstructionSet::OPCODE_LIST.at(instruction).Name);
+    INFO(OPCODE_LIST.at(instruction).Name);
 
     emulator.Mem[0x0000] = instruction_load;
     emulator.Mem[0x0001] = 0x17;
@@ -88,24 +90,24 @@ TEST_CASE("STA STX STY Absolute", "[Instruction][STA][STX][STY][ABS]") {
     emulator.Reset();
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction_load).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction_load).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction_load).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction_load).Bytes;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
     REQUIRE(+emulator.Mem[0x1234] == +reg);
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction_load).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction_load).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction_load).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction_load).Bytes;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(instruction).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
