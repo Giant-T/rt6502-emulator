@@ -233,6 +233,16 @@ RT6502::QueuedInstr RT6502::InstructionSet::PLA(CPU& cpu) {
     };
 }
 
+RT6502::QueuedInstr RT6502::InstructionSet::PHA(CPU& cpu) {
+    return [&] {
+        cpu.RW = false;
+        cpu.DataBus = cpu.A;
+        cpu.AddressBus.Low = cpu.SP--;
+        cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
+        return std::nullopt;
+    };
+}
+
 RT6502::QueuedInstr RT6502::InstructionSet::PLP(CPU& cpu) {
     return [&] {
         cpu.SP++;
@@ -249,12 +259,12 @@ RT6502::QueuedInstr RT6502::InstructionSet::PLP(CPU& cpu) {
     };
 }
 
-RT6502::QueuedInstr RT6502::InstructionSet::PHA(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::CPY(CPU& cpu) {
     return [&] {
-        cpu.RW = false;
-        cpu.DataBus = cpu.A;
-        cpu.AddressBus.Low = cpu.SP--;
-        cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
+        cpu.PS.C = cpu.Y >= cpu.DataBus;
+        cpu.PS.Z = cpu.Y == cpu.DataBus;
+        cpu.PS.N = (cpu.Y - cpu.DataBus) >> 7;
+
         return std::nullopt;
     };
 }
@@ -264,6 +274,16 @@ RT6502::QueuedInstr RT6502::InstructionSet::CMP(CPU& cpu) {
         cpu.PS.C = cpu.A >= cpu.DataBus;
         cpu.PS.Z = cpu.A == cpu.DataBus;
         cpu.PS.N = (cpu.A - cpu.DataBus) >> 7;
+
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::CPX(CPU& cpu) {
+    return [&] {
+        cpu.PS.C = cpu.X >= cpu.DataBus;
+        cpu.PS.Z = cpu.X == cpu.DataBus;
+        cpu.PS.N = (cpu.X - cpu.DataBus) >> 7;
 
         return std::nullopt;
     };

@@ -1,41 +1,44 @@
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 #include "6502/6502.h"
 #include "6502/instruction_set.h"
 
-TEST_CASE("CMP Immediate", "[Instruction][CMP][Imm]") {
+using namespace RT6502::InstructionSet;
+
+struct Params {
+    Opcodes Instruction;
+    RT6502::Byte& Reg;
+};
+
+TEST_CASE("CMP CPX CPY Immediate", "[Instruction][CMP][CPX][CPY][Imm]") {
     size_t cyclesCounters = 0;
     size_t bytesCounters = 1;
-
     RT6502::RT6502 emulator;
-    emulator.Mem[0x0000] = RT6502::InstructionSet::INS_LDA_IMM;
-    emulator.Mem[0x0001] = 0x20;
-    emulator.Mem[0x0002] = RT6502::InstructionSet::INS_CMP_IMM;
-    emulator.Mem[0x0003] = 0x10;
-    emulator.Mem[0x0004] = RT6502::InstructionSet::INS_LDA_IMM;
-    emulator.Mem[0x0005] = 0x30;
-    emulator.Mem[0x0006] = RT6502::InstructionSet::INS_CMP_IMM;
-    emulator.Mem[0x0007] = 0x50;
-    emulator.Mem[0x0008] = RT6502::InstructionSet::INS_LDA_IMM;
-    emulator.Mem[0x0009] = 0x78;
-    emulator.Mem[0x000A] = RT6502::InstructionSet::INS_CMP_IMM;
-    emulator.Mem[0x000B] = 0x78;
-    emulator.Mem[0x000C] = RT6502::InstructionSet::INS_LDA_IMM;
-    emulator.Mem[0x000D] = 0xFF;
-    emulator.Mem[0x000E] = RT6502::InstructionSet::INS_CMP_IMM;
-    emulator.Mem[0x000F] = 0x10;
+
+    const auto [instruction, reg] = GENERATE_REF(
+        Params{INS_CMP_IMM, emulator.Cpu.A},
+        Params{INS_CPX_IMM, emulator.Cpu.X},
+        Params{INS_CPY_IMM, emulator.Cpu.Y}
+    );
+
+    INFO(OPCODE_LIST.at(instruction).Name);
+
+    emulator.Mem[0x0000] = instruction;
+    emulator.Mem[0x0001] = 0x10;
+    emulator.Mem[0x0002] = instruction;
+    emulator.Mem[0x0003] = 0x50;
+    emulator.Mem[0x0004] = instruction;
+    emulator.Mem[0x0005] = 0x78;
+    emulator.Mem[0x0006] = instruction;
+    emulator.Mem[0x0007] = 0x10;
     emulator.Reset();
 
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    reg = 0x20;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
@@ -43,16 +46,11 @@ TEST_CASE("CMP Immediate", "[Instruction][CMP][Imm]") {
     REQUIRE_FALSE(emulator.Cpu.PS.Z);
     REQUIRE_FALSE(emulator.Cpu.PS.N);
 
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    reg = 0x30;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
@@ -60,16 +58,11 @@ TEST_CASE("CMP Immediate", "[Instruction][CMP][Imm]") {
     REQUIRE_FALSE(emulator.Cpu.PS.Z);
     REQUIRE(emulator.Cpu.PS.N);
 
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    reg = 0x78;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
@@ -77,16 +70,11 @@ TEST_CASE("CMP Immediate", "[Instruction][CMP][Imm]") {
     REQUIRE(emulator.Cpu.PS.Z);
     REQUIRE_FALSE(emulator.Cpu.PS.N);
 
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    reg = 0xFF;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_IMM).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
@@ -95,27 +83,28 @@ TEST_CASE("CMP Immediate", "[Instruction][CMP][Imm]") {
     REQUIRE(emulator.Cpu.PS.N);
 }
 
-TEST_CASE("CMP ZeroPage", "[Instruction][CMP][ZP]") {
+TEST_CASE("CMP CPX CPY ZeroPage", "[Instruction][CMP][CPX][CPY][ZP]") {
     size_t cyclesCounters = 0;
     size_t bytesCounters = 1;
 
     RT6502::RT6502 emulator;
-    emulator.Mem[0x0000] = RT6502::InstructionSet::INS_LDA_IMM;
+
+    const auto [instruction, reg] = GENERATE_REF(
+        Params{INS_CMP_ZP, emulator.Cpu.A},
+        Params{INS_CPX_ZP, emulator.Cpu.X},
+        Params{INS_CPY_ZP, emulator.Cpu.Y}
+    );
+
+    INFO(OPCODE_LIST.at(instruction).Name);
+
+    emulator.Mem[0x0000] = instruction;
     emulator.Mem[0x0001] = 0x20;
-    emulator.Mem[0x0002] = RT6502::InstructionSet::INS_CMP_ZP;
-    emulator.Mem[0x0003] = 0x20;
-    emulator.Mem[0x0004] = RT6502::InstructionSet::INS_LDA_IMM;
-    emulator.Mem[0x0005] = 0x30;
-    emulator.Mem[0x0006] = RT6502::InstructionSet::INS_CMP_ZP;
-    emulator.Mem[0x0007] = 0x21;
-    emulator.Mem[0x0008] = RT6502::InstructionSet::INS_LDA_IMM;
-    emulator.Mem[0x0009] = 0x78;
-    emulator.Mem[0x000A] = RT6502::InstructionSet::INS_CMP_ZP;
-    emulator.Mem[0x000B] = 0x22;
-    emulator.Mem[0x000C] = RT6502::InstructionSet::INS_LDA_IMM;
-    emulator.Mem[0x000D] = 0xFF;
-    emulator.Mem[0x000E] = RT6502::InstructionSet::INS_CMP_ZP;
-    emulator.Mem[0x000F] = 0x23;
+    emulator.Mem[0x0002] = instruction;
+    emulator.Mem[0x0003] = 0x21;
+    emulator.Mem[0x0004] = instruction;
+    emulator.Mem[0x0005] = 0x22;
+    emulator.Mem[0x0006] = instruction;
+    emulator.Mem[0x0007] = 0x23;
 
     emulator.Mem[0x0020] = 0x10;
     emulator.Mem[0x0021] = 0x50;
@@ -123,16 +112,11 @@ TEST_CASE("CMP ZeroPage", "[Instruction][CMP][ZP]") {
     emulator.Mem[0x0023] = 0x10;
     emulator.Reset();
 
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    reg = 0x20;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ZP).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ZP).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
@@ -140,16 +124,11 @@ TEST_CASE("CMP ZeroPage", "[Instruction][CMP][ZP]") {
     REQUIRE_FALSE(emulator.Cpu.PS.Z);
     REQUIRE_FALSE(emulator.Cpu.PS.N);
 
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    reg = 0x30;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ZP).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ZP).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
@@ -157,16 +136,11 @@ TEST_CASE("CMP ZeroPage", "[Instruction][CMP][ZP]") {
     REQUIRE_FALSE(emulator.Cpu.PS.Z);
     REQUIRE(emulator.Cpu.PS.N);
 
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    reg = 0x78;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ZP).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ZP).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
@@ -174,16 +148,11 @@ TEST_CASE("CMP ZeroPage", "[Instruction][CMP][ZP]") {
     REQUIRE(emulator.Cpu.PS.Z);
     REQUIRE_FALSE(emulator.Cpu.PS.N);
 
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    reg = 0xFF;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ZP).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ZP).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
@@ -192,31 +161,31 @@ TEST_CASE("CMP ZeroPage", "[Instruction][CMP][ZP]") {
     REQUIRE(emulator.Cpu.PS.N);
 }
 
-TEST_CASE("CMP Absolute", "[Instruction][CMP][ABS]") {
+TEST_CASE("CMP CPX CPY Absolute", "[Instruction][CMP][CPX][CPY][ABS]") {
     size_t cyclesCounters = 0;
     size_t bytesCounters = 1;
-
     RT6502::RT6502 emulator;
-    emulator.Mem[0x0000] = RT6502::InstructionSet::INS_LDA_IMM;
+
+    const auto [instruction, reg] = GENERATE_REF(
+        Params{INS_CMP_ABS, emulator.Cpu.A},
+        Params{INS_CPX_ABS, emulator.Cpu.X},
+        Params{INS_CPY_ABS, emulator.Cpu.Y}
+    );
+
+    INFO(OPCODE_LIST.at(instruction).Name);
+
+    emulator.Mem[0x0000] = instruction;
     emulator.Mem[0x0001] = 0x20;
-    emulator.Mem[0x0002] = RT6502::InstructionSet::INS_CMP_ABS;
-    emulator.Mem[0x0003] = 0x20;
-    emulator.Mem[0x0004] = 0x12;
-    emulator.Mem[0x0005] = RT6502::InstructionSet::INS_LDA_IMM;
-    emulator.Mem[0x0006] = 0x30;
-    emulator.Mem[0x0007] = RT6502::InstructionSet::INS_CMP_ABS;
-    emulator.Mem[0x0008] = 0x21;
-    emulator.Mem[0x0009] = 0x12;
-    emulator.Mem[0x000A] = RT6502::InstructionSet::INS_LDA_IMM;
-    emulator.Mem[0x000B] = 0x78;
-    emulator.Mem[0x000C] = RT6502::InstructionSet::INS_CMP_ABS;
-    emulator.Mem[0x000D] = 0x22;
-    emulator.Mem[0x000E] = 0x12;
-    emulator.Mem[0x000F] = RT6502::InstructionSet::INS_LDA_IMM;
-    emulator.Mem[0x0010] = 0xFF;
-    emulator.Mem[0x0011] = RT6502::InstructionSet::INS_CMP_ABS;
-    emulator.Mem[0x0012] = 0x23;
-    emulator.Mem[0x0013] = 0x12;
+    emulator.Mem[0x0002] = 0x12;
+    emulator.Mem[0x0003] = instruction;
+    emulator.Mem[0x0004] = 0x21;
+    emulator.Mem[0x0005] = 0x12;
+    emulator.Mem[0x0006] = instruction;
+    emulator.Mem[0x0007] = 0x22;
+    emulator.Mem[0x0008] = 0x12;
+    emulator.Mem[0x0009] = instruction;
+    emulator.Mem[0x000A] = 0x23;
+    emulator.Mem[0x000B] = 0x12;
 
     emulator.Mem[0x1220] = 0x10;
     emulator.Mem[0x1221] = 0x50;
@@ -224,16 +193,11 @@ TEST_CASE("CMP Absolute", "[Instruction][CMP][ABS]") {
     emulator.Mem[0x1223] = 0x10;
     emulator.Reset();
 
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    reg = 0x20;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ABS).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ABS).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
@@ -241,16 +205,11 @@ TEST_CASE("CMP Absolute", "[Instruction][CMP][ABS]") {
     REQUIRE_FALSE(emulator.Cpu.PS.Z);
     REQUIRE_FALSE(emulator.Cpu.PS.N);
 
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    reg = 0x30;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ABS).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ABS).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
@@ -258,16 +217,11 @@ TEST_CASE("CMP Absolute", "[Instruction][CMP][ABS]") {
     REQUIRE_FALSE(emulator.Cpu.PS.Z);
     REQUIRE(emulator.Cpu.PS.N);
 
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    reg = 0x78;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ABS).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ABS).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
@@ -275,16 +229,11 @@ TEST_CASE("CMP Absolute", "[Instruction][CMP][ABS]") {
     REQUIRE(emulator.Cpu.PS.Z);
     REQUIRE_FALSE(emulator.Cpu.PS.N);
 
-    emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_LDA_IMM).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    reg = 0xFF;
 
     emulator.Execute();
-    cyclesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ABS).Cycles;
-    bytesCounters += RT6502::InstructionSet::OPCODE_LIST.at(RT6502::InstructionSet::INS_CMP_ABS).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
