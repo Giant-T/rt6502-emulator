@@ -220,6 +220,26 @@ RT6502::QueuedInstr RT6502::InstructionSet::CMP(CPU& cpu) {
     };
 }
 
+RT6502::QueuedInstr RT6502::InstructionSet::INY(CPU& cpu) {
+    return [&] {
+        ++cpu.Y;
+        cpu.PS.Z = cpu.Y == 0;
+        cpu.PS.N = cpu.Y >> 7;
+
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::INX(CPU& cpu) {
+    return [&] {
+        ++cpu.X;
+        cpu.PS.Z = cpu.X == 0;
+        cpu.PS.N = cpu.X >> 7;
+
+        return std::nullopt;
+    };
+}
+
 RT6502::QueuedInstr RT6502::InstructionSet::INC(CPU& cpu) {
     return [&] {
         cpu.RW = false;

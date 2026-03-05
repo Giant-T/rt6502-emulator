@@ -57,6 +57,8 @@ enum Opcodes : Byte {
     INS_CMP_ZP = 0xC5,
     INS_CMP_ABS = 0xCD,
 
+    INS_INY_IMP = 0xC8,
+    INS_INX_IMP = 0xE8,
     INS_INC_ZP = 0xE6,
     INS_INC_ABS = 0xEE,
 
@@ -102,6 +104,8 @@ QueuedInstr PLA(CPU&);
 QueuedInstr PHA(CPU&);
 QueuedInstr PLP(CPU&);
 QueuedInstr CMP(CPU&);
+QueuedInstr INY(CPU&);
+QueuedInstr INX(CPU&);
 QueuedInstr INC(CPU&);
 QueuedInstr BPL(CPU&);
 QueuedInstr BMI(CPU&);
@@ -144,6 +148,8 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_CMP_IMM, {INS_CMP_IMM, 2, 2, "CMP", AddressingMode::AddressingMode::Immediate, Read, CMP}},
     {INS_CMP_ZP, {INS_CMP_ZP, 2, 3, "CMP", AddressingMode::AddressingMode::Zeropage, Read, CMP}},
     {INS_CMP_ABS, {INS_CMP_ABS, 3, 4, "CMP", AddressingMode::AddressingMode::Absolute, Read, CMP}},
+    {INS_INY_IMP, {INS_INY_IMP, 1, 2, "INY", AddressingMode::AddressingMode::Implicit, Read, INY}},
+    {INS_INX_IMP, {INS_INX_IMP, 1, 2, "INX", AddressingMode::AddressingMode::Implicit, Read, INX}},
     {INS_INC_ZP, {INS_INC_ZP, 2, 5, "INC", AddressingMode::AddressingMode::Zeropage, Read, INC}},
     {INS_INC_ABS, {INS_INC_ABS, 3, 6, "INC", AddressingMode::AddressingMode::Absolute, Read, INC}},
     {INS_BPL_REL, {INS_BPL_REL, 2, 2, "BPL", AddressingMode::AddressingMode::Relative, Read, BPL}},

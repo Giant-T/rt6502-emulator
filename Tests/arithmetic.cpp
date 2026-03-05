@@ -156,3 +156,53 @@ TEST_CASE("ASL Absolute", "[Instruction][ASL][ABS]") {
     REQUIRE_FALSE(emulator.Cpu.PS.Z);
     REQUIRE_FALSE(emulator.Cpu.PS.N);
 }
+
+TEST_CASE("INX INY Implicit", "[Instruction][INX][INY][IMP]") {
+    size_t cyclesCounters = 0;
+    size_t bytesCounters = 1;
+    RT6502::RT6502 emulator;
+
+    const auto [instruction, reg] = GENERATE_REF(
+        Params{INS_INX_IMP, emulator.Cpu.X},
+        Params{INS_INY_IMP, emulator.Cpu.Y}
+    );
+
+    INFO(OPCODE_LIST.at(instruction).Name);
+
+    emulator.Mem[0x0000] = instruction;
+    emulator.Mem[0x0001] = instruction;
+    emulator.Mem[0x0002] = instruction;
+    emulator.Reset();
+
+    reg = 0xFE;
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+reg == 0xFF);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE(emulator.Cpu.PS.N);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+reg == 0x00);
+    REQUIRE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.N);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+reg == 0x01);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.N);
+}
