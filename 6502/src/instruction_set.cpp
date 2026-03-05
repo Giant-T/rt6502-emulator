@@ -289,6 +289,39 @@ RT6502::QueuedInstr RT6502::InstructionSet::CPX(CPU& cpu) {
     };
 }
 
+RT6502::QueuedInstr RT6502::InstructionSet::DEY(CPU& cpu) {
+    return [&] {
+        --cpu.Y;
+        cpu.PS.Z = cpu.Y == 0;
+        cpu.PS.N = cpu.Y >> 7;
+
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::DEX(CPU& cpu) {
+    return [&] {
+        --cpu.X;
+        cpu.PS.Z = cpu.X == 0;
+        cpu.PS.N = cpu.X >> 7;
+
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::DEC(CPU& cpu) {
+    return [&] {
+        cpu.RW = false;
+        return [&] {
+            cpu.RW = false;
+            cpu.DataBus -= 1;
+            cpu.PS.Z = cpu.DataBus == 0;
+            cpu.PS.N = cpu.DataBus >> 7;
+            return std::nullopt;
+        };
+    };
+}
+
 RT6502::QueuedInstr RT6502::InstructionSet::INY(CPU& cpu) {
     return [&] {
         ++cpu.Y;

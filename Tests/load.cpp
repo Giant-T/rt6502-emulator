@@ -86,6 +86,7 @@ TEST_CASE("LDA LDX LDY ZeroPage", "[Instruction][LDX][LDA][LDY][ZP]") {
     emulator.Mem[0x0003] = 0xA2;
     emulator.Mem[0x0004] = instruction;
     emulator.Mem[0x0005] = 0xA3;
+
     emulator.Mem[0x00A1] = 0x12;
     emulator.Mem[0x00A2] = 0x23;
     emulator.Mem[0x00A3] = 0x34;
@@ -135,6 +136,7 @@ TEST_CASE("LDA LDX LDY Absolute", "[Instruction][LDX][LDA][LDY][ABS]") {
     emulator.Mem[0x0003] = instruction;
     emulator.Mem[0x0004] = 0x34;
     emulator.Mem[0x0005] = 0x12;
+
     emulator.Mem[0x1234] = 0x2A;
     emulator.Reset();
 

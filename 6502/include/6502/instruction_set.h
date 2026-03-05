@@ -77,6 +77,12 @@ enum Opcodes : Byte {
     INS_CPX_ZP = 0xE4,
     INS_CPX_ABS = 0xEC,
 
+    // Decrement
+    INS_DEY_IMP = 0x88,
+    INS_DEX_IMP = 0xCA,
+    INS_DEC_ZP = 0xC6,
+    INS_DEC_ABS = 0xCE,
+
     // Increment
     INS_INY_IMP = 0xC8,
     INS_INX_IMP = 0xE8,
@@ -109,6 +115,7 @@ struct Instruction {
     }
 };
 
+// Flags
 QueuedInstr CLC(CPU&);
 QueuedInstr SEC(CPU&);
 QueuedInstr CLI(CPU&);
@@ -119,35 +126,47 @@ QueuedInstr CLV(CPU&);
 
 QueuedInstr ASL(CPU&);
 
+// Jump
 QueuedInstr JSR(CPU&);
 QueuedInstr JMP(CPU&);
 QueuedInstr RTS(CPU&);
 
 QueuedInstr ADC(CPU&);
 
+// Load
 QueuedInstr LDY(CPU&);
 QueuedInstr LDX(CPU&);
 QueuedInstr LDA(CPU&);
 
+// Store
 QueuedInstr STY(CPU&);
 QueuedInstr STX(CPU&);
 QueuedInstr STA(CPU&);
 
 QueuedInstr TSX(CPU&);
 
+// Stack
 QueuedInstr PHP(CPU&);
 QueuedInstr PLA(CPU&);
 QueuedInstr PHA(CPU&);
 QueuedInstr PLP(CPU&);
 
+// Compare
 QueuedInstr CPY(CPU&);
 QueuedInstr CMP(CPU&);
 QueuedInstr CPX(CPU&);
 
+// Decrement
+QueuedInstr DEY(CPU&);
+QueuedInstr DEX(CPU&);
+QueuedInstr DEC(CPU&);
+
+// Increment
 QueuedInstr INY(CPU&);
 QueuedInstr INX(CPU&);
 QueuedInstr INC(CPU&);
 
+// Branching
 QueuedInstr BPL(CPU&);
 QueuedInstr BMI(CPU&);
 QueuedInstr BVC(CPU&);
@@ -158,6 +177,7 @@ QueuedInstr BNE(CPU&);
 QueuedInstr BEQ(CPU&);
 
 inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
+    // Flags
     {INS_CLC_IMP, {INS_CLC_IMP, 1, 2, "CLC", AddressingMode::AddressingMode::Implicit, Read, CLC}},
     {INS_SEC_IMP, {INS_SEC_IMP, 1, 2, "SEC", AddressingMode::AddressingMode::Implicit, Read, SEC}},
     {INS_CLI_IMP, {INS_CLI_IMP, 1, 2, "CLI", AddressingMode::AddressingMode::Implicit, Read, CLI}},
@@ -169,6 +189,7 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_ASL_ZP, {INS_ASL_ZP, 2, 5, "ASL", AddressingMode::AddressingMode::Zeropage, Read, ASL}},
     {INS_ASL_ABS, {INS_ASL_ABS, 3, 6, "ASL", AddressingMode::AddressingMode::Absolute, Read, ASL}},
 
+    // Jump
     {INS_JSR_ABS, {INS_JSR_ABS, 3, 6, "JSR", AddressingMode::AddressingMode::Absolute, Read, JSR}},
     {INS_JMP_ABS, {INS_JMP_ABS, 3, 3, "JMP", AddressingMode::AddressingMode::Absolute, Write, JMP}},
     {INS_RTS_IMP, {INS_RTS_IMP, 1, 6, "RTS", AddressingMode::AddressingMode::Implicit, Read, RTS}},
@@ -177,6 +198,7 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_ADC_ZP, {INS_ADC_ZP, 2, 3, "ADC", AddressingMode::AddressingMode::Zeropage, Read, ADC}},
     {INS_ADC_ABS, {INS_ADC_ABS, 3, 4, "ADC", AddressingMode::AddressingMode::Absolute, Read, ADC}},
 
+    // Load
     {INS_LDY_IMM, {INS_LDY_IMM, 2, 2, "LDY", AddressingMode::AddressingMode::Immediate, Read, LDY}},
     {INS_LDY_ZP, {INS_LDY_ZP, 2, 3, "LDY", AddressingMode::AddressingMode::Zeropage, Read, LDY}},
     {INS_LDY_ABS, {INS_LDY_ABS, 3, 4, "LDY", AddressingMode::AddressingMode::Absolute, Read, LDY}},
@@ -187,6 +209,7 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_LDA_ZP, {INS_LDA_ZP, 2, 3, "LDA", AddressingMode::AddressingMode::Zeropage, Read, LDA}},
     {INS_LDA_ABS, {INS_LDA_ABS, 3, 4, "LDA", AddressingMode::AddressingMode::Absolute, Read, LDA}},
 
+    // Store
     {INS_STA_ZP, {INS_STA_ZP, 2, 3, "STA", AddressingMode::AddressingMode::Zeropage, Write, STA}},
     {INS_STA_ABS, {INS_STA_ABS, 3, 4, "STA", AddressingMode::AddressingMode::Absolute, Write, STA}},
     {INS_STY_ZP, {INS_STY_ZP, 2, 3, "STY", AddressingMode::AddressingMode::Zeropage, Write, STY}},
@@ -196,11 +219,13 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
 
     {INS_TSX_IMP, {INS_TSX_IMP, 1, 2, "TSX", AddressingMode::AddressingMode::Implicit, Read, TSX}},
 
+    // Stack
     {INS_PHP_IMP, {INS_PHP_IMP, 1, 3, "PHP", AddressingMode::AddressingMode::Implicit, Write, PHP}},
     {INS_PLP_IMP, {INS_PLP_IMP, 1, 4, "PLP", AddressingMode::AddressingMode::Implicit, Read, PLP}},
     {INS_PHA_IMP, {INS_PHA_IMP, 1, 3, "PHA", AddressingMode::AddressingMode::Implicit, Write, PHA}},
     {INS_PLA_IMP, {INS_PLA_IMP, 1, 4, "PLA", AddressingMode::AddressingMode::Implicit, Read, PLA}},
 
+    // Compare
     {INS_CPY_IMM, {INS_CPY_IMM, 2, 2, "CPY", AddressingMode::AddressingMode::Immediate, Read, CPY}},
     {INS_CPY_ZP, {INS_CPY_ZP, 2, 3, "CPY", AddressingMode::AddressingMode::Zeropage, Read, CPY}},
     {INS_CPY_ABS, {INS_CPY_ABS, 3, 4, "CPY", AddressingMode::AddressingMode::Absolute, Read, CPY}},
@@ -211,11 +236,19 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_CPX_ZP, {INS_CPX_ZP, 2, 3, "CPX", AddressingMode::AddressingMode::Zeropage, Read, CPX}},
     {INS_CPX_ABS, {INS_CPX_ABS, 3, 4, "CPX", AddressingMode::AddressingMode::Absolute, Read, CPX}},
 
+    // Decrement
+    {INS_DEY_IMP, {INS_DEY_IMP, 1, 2, "DEY", AddressingMode::AddressingMode::Implicit, Read, DEY}},
+    {INS_DEX_IMP, {INS_DEX_IMP, 1, 2, "DEX", AddressingMode::AddressingMode::Implicit, Read, DEX}},
+    {INS_DEC_ZP, {INS_DEC_ZP, 2, 5, "DEC", AddressingMode::AddressingMode::Zeropage, Read, DEC}},
+    {INS_DEC_ABS, {INS_DEC_ABS, 3, 6, "DEC", AddressingMode::AddressingMode::Absolute, Read, DEC}},
+
+    // Increment
     {INS_INY_IMP, {INS_INY_IMP, 1, 2, "INY", AddressingMode::AddressingMode::Implicit, Read, INY}},
     {INS_INX_IMP, {INS_INX_IMP, 1, 2, "INX", AddressingMode::AddressingMode::Implicit, Read, INX}},
     {INS_INC_ZP, {INS_INC_ZP, 2, 5, "INC", AddressingMode::AddressingMode::Zeropage, Read, INC}},
     {INS_INC_ABS, {INS_INC_ABS, 3, 6, "INC", AddressingMode::AddressingMode::Absolute, Read, INC}},
 
+    // Branching
     {INS_BPL_REL, {INS_BPL_REL, 2, 2, "BPL", AddressingMode::AddressingMode::Relative, Read, BPL}},
     {INS_BMI_REL, {INS_BMI_REL, 2, 2, "BMI", AddressingMode::AddressingMode::Relative, Read, BMI}},
     {INS_BVC_REL, {INS_BVC_REL, 2, 2, "BVC", AddressingMode::AddressingMode::Relative, Read, BVC}},
