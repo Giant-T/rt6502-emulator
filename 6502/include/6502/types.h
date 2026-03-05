@@ -57,8 +57,20 @@ struct Flags {
     Byte V : 1;  // Bit 6 - Overflow
     Byte N : 1;  // Bit 7 - Negative Result
 
-    operator Byte() const {
+    explicit operator Byte() const {
         return std::bit_cast<Byte>(*this);
+    }
+
+    void operator=(const Byte value) {
+        *this = std::bit_cast<Flags, Byte>(value);
+    }
+
+    bool operator==(const Flags& value) const {
+        return static_cast<Byte>(*this) == static_cast<Byte>(value);
+    }
+
+    bool operator==(const Byte& value) const {
+        return static_cast<Byte>(*this) == value;
     }
 };
 

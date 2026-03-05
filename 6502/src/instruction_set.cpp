@@ -134,10 +134,44 @@ RT6502::QueuedInstr RT6502::InstructionSet::TSX(CPU& cpu) {
 RT6502::QueuedInstr RT6502::InstructionSet::PHP(CPU& cpu) {
     return [&] {
         cpu.RW = false;
-        cpu.DataBus = cpu.PS;
+        cpu.DataBus = static_cast<Byte>(cpu.PS);
         cpu.AddressBus.Low = cpu.SP--;
         cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
         return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::PLA(CPU& cpu) {
+    return [&] {
+        cpu.SP++;
+
+        return [&] {
+            cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
+            cpu.AddressBus.Low = cpu.SP;
+
+            return [&] {
+                cpu.A = cpu.DataBus;
+                cpu.PS.Z = cpu.A == 0;
+                cpu.PS.N = cpu.A >> 7;
+                return std::nullopt;
+            };
+        };
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::PLP(CPU& cpu) {
+    return [&] {
+        cpu.SP++;
+
+        return [&] {
+            cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
+            cpu.AddressBus.Low = cpu.SP;
+
+            return [&] {
+                cpu.PS = cpu.DataBus;
+                return std::nullopt;
+            };
+        };
     };
 }
 
