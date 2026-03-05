@@ -19,9 +19,19 @@ namespace RT6502::InstructionSet {
 // opcodes
 enum Opcodes : Byte {
 
+    // Set Flags
+    INS_CLC_IMP = 0x18,
+    INS_SEC_IMP = 0x38,
+    INS_CLI_IMP = 0x58,
+    INS_SEI_IMP = 0x78,
+    INS_CLD_IMP = 0xD8,
+    INS_SED_IMP = 0xF8,
+    INS_CLV_IMP = 0xB8,
+
     INS_ASL_ZP = 0x06,
     INS_ASL_ABS = 0x0E,
 
+    // Jump
     INS_JSR_ABS = 0x20,
     INS_JMP_ABS = 0x4C,
     INS_RTS_IMP = 0x60,
@@ -30,6 +40,7 @@ enum Opcodes : Byte {
     INS_ADC_ZP = 0x65,
     INS_ADC_ABS = 0x6D,
 
+    // Load
     INS_LDY_IMM = 0xA0,
     INS_LDY_ZP = 0xA4,
     INS_LDY_ABS = 0xAC,
@@ -40,6 +51,7 @@ enum Opcodes : Byte {
     INS_LDA_ZP = 0xA5,
     INS_LDA_ABS = 0xAD,
 
+    // Store
     INS_STY_ZP = 0x84,
     INS_STY_ABS = 0x8C,
     INS_STA_ZP = 0x85,
@@ -47,21 +59,25 @@ enum Opcodes : Byte {
     INS_STX_ZP = 0x86,
     INS_STX_ABS = 0x8E,
 
+    // Stack
     INS_TSX_IMP = 0xBA,
     INS_PHP_IMP = 0x08,
     INS_PLP_IMP = 0x28,
     INS_PHA_IMP = 0x48,
     INS_PLA_IMP = 0x68,
 
+    // Compare
     INS_CMP_IMM = 0xC9,
     INS_CMP_ZP = 0xC5,
     INS_CMP_ABS = 0xCD,
 
+    // Increment
     INS_INY_IMP = 0xC8,
     INS_INX_IMP = 0xE8,
     INS_INC_ZP = 0xE6,
     INS_INC_ABS = 0xEE,
 
+    // Branching
     INS_BPL_REL = 0x10,
     INS_BMI_REL = 0x30,
     INS_BVC_REL = 0x50,
@@ -87,6 +103,13 @@ struct Instruction {
     }
 };
 
+QueuedInstr CLC(CPU&);
+QueuedInstr SEC(CPU&);
+QueuedInstr CLI(CPU&);
+QueuedInstr SEI(CPU&);
+QueuedInstr CLD(CPU&);
+QueuedInstr SED(CPU&);
+QueuedInstr CLV(CPU&);
 QueuedInstr ASL(CPU&);
 QueuedInstr JSR(CPU&);
 QueuedInstr JMP(CPU&);
@@ -117,6 +140,13 @@ QueuedInstr BNE(CPU&);
 QueuedInstr BEQ(CPU&);
 
 inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
+    {INS_CLC_IMP, {INS_CLC_IMP, 1, 2, "CLC", AddressingMode::AddressingMode::Implicit, Read, CLC}},
+    {INS_SEC_IMP, {INS_SEC_IMP, 1, 2, "SEC", AddressingMode::AddressingMode::Implicit, Read, SEC}},
+    {INS_CLI_IMP, {INS_CLI_IMP, 1, 2, "CLI", AddressingMode::AddressingMode::Implicit, Read, CLI}},
+    {INS_SEI_IMP, {INS_SEI_IMP, 1, 2, "SEI", AddressingMode::AddressingMode::Implicit, Read, SEI}},
+    {INS_CLD_IMP, {INS_CLD_IMP, 1, 2, "CLD", AddressingMode::AddressingMode::Implicit, Read, CLD}},
+    {INS_SED_IMP, {INS_SED_IMP, 1, 2, "SED", AddressingMode::AddressingMode::Implicit, Read, SED}},
+    {INS_CLV_IMP, {INS_CLV_IMP, 1, 2, "CLV", AddressingMode::AddressingMode::Implicit, Read, CLV}},
     {INS_ASL_ZP, {INS_ASL_ZP, 2, 5, "ASL", AddressingMode::AddressingMode::Zeropage, Read, ASL}},
     {INS_ASL_ABS, {INS_ASL_ABS, 3, 6, "ASL", AddressingMode::AddressingMode::Absolute, Read, ASL}},
     {INS_JSR_ABS, {INS_JSR_ABS, 3, 6, "JSR", AddressingMode::AddressingMode::Absolute, Read, JSR}},

@@ -1,5 +1,54 @@
 #include "6502/instruction_set.h"
 
+RT6502::QueuedInstr RT6502::InstructionSet::CLC(CPU& cpu) {
+    return [&] {
+        cpu.PS.C = 0;
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::SEC(CPU& cpu) {
+    return [&] {
+        cpu.PS.C = 1;
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::CLI(CPU& cpu) {
+    return [&] {
+        cpu.PS.I = 0;
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::SEI(CPU& cpu) {
+    return [&] {
+        cpu.PS.I = 1;
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::CLD(CPU& cpu) {
+    return [&] {
+        cpu.PS.D = 0;
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::SED(CPU& cpu) {
+    return [&] {
+        cpu.PS.D = 1;
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::CLV(CPU& cpu) {
+    return [&] {
+        cpu.PS.V = 0;
+        return std::nullopt;
+    };
+}
+
 RT6502::QueuedInstr RT6502::InstructionSet::ASL(CPU& cpu) {
     return [&] {
         cpu.RW = false;
