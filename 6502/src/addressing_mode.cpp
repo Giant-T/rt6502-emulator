@@ -64,7 +64,7 @@ RT6502::QueuedInstr RT6502::AddressingMode::Execute(CPU& cpu) {
         // case addressing_mode::IndirectIndexed:
         // return "(${:02X}),Y";
         default:
-            throw "not implemented";
+            throw std::exception("not implemented");
     }
 }
 

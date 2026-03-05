@@ -28,6 +28,9 @@ static constexpr Byte INS_ADC_IMM = 0x69;
 static constexpr Byte INS_ADC_ZP = 0x65;
 static constexpr Byte INS_ADC_ABS = 0x6D;
 
+static constexpr Byte INS_LDY_IMM = 0xA0;
+static constexpr Byte INS_LDY_ZP = 0xA4;
+static constexpr Byte INS_LDY_ABS = 0xAC;
 static constexpr Byte INS_LDX_IMM = 0xA2;
 static constexpr Byte INS_LDX_ZP = 0xA6;
 static constexpr Byte INS_LDX_ABS = 0xAE;
@@ -35,6 +38,8 @@ static constexpr Byte INS_LDA_IMM = 0xA9;
 static constexpr Byte INS_LDA_ZP = 0xA5;
 static constexpr Byte INS_LDA_ABS = 0xAD;
 
+static constexpr Byte INS_STY_ZP = 0x84;
+static constexpr Byte INS_STY_ABS = 0x8C;
 static constexpr Byte INS_STA_ZP = 0x85;
 static constexpr Byte INS_STA_ABS = 0x8D;
 static constexpr Byte INS_STX_ZP = 0x86;
@@ -81,15 +86,17 @@ QueuedInstr JSR(CPU&);
 QueuedInstr JMP(CPU&);
 QueuedInstr RTS(CPU&);
 QueuedInstr ADC(CPU&);
+QueuedInstr LDY(CPU&);
 QueuedInstr LDX(CPU&);
 QueuedInstr LDA(CPU&);
+QueuedInstr STY(CPU&);
+QueuedInstr STX(CPU&);
 QueuedInstr STA(CPU&);
 QueuedInstr TSX(CPU&);
 QueuedInstr PHP(CPU&);
 QueuedInstr PLA(CPU&);
 QueuedInstr PHA(CPU&);
 QueuedInstr PLP(CPU&);
-QueuedInstr STX(CPU&);
 QueuedInstr CMP(CPU&);
 QueuedInstr INC(CPU&);
 QueuedInstr BPL(CPU&);
@@ -110,6 +117,9 @@ inline const std::map<Byte, const Instruction> OPCODE_LIST = {
     {INS_ADC_IMM, {INS_ADC_IMM, 2, 2, "ADC", AddressingMode::AddressingMode::Immediate, Read, ADC}},
     {INS_ADC_ZP, {INS_ADC_ZP, 2, 3, "ADC", AddressingMode::AddressingMode::Zeropage, Read, ADC}},
     {INS_ADC_ABS, {INS_ADC_ABS, 3, 4, "ADC", AddressingMode::AddressingMode::Absolute, Read, ADC}},
+    {INS_LDY_IMM, {INS_LDY_IMM, 2, 2, "LDY", AddressingMode::AddressingMode::Immediate, Read, LDY}},
+    {INS_LDY_ZP, {INS_LDY_ZP, 2, 3, "LDY", AddressingMode::AddressingMode::Zeropage, Read, LDY}},
+    {INS_LDY_ABS, {INS_LDY_ABS, 3, 4, "LDY", AddressingMode::AddressingMode::Absolute, Read, LDY}},
     {INS_LDX_IMM, {INS_LDX_IMM, 2, 2, "LDX", AddressingMode::AddressingMode::Immediate, Read, LDX}},
     {INS_LDX_ZP, {INS_LDX_ZP, 2, 3, "LDX", AddressingMode::AddressingMode::Zeropage, Read, LDX}},
     {INS_LDX_ABS, {INS_LDX_ABS, 3, 4, "LDX", AddressingMode::AddressingMode::Absolute, Read, LDX}},
@@ -118,6 +128,8 @@ inline const std::map<Byte, const Instruction> OPCODE_LIST = {
     {INS_LDA_ABS, {INS_LDA_ABS, 3, 4, "LDA", AddressingMode::AddressingMode::Absolute, Read, LDA}},
     {INS_STA_ZP, {INS_STA_ZP, 2, 3, "STA", AddressingMode::AddressingMode::Zeropage, Write, STA}},
     {INS_STA_ABS, {INS_STA_ABS, 3, 4, "STA", AddressingMode::AddressingMode::Absolute, Write, STA}},
+    {INS_STY_ZP, {INS_STY_ZP, 2, 3, "STY", AddressingMode::AddressingMode::Zeropage, Write, STY}},
+    {INS_STY_ABS, {INS_STY_ABS, 3, 4, "STY", AddressingMode::AddressingMode::Absolute, Write, STY}},
     {INS_STX_ZP, {INS_STX_ZP, 2, 3, "STX", AddressingMode::AddressingMode::Zeropage, Write, STX}},
     {INS_STX_ABS, {INS_STX_ABS, 3, 4, "STX", AddressingMode::AddressingMode::Absolute, Write, STX}},
     {INS_TSX_IMP, {INS_TSX_IMP, 1, 2, "TSX", AddressingMode::AddressingMode::Implicit, Read, TSX}},

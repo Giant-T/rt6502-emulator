@@ -16,7 +16,8 @@ TEST_CASE("LDA LDX LDY Immediate", "[Instruction][LDX][LDA][LDY][Imm]") {
 
     const auto [instruction, reg] = GENERATE_REF(
         Params{RT6502::InstructionSet::INS_LDA_IMM, emulator.Cpu.A},
-        Params{RT6502::InstructionSet::INS_LDX_IMM, emulator.Cpu.X}
+        Params{RT6502::InstructionSet::INS_LDX_IMM, emulator.Cpu.X},
+        Params{RT6502::InstructionSet::INS_LDY_IMM, emulator.Cpu.Y}
     );
 
     INFO(RT6502::InstructionSet::OPCODE_LIST.at(instruction).Name);
@@ -71,7 +72,8 @@ TEST_CASE("LDA LDX LDY ZeroPage", "[Instruction][LDX][LDA][LDY][ZP]") {
 
     const auto [instruction, reg] = GENERATE_REF(
         Params{RT6502::InstructionSet::INS_LDA_ZP, emulator.Cpu.A},
-        Params{RT6502::InstructionSet::INS_LDX_ZP, emulator.Cpu.X}
+        Params{RT6502::InstructionSet::INS_LDX_ZP, emulator.Cpu.X},
+        Params{RT6502::InstructionSet::INS_LDY_ZP, emulator.Cpu.Y}
     );
 
     INFO(RT6502::InstructionSet::OPCODE_LIST.at(instruction).Name);
@@ -119,7 +121,8 @@ TEST_CASE("LDA LDX LDY Absolute", "[Instruction][LDX][LDA][LDY][ABS]") {
 
     const auto [instruction, reg] = GENERATE_REF(
         Params{RT6502::InstructionSet::INS_LDA_ABS, emulator.Cpu.A},
-        Params{RT6502::InstructionSet::INS_LDX_ABS, emulator.Cpu.X}
+        Params{RT6502::InstructionSet::INS_LDX_ABS, emulator.Cpu.X},
+        Params{RT6502::InstructionSet::INS_LDY_ABS, emulator.Cpu.Y}
     );
 
     INFO(RT6502::InstructionSet::OPCODE_LIST.at(instruction).Name);

@@ -30,8 +30,9 @@ RT6502::Byte RT6502::Decode::FetchByte(Word& pc, const Memory& memory) noexcept 
 RT6502::Word RT6502::Decode::FetchWord(Word& pc, const Memory& memory) noexcept {
     const auto lowByte = FetchByte(pc, memory);
     const auto highByte = FetchByte(pc, memory);
-    Word result = 0;
-    result.Low = lowByte;
-    result.High = highByte;
-    return result;
+
+    return {
+        highByte,
+        lowByte
+    };
 }

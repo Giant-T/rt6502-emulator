@@ -18,6 +18,7 @@ TEST_CASE("STA STX STY ZeroPage", "[Instruction][STA][STX][STY][ZP]") {
 
     const auto [instruction, instruction_load, reg] = GENERATE_REF(
         Params{RT6502::InstructionSet::INS_STA_ZP, RT6502::InstructionSet::INS_LDA_IMM, emulator.Cpu.A},
+        Params{RT6502::InstructionSet::INS_STY_ZP, RT6502::InstructionSet::INS_LDY_IMM, emulator.Cpu.Y},
         Params{RT6502::InstructionSet::INS_STX_ZP, RT6502::InstructionSet::INS_LDX_IMM, emulator.Cpu.X}
     );
 
@@ -67,6 +68,7 @@ TEST_CASE("STA STX STY Absolute", "[Instruction][STA][STX][STY][ABS]") {
 
     const auto [instruction, instruction_load, reg] = GENERATE_REF(
         Params{RT6502::InstructionSet::INS_STA_ABS, RT6502::InstructionSet::INS_LDA_IMM, emulator.Cpu.A},
+        Params{RT6502::InstructionSet::INS_STY_ABS, RT6502::InstructionSet::INS_LDY_IMM, emulator.Cpu.Y},
         Params{RT6502::InstructionSet::INS_STX_ABS, RT6502::InstructionSet::INS_LDX_IMM, emulator.Cpu.X}
     );
 
