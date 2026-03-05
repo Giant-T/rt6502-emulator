@@ -196,15 +196,6 @@ RT6502::QueuedInstr RT6502::InstructionSet::STA(CPU& cpu) {
     };
 }
 
-RT6502::QueuedInstr RT6502::InstructionSet::TSX(CPU& cpu) {
-    return [&] {
-        cpu.X = cpu.SP;
-        cpu.PS.Z = cpu.X == 0;
-        cpu.PS.N = cpu.X >> 7;
-        return std::nullopt;
-    };
-}
-
 RT6502::QueuedInstr RT6502::InstructionSet::PHP(CPU& cpu) {
     return [&] {
         cpu.RW = false;
@@ -256,6 +247,58 @@ RT6502::QueuedInstr RT6502::InstructionSet::PLP(CPU& cpu) {
                 return std::nullopt;
             };
         };
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::TXA(CPU& cpu) {
+    return [&] {
+        cpu.A = cpu.X;
+        cpu.PS.Z = cpu.A == 0;
+        cpu.PS.N = cpu.A >> 7;
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::TYA(CPU& cpu) {
+    return [&] {
+        cpu.A = cpu.Y;
+        cpu.PS.Z = cpu.A == 0;
+        cpu.PS.N = cpu.A >> 7;
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::TXS(CPU& cpu) {
+    return [&] {
+        cpu.SP = cpu.X;
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::TAY(CPU& cpu) {
+    return [&] {
+        cpu.Y = cpu.A;
+        cpu.PS.Z = cpu.Y == 0;
+        cpu.PS.N = cpu.Y >> 7;
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::TAX(CPU& cpu) {
+    return [&] {
+        cpu.X = cpu.A;
+        cpu.PS.Z = cpu.X == 0;
+        cpu.PS.N = cpu.X >> 7;
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::TSX(CPU& cpu) {
+    return [&] {
+        cpu.X = cpu.SP;
+        cpu.PS.Z = cpu.X == 0;
+        cpu.PS.N = cpu.X >> 7;
+        return std::nullopt;
     };
 }
 

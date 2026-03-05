@@ -60,11 +60,18 @@ enum Opcodes : Byte {
     INS_STX_ABS = 0x8E,
 
     // Stack
-    INS_TSX_IMP = 0xBA,
     INS_PHP_IMP = 0x08,
     INS_PLP_IMP = 0x28,
     INS_PHA_IMP = 0x48,
     INS_PLA_IMP = 0x68,
+
+    // Transfer
+    INS_TXA_IMP = 0x8A,
+    INS_TYA_IMP = 0x98,
+    INS_TXS_IMP = 0x9A,
+    INS_TAY_IMP = 0xA8,
+    INS_TAX_IMP = 0xAA,
+    INS_TSX_IMP = 0xBA,
 
     // Compare
     INS_CPY_IMM = 0xC0,
@@ -143,13 +150,19 @@ QueuedInstr STY(CPU&);
 QueuedInstr STX(CPU&);
 QueuedInstr STA(CPU&);
 
-QueuedInstr TSX(CPU&);
-
 // Stack
 QueuedInstr PHP(CPU&);
 QueuedInstr PLA(CPU&);
 QueuedInstr PHA(CPU&);
 QueuedInstr PLP(CPU&);
+
+// Transfer
+QueuedInstr TXA(CPU&);
+QueuedInstr TYA(CPU&);
+QueuedInstr TXS(CPU&);
+QueuedInstr TAY(CPU&);
+QueuedInstr TAX(CPU&);
+QueuedInstr TSX(CPU&);
 
 // Compare
 QueuedInstr CPY(CPU&);
@@ -217,13 +230,19 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_STX_ZP, {INS_STX_ZP, 2, 3, "STX", AddressingMode::AddressingMode::Zeropage, Write, STX}},
     {INS_STX_ABS, {INS_STX_ABS, 3, 4, "STX", AddressingMode::AddressingMode::Absolute, Write, STX}},
 
-    {INS_TSX_IMP, {INS_TSX_IMP, 1, 2, "TSX", AddressingMode::AddressingMode::Implicit, Read, TSX}},
-
     // Stack
     {INS_PHP_IMP, {INS_PHP_IMP, 1, 3, "PHP", AddressingMode::AddressingMode::Implicit, Write, PHP}},
     {INS_PLP_IMP, {INS_PLP_IMP, 1, 4, "PLP", AddressingMode::AddressingMode::Implicit, Read, PLP}},
     {INS_PHA_IMP, {INS_PHA_IMP, 1, 3, "PHA", AddressingMode::AddressingMode::Implicit, Write, PHA}},
     {INS_PLA_IMP, {INS_PLA_IMP, 1, 4, "PLA", AddressingMode::AddressingMode::Implicit, Read, PLA}},
+
+    // Transfer
+    {INS_TXA_IMP, {INS_TXA_IMP, 1, 2, "TXA", AddressingMode::AddressingMode::Implicit, Read, TXA}},
+    {INS_TYA_IMP, {INS_TYA_IMP, 1, 2, "TYA", AddressingMode::AddressingMode::Implicit, Read, TYA}},
+    {INS_TXS_IMP, {INS_TXS_IMP, 1, 2, "TXS", AddressingMode::AddressingMode::Implicit, Read, TXS}},
+    {INS_TAY_IMP, {INS_TAY_IMP, 1, 2, "TAY", AddressingMode::AddressingMode::Implicit, Read, TAY}},
+    {INS_TAX_IMP, {INS_TAX_IMP, 1, 2, "TAX", AddressingMode::AddressingMode::Implicit, Read, TAX}},
+    {INS_TSX_IMP, {INS_TSX_IMP, 1, 2, "TSX", AddressingMode::AddressingMode::Implicit, Read, TSX}},
 
     // Compare
     {INS_CPY_IMM, {INS_CPY_IMM, 2, 2, "CPY", AddressingMode::AddressingMode::Immediate, Read, CPY}},
