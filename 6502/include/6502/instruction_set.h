@@ -17,29 +17,39 @@
 namespace RT6502::InstructionSet {
 
 // opcodes
+static constexpr Byte INS_ASL_ZP = 0x06;
+static constexpr Byte INS_ASL_ABS = 0x0E;
+
 static constexpr Byte INS_JSR_ABS = 0x20;
 static constexpr Byte INS_JMP_ABS = 0x4C;
 static constexpr Byte INS_RTS_IMP = 0x60;
+
 static constexpr Byte INS_ADC_IMM = 0x69;
 static constexpr Byte INS_ADC_ZP = 0x65;
 static constexpr Byte INS_ADC_ABS = 0x6D;
+
 static constexpr Byte INS_LDX_IMM = 0xA2;
 static constexpr Byte INS_LDX_ZP = 0xA6;
 static constexpr Byte INS_LDX_ABS = 0xAE;
 static constexpr Byte INS_LDA_IMM = 0xA9;
 static constexpr Byte INS_LDA_ZP = 0xA5;
 static constexpr Byte INS_LDA_ABS = 0xAD;
+
 static constexpr Byte INS_STA_ZP = 0x85;
 static constexpr Byte INS_STA_ABS = 0x8D;
 static constexpr Byte INS_STX_ZP = 0x86;
 static constexpr Byte INS_STX_ABS = 0x8E;
+
 static constexpr Byte INS_TSX_IMP = 0xBA;
 static constexpr Byte INS_PHA_IMP = 0x48;
+
 static constexpr Byte INS_CMP_IMM = 0xC9;
 static constexpr Byte INS_CMP_ZP = 0xC5;
 static constexpr Byte INS_CMP_ABS = 0xCD;
+
 static constexpr Byte INS_INC_ZP = 0xE6;
 static constexpr Byte INS_INC_ABS = 0xEE;
+
 static constexpr Byte INS_BPL_REL = 0x10;
 static constexpr Byte INS_BMI_REL = 0x30;
 static constexpr Byte INS_BVC_REL = 0x50;
@@ -63,6 +73,7 @@ struct Instruction {
     }
 };
 
+QueuedInstr ASL(CPU&);
 QueuedInstr JSR(CPU&);
 QueuedInstr JMP(CPU&);
 QueuedInstr RTS(CPU&);
@@ -85,6 +96,8 @@ QueuedInstr BNE(CPU&);
 QueuedInstr BEQ(CPU&);
 
 inline const std::map<Byte, const Instruction> OPCODE_LIST = {
+    {INS_ASL_ZP, {INS_ASL_ZP, 2, 5, "ASL", AddressingMode::AddressingMode::Zeropage, Read, ASL}},
+    {INS_ASL_ABS, {INS_ASL_ABS, 3, 6, "ASL", AddressingMode::AddressingMode::Absolute, Read, ASL}},
     {INS_JSR_ABS, {INS_JSR_ABS, 3, 6, "JSR", AddressingMode::AddressingMode::Absolute, Read, JSR}},
     {INS_JMP_ABS, {INS_JMP_ABS, 3, 3, "JMP", AddressingMode::AddressingMode::Absolute, Write, JMP}},
     {INS_RTS_IMP, {INS_RTS_IMP, 1, 6, "RTS", AddressingMode::AddressingMode::Implicit, Read, RTS}},

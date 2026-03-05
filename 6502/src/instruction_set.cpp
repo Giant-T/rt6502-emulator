@@ -1,5 +1,20 @@
 #include "6502/instruction_set.h"
 
+RT6502::QueuedInstr RT6502::InstructionSet::ASL(CPU& cpu) {
+    return [&] {
+        cpu.RW = false;
+        return [&] {
+            cpu.RW = false;
+
+            cpu.PS.C = cpu.DataBus >> 7;
+            cpu.DataBus <<= 1;
+            cpu.PS.Z = cpu.DataBus == 0;
+            cpu.PS.N = cpu.DataBus >> 7;
+            return std::nullopt;
+        };
+    };
+}
+
 /**
  *
  * @warning Ce n'est pas la bonne séquence d'exécution, mais on peut vivre avec
