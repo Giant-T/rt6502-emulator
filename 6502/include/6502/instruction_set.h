@@ -28,6 +28,7 @@ enum Opcodes : Byte {
     INS_SED_IMP = 0xF8,
     INS_CLV_IMP = 0xB8,
 
+    // Arithmetic
     INS_ASL_ZP = 0x06,
     INS_ASL_ABS = 0x0E,
     INS_LSR_ZP = 0x4A,
@@ -35,6 +36,18 @@ enum Opcodes : Byte {
 
     INS_BIT_ZP = 0x24,
     INS_BIT_ABS = 0x2C,
+
+    INS_ROL_ZP = 0x26,
+    INS_ROL_ABS = 0x2E,
+    INS_ROR_ZP = 0x66,
+    INS_ROR_ABS = 0x6E,
+
+    INS_ADC_IMM = 0x69,
+    INS_ADC_ZP = 0x65,
+    INS_ADC_ABS = 0x6D,
+    INS_SBC_IMM = 0xE9,
+    INS_SBC_ZP = 0xE5,
+    INS_SBC_ABS = 0xED,
 
     INS_ORA_IMM = 0x09,
     INS_ORA_ZP = 0x05,
@@ -50,13 +63,6 @@ enum Opcodes : Byte {
     INS_JSR_ABS = 0x20,
     INS_JMP_ABS = 0x4C,
     INS_RTS_IMP = 0x60,
-
-    INS_ADC_IMM = 0x69,
-    INS_ADC_ZP = 0x65,
-    INS_ADC_ABS = 0x6D,
-    INS_SBC_IMM = 0xE9,
-    INS_SBC_ZP = 0xE5,
-    INS_SBC_ABS = 0xED,
 
     // Load
     INS_LDY_IMM = 0xA0,
@@ -149,10 +155,17 @@ QueuedInstr CLD(CPU&);
 QueuedInstr SED(CPU&);
 QueuedInstr CLV(CPU&);
 
+// Arithmetic
 QueuedInstr ASL(CPU&);
 QueuedInstr LSR(CPU&);
 
+QueuedInstr ADC(CPU&);
+QueuedInstr SBC(CPU&);
+
 QueuedInstr BIT(CPU&);
+
+QueuedInstr ROL(CPU&);
+QueuedInstr ROR(CPU&);
 
 QueuedInstr ORA(CPU&);
 QueuedInstr AND(CPU&);
@@ -162,9 +175,6 @@ QueuedInstr EOR(CPU&);
 QueuedInstr JSR(CPU&);
 QueuedInstr JMP(CPU&);
 QueuedInstr RTS(CPU&);
-
-QueuedInstr ADC(CPU&);
-QueuedInstr SBC(CPU&);
 
 // Load
 QueuedInstr LDY(CPU&);
@@ -225,13 +235,26 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_SED_IMP, {INS_SED_IMP, 1, 2, "SED", AddressingMode::AddressingMode::Implicit, Read, SED}},
     {INS_CLV_IMP, {INS_CLV_IMP, 1, 2, "CLV", AddressingMode::AddressingMode::Implicit, Read, CLV}},
 
+    // Arithmetic
     {INS_ASL_ZP, {INS_ASL_ZP, 2, 5, "ASL", AddressingMode::AddressingMode::Zeropage, Read, ASL}},
     {INS_ASL_ABS, {INS_ASL_ABS, 3, 6, "ASL", AddressingMode::AddressingMode::Absolute, Read, ASL}},
     {INS_LSR_ZP, {INS_LSR_ZP, 2, 5, "LSR", AddressingMode::AddressingMode::Zeropage, Read, LSR}},
     {INS_LSR_ABS, {INS_LSR_ABS, 3, 6, "LSR", AddressingMode::AddressingMode::Absolute, Read, LSR}},
 
+    {INS_ADC_IMM, {INS_ADC_IMM, 2, 2, "ADC", AddressingMode::AddressingMode::Immediate, Read, ADC}},
+    {INS_ADC_ZP, {INS_ADC_ZP, 2, 3, "ADC", AddressingMode::AddressingMode::Zeropage, Read, ADC}},
+    {INS_ADC_ABS, {INS_ADC_ABS, 3, 4, "ADC", AddressingMode::AddressingMode::Absolute, Read, ADC}},
+    {INS_SBC_IMM, {INS_SBC_IMM, 2, 2, "SBC", AddressingMode::AddressingMode::Immediate, Read, SBC}},
+    {INS_SBC_ZP, {INS_SBC_ZP, 2, 3, "SBC", AddressingMode::AddressingMode::Zeropage, Read, SBC}},
+    {INS_SBC_ABS, {INS_SBC_ABS, 3, 4, "SBC", AddressingMode::AddressingMode::Absolute, Read, SBC}},
+
     {INS_BIT_ZP, {INS_BIT_ZP, 2, 3, "BIT", AddressingMode::AddressingMode::Zeropage, Read, BIT}},
     {INS_BIT_ABS, {INS_BIT_ABS, 3, 4, "BIT", AddressingMode::AddressingMode::Absolute, Read, BIT}},
+
+    {INS_ROL_ZP, {INS_ROL_ZP, 2, 5, "ROL", AddressingMode::AddressingMode::Zeropage, Read, ROL}},
+    {INS_ROL_ABS, {INS_ROL_ZP, 3, 6, "ROL", AddressingMode::AddressingMode::Absolute, Read, ROL}},
+    {INS_ROR_ZP, {INS_ROR_ZP, 2, 5, "ROR", AddressingMode::AddressingMode::Zeropage, Read, ROR}},
+    {INS_ROR_ABS, {INS_ROR_ZP, 3, 6, "ROR", AddressingMode::AddressingMode::Absolute, Read, ROR}},
 
     {INS_ORA_IMM, {INS_ORA_IMM, 2, 2, "ORA", AddressingMode::AddressingMode::Immediate, Read, ORA}},
     {INS_ORA_ZP, {INS_ORA_ZP, 2, 3, "ORA", AddressingMode::AddressingMode::Zeropage, Read, ORA}},
@@ -247,13 +270,6 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_JSR_ABS, {INS_JSR_ABS, 3, 6, "JSR", AddressingMode::AddressingMode::Absolute, Read, JSR}},
     {INS_JMP_ABS, {INS_JMP_ABS, 3, 3, "JMP", AddressingMode::AddressingMode::Absolute, Write, JMP}},
     {INS_RTS_IMP, {INS_RTS_IMP, 1, 6, "RTS", AddressingMode::AddressingMode::Implicit, Read, RTS}},
-
-    {INS_ADC_IMM, {INS_ADC_IMM, 2, 2, "ADC", AddressingMode::AddressingMode::Immediate, Read, ADC}},
-    {INS_ADC_ZP, {INS_ADC_ZP, 2, 3, "ADC", AddressingMode::AddressingMode::Zeropage, Read, ADC}},
-    {INS_ADC_ABS, {INS_ADC_ABS, 3, 4, "ADC", AddressingMode::AddressingMode::Absolute, Read, ADC}},
-    {INS_SBC_IMM, {INS_SBC_IMM, 2, 2, "SBC", AddressingMode::AddressingMode::Immediate, Read, SBC}},
-    {INS_SBC_ZP, {INS_SBC_ZP, 2, 3, "SBC", AddressingMode::AddressingMode::Zeropage, Read, SBC}},
-    {INS_SBC_ABS, {INS_SBC_ABS, 3, 4, "SBC", AddressingMode::AddressingMode::Absolute, Read, SBC}},
 
     // Load
     {INS_LDY_IMM, {INS_LDY_IMM, 2, 2, "LDY", AddressingMode::AddressingMode::Immediate, Read, LDY}},
