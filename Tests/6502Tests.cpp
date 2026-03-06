@@ -6,39 +6,55 @@
 
 using namespace RT6502::InstructionSet;
 
-TEST_CASE("TSX Impl", "[Instruction][TSX][Impl]") {
+TEST_CASE("BIT ZeroPage", "[Instruction][BIT][ZP]") {
     size_t cyclesCounters = 0;
     size_t bytesCounters = 1;
 
+    constexpr auto instruction = INS_BIT_ZP;
+
     RT6502::RT6502 emulator;
-    emulator.Mem[0x0000] = INS_TSX_IMP;
-    emulator.Mem[0x0001] = INS_TSX_IMP;
-    emulator.Mem[0x0002] = INS_TSX_IMP;
+    emulator.Mem[0x0000] = instruction;
+    emulator.Mem[0x0001] = 0x34;
+    emulator.Mem[0x0034] = 0b10101010;
     emulator.Reset();
 
-    emulator.Execute();
-    cyclesCounters += OPCODE_LIST.at(INS_TSX_IMP).Cycles;
-    bytesCounters += OPCODE_LIST.at(INS_TSX_IMP).Bytes;
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == bytesCounters);
-    REQUIRE(+emulator.Cpu.X == RT6502::CPU::STACK_POINTER_BEGIN);
+    emulator.Cpu.A = 0b01010101;
 
     emulator.Execute();
-    cyclesCounters += OPCODE_LIST.at(INS_TSX_IMP).Cycles;
-    bytesCounters += OPCODE_LIST.at(INS_TSX_IMP).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
-    REQUIRE(+emulator.Cpu.X == RT6502::CPU::STACK_POINTER_BEGIN);
+    REQUIRE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.V);
+    REQUIRE(emulator.Cpu.PS.N);
+}
+
+TEST_CASE("BIT Absolute", "[Instruction][BIT][ABS]") {
+    size_t cyclesCounters = 0;
+    size_t bytesCounters = 1;
+
+    constexpr auto instruction = INS_BIT_ABS;
+
+    RT6502::RT6502 emulator;
+    emulator.Mem[0x0000] = instruction;
+    emulator.Mem[0x0001] = 0x34;
+    emulator.Mem[0x0002] = 0x12;
+    emulator.Mem[0x1234] = 0b10101010;
+    emulator.Reset();
+
+    emulator.Cpu.A = 0b01010101;
 
     emulator.Execute();
-    cyclesCounters += OPCODE_LIST.at(INS_TSX_IMP).Cycles;
-    bytesCounters += OPCODE_LIST.at(INS_TSX_IMP).Bytes;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
-    REQUIRE(+emulator.Cpu.X == RT6502::CPU::STACK_POINTER_BEGIN);
+    REQUIRE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.V);
+    REQUIRE(emulator.Cpu.PS.N);
 }
 
 TEST_CASE("Clear Flags Implicit", "[Instruction][CLC][CLI][CLD][CLV][IMP]") {

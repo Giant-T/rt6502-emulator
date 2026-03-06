@@ -79,6 +79,15 @@ RT6502::QueuedInstr RT6502::InstructionSet::LSR(CPU& cpu) {
     };
 }
 
+RT6502::QueuedInstr RT6502::InstructionSet::BIT(CPU& cpu) {
+    return [&] {
+        cpu.PS.Z = (cpu.A & cpu.DataBus) == 0;
+        cpu.PS.V = cpu.DataBus >> 6 & 0b1;
+        cpu.PS.N = cpu.DataBus >> 7;
+        return std::nullopt;
+    };
+}
+
 RT6502::QueuedInstr RT6502::InstructionSet::ORA(CPU& cpu) {
     return [&] {
         cpu.A |= cpu.DataBus;
