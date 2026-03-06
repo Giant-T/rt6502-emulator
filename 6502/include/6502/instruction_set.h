@@ -54,6 +54,9 @@ enum Opcodes : Byte {
     INS_ADC_IMM = 0x69,
     INS_ADC_ZP = 0x65,
     INS_ADC_ABS = 0x6D,
+    INS_SBC_IMM = 0xE9,
+    INS_SBC_ZP = 0xE5,
+    INS_SBC_ABS = 0xED,
 
     // Load
     INS_LDY_IMM = 0xA0,
@@ -161,6 +164,7 @@ QueuedInstr JMP(CPU&);
 QueuedInstr RTS(CPU&);
 
 QueuedInstr ADC(CPU&);
+QueuedInstr SBC(CPU&);
 
 // Load
 QueuedInstr LDY(CPU&);
@@ -247,6 +251,9 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_ADC_IMM, {INS_ADC_IMM, 2, 2, "ADC", AddressingMode::AddressingMode::Immediate, Read, ADC}},
     {INS_ADC_ZP, {INS_ADC_ZP, 2, 3, "ADC", AddressingMode::AddressingMode::Zeropage, Read, ADC}},
     {INS_ADC_ABS, {INS_ADC_ABS, 3, 4, "ADC", AddressingMode::AddressingMode::Absolute, Read, ADC}},
+    {INS_SBC_IMM, {INS_SBC_IMM, 2, 2, "SBC", AddressingMode::AddressingMode::Immediate, Read, SBC}},
+    {INS_SBC_ZP, {INS_SBC_ZP, 2, 3, "SBC", AddressingMode::AddressingMode::Zeropage, Read, SBC}},
+    {INS_SBC_ABS, {INS_SBC_ABS, 3, 4, "SBC", AddressingMode::AddressingMode::Absolute, Read, SBC}},
 
     // Load
     {INS_LDY_IMM, {INS_LDY_IMM, 2, 2, "LDY", AddressingMode::AddressingMode::Immediate, Read, LDY}},

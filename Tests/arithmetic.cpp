@@ -23,10 +23,15 @@ TEST_CASE("ADC Immediate", "[Instruction][ADC][Imm]") {
     INFO(OPCODE_LIST.at(instruction).Name);
 
     emulator.Mem[0x0000] = instruction;
-    emulator.Mem[0x0001] = 0x10;
+    emulator.Mem[0x0001] = 0x05;
+    emulator.Mem[0x0002] = instruction;
+    emulator.Mem[0x0003] = 0x05;
+    emulator.Mem[0x0004] = instruction;
+    emulator.Mem[0x0005] = 0x7D;
     emulator.Reset();
 
-    emulator.Cpu.A = 0x15;
+    reg = 0xFB;
+    emulator.Cpu.PS.C = 0;
 
     emulator.Execute();
     cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
@@ -34,11 +39,35 @@ TEST_CASE("ADC Immediate", "[Instruction][ADC][Imm]") {
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
-    REQUIRE(+reg == 0x25);
+    REQUIRE(+reg == 0x00);
+    REQUIRE(emulator.Cpu.PS.C);
+    REQUIRE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.V);
+    REQUIRE_FALSE(emulator.Cpu.PS.N);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+reg == 0x06);
     REQUIRE_FALSE(emulator.Cpu.PS.C);
     REQUIRE_FALSE(emulator.Cpu.PS.Z);
     REQUIRE_FALSE(emulator.Cpu.PS.V);
     REQUIRE_FALSE(emulator.Cpu.PS.N);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+reg == 0x83);
+    REQUIRE_FALSE(emulator.Cpu.PS.C);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE(emulator.Cpu.PS.V);
+    REQUIRE(emulator.Cpu.PS.N);
 }
 
 TEST_CASE("ADC ZeroPage", "[Instruction][ADC][ZP]") {
@@ -101,6 +130,65 @@ TEST_CASE("ADC Absolute", "[Instruction][ADC][ABS]") {
     REQUIRE(emulator.Cpu.PS.C);
     REQUIRE(emulator.Cpu.PS.Z);
     REQUIRE_FALSE(emulator.Cpu.PS.V);
+    REQUIRE_FALSE(emulator.Cpu.PS.N);
+}
+
+TEST_CASE("SBC Immediate", "[Instruction][SBC][Imm]") {
+    size_t cyclesCounters = 0;
+    size_t bytesCounters = 1;
+    RT6502::RT6502 emulator;
+
+    const auto [instruction, reg] = GENERATE_REF(
+        Params{INS_SBC_IMM, emulator.Cpu.A}
+    );
+
+    INFO(OPCODE_LIST.at(instruction).Name);
+
+    emulator.Mem[0x0000] = instruction;
+    emulator.Mem[0x0001] = 0x05;
+    emulator.Mem[0x0002] = instruction;
+    emulator.Mem[0x0003] = 0x05;
+    emulator.Mem[0x0004] = instruction;
+    emulator.Mem[0x0005] = 0x7d;
+    emulator.Reset();
+
+    reg = 0x05;
+    emulator.Cpu.PS.C = 1;
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+reg == 0x00);
+    REQUIRE(emulator.Cpu.PS.C);
+    REQUIRE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.V);
+    REQUIRE_FALSE(emulator.Cpu.PS.N);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+reg == 0xFB);
+    REQUIRE_FALSE(emulator.Cpu.PS.C);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.V);
+    REQUIRE(emulator.Cpu.PS.N);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+reg == 0x7D);
+    REQUIRE(emulator.Cpu.PS.C);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE(emulator.Cpu.PS.V);
     REQUIRE_FALSE(emulator.Cpu.PS.N);
 }
 
