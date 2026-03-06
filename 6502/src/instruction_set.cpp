@@ -15,6 +15,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::BRK(CPU& cpu) {
 
             return [&] {
                 cpu.RW = false;
+                cpu.PS.B = 1;
                 cpu.DataBus = static_cast<Byte>(cpu.PS);
                 cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
                 cpu.AddressBus.Low = cpu.SP--;
@@ -25,7 +26,6 @@ RT6502::QueuedInstr RT6502::InstructionSet::BRK(CPU& cpu) {
                     return [&] {
                         cpu.AddressRegister.Low = cpu.DataBus;
                         ++cpu.AddressBus.Low;
-                        cpu.PS.B = 1;
 
                         return [&] {
                             cpu.AddressRegister.High = cpu.DataBus;

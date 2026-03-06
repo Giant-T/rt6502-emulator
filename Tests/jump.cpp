@@ -137,7 +137,8 @@ TEST_CASE("BRK Implicit", "[Instruction][BRK][IMP]") {
     emulator.Mem[0xFFFF] = 0x12;
     emulator.Reset();
 
-    const auto copyFlags = emulator.Cpu.PS;
+    auto copyFlags = emulator.Cpu.PS;
+    copyFlags.B = 1;
 
     emulator.Execute();
     cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
@@ -173,7 +174,8 @@ TEST_CASE("RTI Implicit", "[Instruction][RTI][IMP]") {
     emulator.Mem[0xFFFF] = 0x12;
     emulator.Reset();
 
-    const auto copyFlags = emulator.Cpu.PS;
+    auto copyFlags = emulator.Cpu.PS;
+    copyFlags.B = 1;
 
     emulator.Execute();
     cyclesCounters += OPCODE_LIST.at(INS_BRK_IMP).Cycles;
