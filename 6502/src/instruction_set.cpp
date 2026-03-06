@@ -254,6 +254,35 @@ RT6502::QueuedInstr RT6502::InstructionSet::JMP(CPU& cpu) {
     };
 }
 
+RT6502::QueuedInstr RT6502::InstructionSet::RTI(CPU& cpu) {
+    return [&] {
+        ++cpu.SP;
+
+        return [&] {
+            cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
+            cpu.AddressBus.Low = cpu.SP++;
+
+            return [&] {
+                cpu.PS = cpu.DataBus;
+                cpu.AddressBus.Low = cpu.SP++;
+
+                return [&] {
+                    cpu.PC.Low = cpu.DataBus;
+                    cpu.AddressBus.Low = cpu.SP;
+
+                    return [&] {
+                        cpu.PC.High = cpu.DataBus;
+
+                        cpu.AddressBus = cpu.PC;
+
+                        return std::nullopt;
+                    };
+                };
+            };
+        };
+    };
+}
+
 /**
  *
  * @warning Ce n'est pas la bonne séquence d'exécution, mais on peut vivre avec

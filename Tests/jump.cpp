@@ -156,3 +156,46 @@ TEST_CASE("BRK Implicit", "[Instruction][BRK][IMP]") {
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(+emulator.Cpu.X == 0x15);
 }
+
+TEST_CASE("RTI Implicit", "[Instruction][RTI][IMP]") {
+    size_t cyclesCounters = 0;
+
+    RT6502::RT6502 emulator;
+    emulator.Mem[0x0000] = INS_BRK_IMP;
+    emulator.Mem[0x0001] = INS_LDX_IMM;
+    emulator.Mem[0x0002] = 0x25;
+
+    emulator.Mem[0x1234] = INS_LDX_IMM;
+    emulator.Mem[0x1235] = 0x15;
+    emulator.Mem[0x1236] = INS_RTI_IMP;
+
+    emulator.Mem[0xFFFE] = 0x34;
+    emulator.Mem[0xFFFF] = 0x12;
+    emulator.Reset();
+
+    const auto copyFlags = emulator.Cpu.PS;
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(INS_BRK_IMP).Cycles;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(INS_LDX_IMM).Cycles;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(+emulator.Cpu.X == 0x15);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(INS_RTI_IMP).Cycles;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == 0x0001 + 1);
+    REQUIRE(emulator.Cpu.PS == copyFlags);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(INS_LDX_IMM).Cycles;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(+emulator.Cpu.X == 0x25);
+}

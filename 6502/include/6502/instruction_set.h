@@ -64,6 +64,7 @@ enum Opcodes : Byte {
     // Jump
     INS_JSR_ABS = 0x20,
     INS_JMP_ABS = 0x4C,
+    INS_RTI_IMP = 0x40,
     INS_RTS_IMP = 0x60,
 
     // Load
@@ -180,6 +181,7 @@ QueuedInstr EOR(CPU&);
 // Jump
 QueuedInstr JSR(CPU&);
 QueuedInstr JMP(CPU&);
+QueuedInstr RTI(CPU&);
 QueuedInstr RTS(CPU&);
 
 // Load
@@ -279,6 +281,7 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     // Jump
     {INS_JSR_ABS, {INS_JSR_ABS, 3, 6, "JSR", AddressingMode::AddressingMode::Absolute, Read, JSR}},
     {INS_JMP_ABS, {INS_JMP_ABS, 3, 3, "JMP", AddressingMode::AddressingMode::Absolute, Write, JMP}},
+    {INS_RTI_IMP, {INS_RTI_IMP, 1, 6, "RTI", AddressingMode::AddressingMode::Implicit, Read, RTI}},
     {INS_RTS_IMP, {INS_RTS_IMP, 1, 6, "RTS", AddressingMode::AddressingMode::Implicit, Read, RTS}},
 
     // Load
