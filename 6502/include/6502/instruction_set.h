@@ -19,6 +19,8 @@ namespace RT6502::InstructionSet {
 // opcodes
 enum Opcodes : Byte {
 
+    INS_BRK_IMP = 0X00,
+
     // Set Flags
     INS_CLC_IMP = 0x18,
     INS_SEC_IMP = 0x38,
@@ -148,6 +150,8 @@ struct Instruction {
     }
 };
 
+QueuedInstr BRK(CPU&);
+
 // Flags
 QueuedInstr CLC(CPU&);
 QueuedInstr SEC(CPU&);
@@ -230,6 +234,8 @@ QueuedInstr BEQ(CPU&);
 QueuedInstr NOP(CPU&);
 
 inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
+    {INS_BRK_IMP, {INS_BRK_IMP, 1, 7, "BRK", AddressingMode::AddressingMode::Implicit, Read, BRK}},
+
     // Flags
     {INS_CLC_IMP, {INS_CLC_IMP, 1, 2, "CLC", AddressingMode::AddressingMode::Implicit, Read, CLC}},
     {INS_SEC_IMP, {INS_SEC_IMP, 1, 2, "SEC", AddressingMode::AddressingMode::Implicit, Read, SEC}},
