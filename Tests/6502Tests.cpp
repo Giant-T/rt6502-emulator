@@ -157,3 +157,29 @@ TEST_CASE("Transfer Implicit", "[Instruction][TXA][TYA][TXS][TAY][TAX][TSX][IMP]
     REQUIRE(emulator.Cpu.PC == bytesCounters);
     REQUIRE(dst_reg == src_reg);
 }
+
+TEST_CASE("NOP Implicit", "[Instruction][NOP][IMP]") {
+    size_t cyclesCounters = 0;
+    size_t bytesCounters = 1;
+
+    constexpr auto instruction = INS_NOP_IMP;
+
+    RT6502::RT6502 emulator;
+    emulator.Mem[0x0000] = instruction;
+    emulator.Mem[0x0001] = instruction;
+    emulator.Reset();
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+}

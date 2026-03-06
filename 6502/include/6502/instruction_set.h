@@ -130,6 +130,8 @@ enum Opcodes : Byte {
     INS_BNE_REL = 0xD0,
     INS_BEQ_REL = 0xF0,
 
+    INS_NOP_IMP = 0xEA,
+
 };
 
 struct Instruction {
@@ -224,6 +226,8 @@ QueuedInstr BCC(CPU&);
 QueuedInstr BCS(CPU&);
 QueuedInstr BNE(CPU&);
 QueuedInstr BEQ(CPU&);
+
+QueuedInstr NOP(CPU&);
 
 inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     // Flags
@@ -336,6 +340,8 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_BCS_REL, {INS_BCS_REL, 2, 2, "BCS", AddressingMode::AddressingMode::Relative, Read, BCS}},
     {INS_BNE_REL, {INS_BNE_REL, 2, 2, "BNE", AddressingMode::AddressingMode::Relative, Read, BNE}},
     {INS_BEQ_REL, {INS_BEQ_REL, 2, 2, "BEQ", AddressingMode::AddressingMode::Relative, Read, BEQ}},
+
+    {INS_NOP_IMP, {INS_NOP_IMP, 1, 2, "NOP", AddressingMode::AddressingMode::Implicit, Read, NOP}},
 };
 
 }  // namespace RT6502::InstructionSet

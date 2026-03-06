@@ -724,3 +724,9 @@ RT6502::QueuedInstr RT6502::InstructionSet::BEQ(CPU& cpu) {
         return std::nullopt;
     };
 }
+
+RT6502::QueuedInstr RT6502::InstructionSet::NOP(CPU& cpu) {
+    return [&] {
+        return std::nullopt;
+    };
+}
