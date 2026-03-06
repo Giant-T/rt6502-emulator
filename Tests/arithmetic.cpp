@@ -115,7 +115,7 @@ TEST_CASE("ASL ZeroPage", "[Instruction][ASL][ZP]") {
 
     emulator.Mem[0x0000] = instruction;
     emulator.Mem[0x0001] = 0x34;
-    emulator.Mem[0x0034] = 0xAD;
+    emulator.Mem[0x0034] = 0b10101101;
     emulator.Reset();
 
     emulator.Execute();
@@ -124,7 +124,7 @@ TEST_CASE("ASL ZeroPage", "[Instruction][ASL][ZP]") {
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
-    REQUIRE(emulator.Mem[0x0034] == 0x5A);
+    REQUIRE(emulator.Mem[0x0034] == 0b01011010);
     REQUIRE(emulator.Cpu.PS.C);
     REQUIRE_FALSE(emulator.Cpu.PS.Z);
     REQUIRE_FALSE(emulator.Cpu.PS.N);
@@ -142,7 +142,7 @@ TEST_CASE("ASL Absolute", "[Instruction][ASL][ABS]") {
     emulator.Mem[0x0000] = instruction;
     emulator.Mem[0x0001] = 0x34;
     emulator.Mem[0x0002] = 0x00;
-    emulator.Mem[0x0034] = 0xAD;
+    emulator.Mem[0x0034] = 0b10101101;
     emulator.Reset();
 
     emulator.Execute();
@@ -151,7 +151,60 @@ TEST_CASE("ASL Absolute", "[Instruction][ASL][ABS]") {
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
-    REQUIRE(emulator.Mem[0x0034] == 0x5A);
+    REQUIRE(emulator.Mem[0x0034] == 0b01011010);
+    REQUIRE(emulator.Cpu.PS.C);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.N);
+}
+
+TEST_CASE("LSR ZeroPage", "[Instruction][LSR][ZP]") {
+    size_t cyclesCounters = 0;
+    size_t bytesCounters = 1;
+    RT6502::RT6502 emulator;
+
+    constexpr auto instruction = INS_LSR_ZP;
+
+    INFO(OPCODE_LIST.at(instruction).Name);
+
+    emulator.Mem[0x0000] = instruction;
+    emulator.Mem[0x0001] = 0x34;
+    emulator.Mem[0x0034] = 0b10101101;
+    emulator.Reset();
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(emulator.Mem[0x0034] == 0b01010110);
+    REQUIRE(emulator.Cpu.PS.C);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.N);
+}
+
+TEST_CASE("LSR Absolute", "[Instruction][LSR][ABS]") {
+    size_t cyclesCounters = 0;
+    size_t bytesCounters = 1;
+    RT6502::RT6502 emulator;
+
+    constexpr auto instruction = INS_LSR_ABS;
+
+    INFO(OPCODE_LIST.at(instruction).Name);
+
+    emulator.Mem[0x0000] = instruction;
+    emulator.Mem[0x0001] = 0x34;
+    emulator.Mem[0x0002] = 0x00;
+    emulator.Mem[0x0034] = 0b10101101;
+    emulator.Reset();
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(emulator.Mem[0x0034] == 0b01010110);
     REQUIRE(emulator.Cpu.PS.C);
     REQUIRE_FALSE(emulator.Cpu.PS.Z);
     REQUIRE_FALSE(emulator.Cpu.PS.N);
