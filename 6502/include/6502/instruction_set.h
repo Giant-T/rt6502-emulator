@@ -31,6 +31,16 @@ enum Opcodes : Byte {
     INS_ASL_ZP = 0x06,
     INS_ASL_ABS = 0x0E,
 
+    INS_ORA_IMM = 0x09,
+    INS_ORA_ZP = 0x05,
+    INS_ORA_ABS = 0x0D,
+    INS_AND_IMM = 0x29,
+    INS_AND_ZP = 0x25,
+    INS_AND_ABS = 0x2D,
+    INS_EOR_IMM = 0x49,
+    INS_EOR_ZP = 0x45,
+    INS_EOR_ABS = 0x4D,
+
     // Jump
     INS_JSR_ABS = 0x20,
     INS_JMP_ABS = 0x4C,
@@ -133,6 +143,10 @@ QueuedInstr CLV(CPU&);
 
 QueuedInstr ASL(CPU&);
 
+QueuedInstr ORA(CPU&);
+QueuedInstr AND(CPU&);
+QueuedInstr EOR(CPU&);
+
 // Jump
 QueuedInstr JSR(CPU&);
 QueuedInstr JMP(CPU&);
@@ -201,6 +215,16 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
 
     {INS_ASL_ZP, {INS_ASL_ZP, 2, 5, "ASL", AddressingMode::AddressingMode::Zeropage, Read, ASL}},
     {INS_ASL_ABS, {INS_ASL_ABS, 3, 6, "ASL", AddressingMode::AddressingMode::Absolute, Read, ASL}},
+
+    {INS_ORA_IMM, {INS_ORA_IMM, 2, 2, "ORA", AddressingMode::AddressingMode::Immediate, Read, ORA}},
+    {INS_ORA_ZP, {INS_ORA_ZP, 2, 3, "ORA", AddressingMode::AddressingMode::Zeropage, Read, ORA}},
+    {INS_ORA_ABS, {INS_ORA_ABS, 3, 4, "ORA", AddressingMode::AddressingMode::Absolute, Read, ORA}},
+    {INS_AND_IMM, {INS_AND_IMM, 2, 2, "AND", AddressingMode::AddressingMode::Immediate, Read, AND}},
+    {INS_AND_ZP, {INS_AND_ZP, 2, 3, "AND", AddressingMode::AddressingMode::Zeropage, Read, AND}},
+    {INS_AND_ABS, {INS_AND_ABS, 3, 4, "AND", AddressingMode::AddressingMode::Absolute, Read, AND}},
+    {INS_EOR_IMM, {INS_EOR_IMM, 2, 2, "EOR", AddressingMode::AddressingMode::Immediate, Read, EOR}},
+    {INS_EOR_ZP, {INS_EOR_ZP, 2, 3, "EOR", AddressingMode::AddressingMode::Zeropage, Read, EOR}},
+    {INS_EOR_ABS, {INS_EOR_ABS, 3, 4, "EOR", AddressingMode::AddressingMode::Absolute, Read, EOR}},
 
     // Jump
     {INS_JSR_ABS, {INS_JSR_ABS, 3, 6, "JSR", AddressingMode::AddressingMode::Absolute, Read, JSR}},

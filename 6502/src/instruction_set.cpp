@@ -64,6 +64,33 @@ RT6502::QueuedInstr RT6502::InstructionSet::ASL(CPU& cpu) {
     };
 }
 
+RT6502::QueuedInstr RT6502::InstructionSet::ORA(CPU& cpu) {
+    return [&] {
+        cpu.A |= cpu.DataBus;
+        cpu.PS.Z = cpu.A == 0;
+        cpu.PS.N = cpu.A >> 7;
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::AND(CPU& cpu) {
+    return [&] {
+        cpu.A &= cpu.DataBus;
+        cpu.PS.Z = cpu.A == 0;
+        cpu.PS.N = cpu.A >> 7;
+        return std::nullopt;
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::EOR(CPU& cpu) {
+    return [&] {
+        cpu.A ^= cpu.DataBus;
+        cpu.PS.Z = cpu.A == 0;
+        cpu.PS.N = cpu.A >> 7;
+        return std::nullopt;
+    };
+}
+
 /**
  *
  * @warning Ce n'est pas la bonne séquence d'exécution, mais on peut vivre avec
