@@ -35,5 +35,6 @@ QueuedInstr Absolute(CPU& cpu);
 QueuedInstr AbsoluteX(CPU& cpu);
 QueuedInstr AbsoluteY(CPU& cpu);
 QueuedInstr Indirect(CPU& cpu);
+QueuedInstr IndexedIndirect(CPU& cpu);
 
 }  // namespace RT6502::AddressingMode

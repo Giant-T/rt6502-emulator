@@ -238,3 +238,72 @@ TEST_CASE("STA AbsoluteXY", "[Instruction][STA][ABSX][ABSY]") {
     REQUIRE(emulator.Cpu.PC == bytesCounters);
     REQUIRE(+emulator.Mem[0x1333] == +reg);
 }
+
+TEST_CASE("STA IndexedIndirect", "[Instruction][STA][INDX]") {
+    size_t cyclesCounters = 0;
+    size_t bytesCounters = 1;
+
+    RT6502::RT6502 emulator;
+
+    struct Params {
+        Opcodes Instruction;
+        RT6502::Byte& Reg;
+        RT6502::Byte& IndexReg;
+    };
+
+    const auto [instruction, reg, index_reg] = GENERATE_REF(
+        Params{INS_STA_INDX, emulator.Cpu.A, emulator.Cpu.X}
+    );
+
+    INFO(OPCODE_LIST.at(instruction).Name);
+
+    emulator.Mem[0x0000] = instruction;
+    emulator.Mem[0x0001] = 0x20;
+    emulator.Mem[0x0002] = instruction;
+    emulator.Mem[0x0003] = 0x20;
+    emulator.Mem[0x0004] = instruction;
+    emulator.Mem[0x0005] = 0x20;
+
+    emulator.Mem[0x001E] = 0x67;
+    emulator.Mem[0x001F] = 0x45;
+    emulator.Mem[0x0020] = 0x34;
+    emulator.Mem[0x0021] = 0x12;
+
+    emulator.Mem[0x0024] = 0xBB;
+    emulator.Mem[0x0025] = 0xAA;
+
+    emulator.Reset();
+
+    reg = 0x15;
+    index_reg = 0x00;
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+emulator.Mem[0x1234] == +reg);
+
+    reg = 0x35;
+    index_reg = 0x04;
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+emulator.Mem[0xAABB] == +reg);
+
+    reg = 0x45;
+    index_reg = 0xFE;
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(+emulator.Mem[0x4567] == +reg);
+}

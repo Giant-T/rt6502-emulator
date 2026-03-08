@@ -59,8 +59,8 @@ RT6502::QueuedInstr RT6502::AddressingMode::Execute(CPU& cpu) {
             return AbsoluteY(cpu);
         case AddressingMode::Indirect:
             return Indirect(cpu);
-        // case AddressingMode::IndexedIndirect:
-        // return "(${:02X},X)";
+        case AddressingMode::IndexedIndirect:
+            return IndexedIndirect(cpu);
         // case AddressingMode::IndirectIndexed:
         // return "(${:02X}),Y";
         default:
@@ -315,6 +315,36 @@ RT6502::QueuedInstr RT6502::AddressingMode::Indirect(CPU& cpu) {
                         cpu.AddressBus = cpu.AddressRegister;
 
                         return cpu.IR->Func(cpu)();
+                    };
+                };
+            };
+        };
+    };
+}
+
+RT6502::QueuedInstr RT6502::AddressingMode::IndexedIndirect(CPU& cpu) {
+    return [&] {
+        cpu.AddressBus = cpu.PC++;
+
+        return [&] {
+            cpu.AddressBus = cpu.DataBus;
+
+            return [&] {
+                cpu.AddressBus.Low += cpu.X;
+
+                return [&] {
+                    cpu.AddressRegister.Low = cpu.DataBus;
+                    cpu.AddressBus.Low++;
+
+                    return [&] -> std::optional<QueuedInstr> {
+                        cpu.AddressRegister.High = cpu.DataBus;
+                        cpu.AddressBus = cpu.AddressRegister;
+
+                        if (cpu.IR->RW == Write) {
+                            return cpu.IR->Func(cpu)();
+                        }
+
+                        return cpu.IR->Func(cpu);
                     };
                 };
             };
