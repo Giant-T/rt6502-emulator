@@ -131,13 +131,17 @@ enum Opcodes : Byte {
     INS_DEY_IMP = 0x88,
     INS_DEX_IMP = 0xCA,
     INS_DEC_ZP = 0xC6,
+    INS_DEC_ZPX = 0xD6,
     INS_DEC_ABS = 0xCE,
+    INS_DEC_ABSX = 0xDE,
 
     // Increment
     INS_INY_IMP = 0xC8,
     INS_INX_IMP = 0xE8,
     INS_INC_ZP = 0xE6,
+    INS_INC_ZPX = 0xF6,
     INS_INC_ABS = 0xEE,
+    INS_INC_ABSX = 0xFE,
 
     // Branching
     INS_BPL_REL = 0x10,
@@ -368,13 +372,17 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_DEY_IMP, {INS_DEY_IMP, 1, 2, "DEY", AddressingMode::AddressingMode::Implicit, Read, DEY}},
     {INS_DEX_IMP, {INS_DEX_IMP, 1, 2, "DEX", AddressingMode::AddressingMode::Implicit, Read, DEX}},
     {INS_DEC_ZP, {INS_DEC_ZP, 2, 5, "DEC", AddressingMode::AddressingMode::Zeropage, Read, DEC}},
+    {INS_DEC_ZPX, {INS_DEC_ZPX, 2, 6, "DEC", AddressingMode::AddressingMode::ZeropageX, Read, DEC}},
     {INS_DEC_ABS, {INS_DEC_ABS, 3, 6, "DEC", AddressingMode::AddressingMode::Absolute, Read, DEC}},
+    {INS_DEC_ABSX, {INS_DEC_ABSX, 3, 7, "DEC", AddressingMode::AddressingMode::AbsoluteX, RMW, DEC}},
 
     // Increment
     {INS_INY_IMP, {INS_INY_IMP, 1, 2, "INY", AddressingMode::AddressingMode::Implicit, Read, INY}},
     {INS_INX_IMP, {INS_INX_IMP, 1, 2, "INX", AddressingMode::AddressingMode::Implicit, Read, INX}},
     {INS_INC_ZP, {INS_INC_ZP, 2, 5, "INC", AddressingMode::AddressingMode::Zeropage, Read, INC}},
+    {INS_INC_ZPX, {INS_INC_ZPX, 2, 6, "INC", AddressingMode::AddressingMode::ZeropageX, Read, INC}},
     {INS_INC_ABS, {INS_INC_ABS, 3, 6, "INC", AddressingMode::AddressingMode::Absolute, Read, INC}},
+    {INS_INC_ABSX, {INS_INC_ABSX, 3, 7, "INC", AddressingMode::AddressingMode::AbsoluteX, RMW, INC}},
 
     // Branching
     {INS_BPL_REL, {INS_BPL_REL, 2, 2, "BPL", AddressingMode::AddressingMode::Relative, Read, BPL}},

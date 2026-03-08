@@ -219,10 +219,13 @@ RT6502::QueuedInstr RT6502::AddressingMode::AbsoluteX(CPU& cpu) {
                 cpu.AddressRegister.Low += cpu.X;
                 cpu.AddressBus = cpu.AddressRegister;
 
-                if (cpu.IR->RW == Write) {
-                    return [&cpu, isOverflow] {
+                if (cpu.IR->RW & Write) {
+                    return [&cpu, isOverflow] -> std::optional<QueuedInstr> {
                         cpu.AddressRegister.High += isOverflow;
                         cpu.AddressBus = cpu.AddressRegister;
+
+                        if (cpu.IR->RW == RMW)
+                            return cpu.IR->Func(cpu);
 
                         return cpu.IR->Func(cpu)();
                     };
@@ -263,10 +266,13 @@ RT6502::QueuedInstr RT6502::AddressingMode::AbsoluteY(CPU& cpu) {
                 cpu.AddressRegister.Low += cpu.Y;
                 cpu.AddressBus = cpu.AddressRegister;
 
-                if (cpu.IR->RW == Write) {
-                    return [&cpu, isOverflow] {
+                if (cpu.IR->RW & Write) {
+                    return [&cpu, isOverflow] -> std::optional<QueuedInstr> {
                         cpu.AddressRegister.High += isOverflow;
                         cpu.AddressBus = cpu.AddressRegister;
+
+                        if (cpu.IR->RW == RMW)
+                            return cpu.IR->Func(cpu);
 
                         return cpu.IR->Func(cpu)();
                     };
