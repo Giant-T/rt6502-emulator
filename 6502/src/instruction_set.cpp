@@ -196,6 +196,20 @@ RT6502::QueuedInstr RT6502::InstructionSet::ROL(CPU& cpu) {
     };
 }
 
+RT6502::QueuedInstr RT6502::InstructionSet::ROL_ACC(CPU& cpu) {
+    return [&] {
+        const Byte newCarry = cpu.A >> 7;
+
+        cpu.A <<= 1;
+        cpu.A |= cpu.PS.C;
+        cpu.PS.C = newCarry;
+        cpu.PS.Z = cpu.A == 0;
+        cpu.PS.N = cpu.A >> 7;
+
+        return std::nullopt;
+    };
+}
+
 RT6502::QueuedInstr RT6502::InstructionSet::ROR(CPU& cpu) {
     return [&] {
         cpu.RW = false;
@@ -212,6 +226,20 @@ RT6502::QueuedInstr RT6502::InstructionSet::ROR(CPU& cpu) {
 
             return std::nullopt;
         };
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::ROR_ACC(CPU& cpu) {
+    return [&] {
+        const Byte newCarry = cpu.A & 0b1;
+
+        cpu.A >>= 1;
+        cpu.A |= cpu.PS.C << 7;
+        cpu.PS.C = newCarry;
+        cpu.PS.Z = cpu.A == 0;
+        cpu.PS.N = cpu.A >> 7;
+
+        return std::nullopt;
     };
 }
 

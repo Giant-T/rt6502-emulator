@@ -41,8 +41,10 @@ enum Opcodes : Byte {
     INS_BIT_ZP = 0x24,
     INS_BIT_ABS = 0x2C,
 
+    INS_ROL_ACC = 0x2A,
     INS_ROL_ZP = 0x26,
     INS_ROL_ABS = 0x2E,
+    INS_ROR_ACC = 0x6A,
     INS_ROR_ZP = 0x66,
     INS_ROR_ABS = 0x6E,
 
@@ -176,7 +178,9 @@ QueuedInstr SBC(CPU&);
 QueuedInstr BIT(CPU&);
 
 QueuedInstr ROL(CPU&);
+QueuedInstr ROL_ACC(CPU&);
 QueuedInstr ROR(CPU&);
+QueuedInstr ROR_ACC(CPU&);
 
 QueuedInstr ORA(CPU&);
 QueuedInstr AND(CPU&);
@@ -269,8 +273,10 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_BIT_ZP, {INS_BIT_ZP, 2, 3, "BIT", AddressingMode::AddressingMode::Zeropage, Read, BIT}},
     {INS_BIT_ABS, {INS_BIT_ABS, 3, 4, "BIT", AddressingMode::AddressingMode::Absolute, Read, BIT}},
 
+    {INS_ROL_ACC, {INS_ROL_ACC, 1, 2, "ROL", AddressingMode::AddressingMode::Accumulator, Read, ROL_ACC}},
     {INS_ROL_ZP, {INS_ROL_ZP, 2, 5, "ROL", AddressingMode::AddressingMode::Zeropage, Read, ROL}},
     {INS_ROL_ABS, {INS_ROL_ZP, 3, 6, "ROL", AddressingMode::AddressingMode::Absolute, Read, ROL}},
+    {INS_ROR_ACC, {INS_ROR_ACC, 1, 2, "ROR", AddressingMode::AddressingMode::Accumulator, Read, ROR_ACC}},
     {INS_ROR_ZP, {INS_ROR_ZP, 2, 5, "ROR", AddressingMode::AddressingMode::Zeropage, Read, ROR}},
     {INS_ROR_ABS, {INS_ROR_ZP, 3, 6, "ROR", AddressingMode::AddressingMode::Absolute, Read, ROR}},
 

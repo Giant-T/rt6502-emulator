@@ -555,6 +555,57 @@ TEST_CASE("ORA AND EOR Absolute", "[Instruction][ORA][AND][EOR][ABS]") {
     REQUIRE(emulator.Cpu.A == oper(value, 0b10101010));
 }
 
+TEST_CASE("ROL Accumulator", "[Instruction][ROL][ACC]") {
+    size_t cyclesCounters = 0;
+    size_t bytesCounters = 1;
+    RT6502::RT6502 emulator;
+
+    constexpr auto instruction = INS_ROL_ACC;
+
+    INFO(OPCODE_LIST.at(instruction).Name);
+
+    emulator.Mem[0x0000] = instruction;
+    emulator.Mem[0x0001] = instruction;
+    emulator.Mem[0x0002] = instruction;
+    emulator.Reset();
+
+    emulator.Cpu.A = 0b10011001;
+    emulator.Cpu.PS.C = 0;
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(emulator.Cpu.A == 0b00110010);
+    REQUIRE(emulator.Cpu.PS.C);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.N);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(emulator.Cpu.A == 0b01100101);
+    REQUIRE_FALSE(emulator.Cpu.PS.C);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.N);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(emulator.Cpu.A == 0b11001010);
+    REQUIRE_FALSE(emulator.Cpu.PS.C);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE(emulator.Cpu.PS.N);
+}
+
 TEST_CASE("ROL ZeroPage", "[Instruction][ROL][ZP]") {
     size_t cyclesCounters = 0;
     size_t bytesCounters = 1;
@@ -607,6 +658,57 @@ TEST_CASE("ROL ZeroPage", "[Instruction][ROL][ZP]") {
     REQUIRE_FALSE(emulator.Cpu.PS.C);
     REQUIRE_FALSE(emulator.Cpu.PS.Z);
     REQUIRE(emulator.Cpu.PS.N);
+}
+
+TEST_CASE("ROR Accumulator", "[Instruction][ROR][ACC]") {
+    size_t cyclesCounters = 0;
+    size_t bytesCounters = 1;
+    RT6502::RT6502 emulator;
+
+    constexpr auto instruction = INS_ROR_ACC;
+
+    INFO(OPCODE_LIST.at(instruction).Name);
+
+    emulator.Mem[0x0000] = instruction;
+    emulator.Mem[0x0001] = instruction;
+    emulator.Mem[0x0002] = instruction;
+    emulator.Reset();
+
+    emulator.Cpu.A = 0b10011001;
+    emulator.Cpu.PS.C = 0;
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(emulator.Cpu.A == 0b01001100);
+    REQUIRE(emulator.Cpu.PS.C);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.N);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(emulator.Cpu.A == 0b10100110);
+    REQUIRE_FALSE(emulator.Cpu.PS.C);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE(emulator.Cpu.PS.N);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(emulator.Cpu.A == 0b01010011);
+    REQUIRE_FALSE(emulator.Cpu.PS.C);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.N);
 }
 
 TEST_CASE("ROR ZeroPage", "[Instruction][ROR][ZP]") {
