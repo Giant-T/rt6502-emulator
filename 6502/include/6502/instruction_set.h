@@ -74,20 +74,26 @@ enum Opcodes : Byte {
     // Load
     INS_LDY_IMM = 0xA0,
     INS_LDY_ZP = 0xA4,
+    INS_LDY_ZPX = 0xB4,
     INS_LDY_ABS = 0xAC,
     INS_LDX_IMM = 0xA2,
     INS_LDX_ZP = 0xA6,
+    INS_LDX_ZPY = 0xB6,
     INS_LDX_ABS = 0xAE,
     INS_LDA_IMM = 0xA9,
     INS_LDA_ZP = 0xA5,
+    INS_LDA_ZPX = 0xB5,
     INS_LDA_ABS = 0xAD,
 
     // Store
     INS_STY_ZP = 0x84,
+    INS_STY_ZPX = 0x94,
     INS_STY_ABS = 0x8C,
     INS_STA_ZP = 0x85,
+    INS_STA_ZPX = 0x95,
     INS_STA_ABS = 0x8D,
     INS_STX_ZP = 0x86,
+    INS_STX_ZPY = 0x96,
     INS_STX_ABS = 0x8E,
 
     // Stack
@@ -299,20 +305,26 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     // Load
     {INS_LDY_IMM, {INS_LDY_IMM, 2, 2, "LDY", AddressingMode::AddressingMode::Immediate, Read, LDY}},
     {INS_LDY_ZP, {INS_LDY_ZP, 2, 3, "LDY", AddressingMode::AddressingMode::Zeropage, Read, LDY}},
+    {INS_LDY_ZPX, {INS_LDY_ZPX, 2, 4, "LDY", AddressingMode::AddressingMode::ZeropageX, Read, LDY}},
     {INS_LDY_ABS, {INS_LDY_ABS, 3, 4, "LDY", AddressingMode::AddressingMode::Absolute, Read, LDY}},
     {INS_LDX_IMM, {INS_LDX_IMM, 2, 2, "LDX", AddressingMode::AddressingMode::Immediate, Read, LDX}},
     {INS_LDX_ZP, {INS_LDX_ZP, 2, 3, "LDX", AddressingMode::AddressingMode::Zeropage, Read, LDX}},
+    {INS_LDX_ZPY, {INS_LDX_ZPY, 2, 4, "LDX", AddressingMode::AddressingMode::ZeropageY, Read, LDX}},
     {INS_LDX_ABS, {INS_LDX_ABS, 3, 4, "LDX", AddressingMode::AddressingMode::Absolute, Read, LDX}},
     {INS_LDA_IMM, {INS_LDA_IMM, 2, 2, "LDA", AddressingMode::AddressingMode::Immediate, Read, LDA}},
     {INS_LDA_ZP, {INS_LDA_ZP, 2, 3, "LDA", AddressingMode::AddressingMode::Zeropage, Read, LDA}},
+    {INS_LDA_ZPX, {INS_LDA_ZPX, 2, 4, "LDA", AddressingMode::AddressingMode::ZeropageX, Read, LDA}},
     {INS_LDA_ABS, {INS_LDA_ABS, 3, 4, "LDA", AddressingMode::AddressingMode::Absolute, Read, LDA}},
 
     // Store
     {INS_STA_ZP, {INS_STA_ZP, 2, 3, "STA", AddressingMode::AddressingMode::Zeropage, Write, STA}},
+    {INS_STA_ZPX, {INS_STA_ZPX, 2, 4, "STA", AddressingMode::AddressingMode::ZeropageX, Write, STA}},
     {INS_STA_ABS, {INS_STA_ABS, 3, 4, "STA", AddressingMode::AddressingMode::Absolute, Write, STA}},
     {INS_STY_ZP, {INS_STY_ZP, 2, 3, "STY", AddressingMode::AddressingMode::Zeropage, Write, STY}},
+    {INS_STY_ZPX, {INS_STY_ZPX, 2, 4, "STY", AddressingMode::AddressingMode::ZeropageX, Write, STY}},
     {INS_STY_ABS, {INS_STY_ABS, 3, 4, "STY", AddressingMode::AddressingMode::Absolute, Write, STY}},
     {INS_STX_ZP, {INS_STX_ZP, 2, 3, "STX", AddressingMode::AddressingMode::Zeropage, Write, STX}},
+    {INS_STX_ZPY, {INS_STX_ZPY, 2, 4, "STX", AddressingMode::AddressingMode::ZeropageY, Write, STX}},
     {INS_STX_ABS, {INS_STX_ABS, 3, 4, "STX", AddressingMode::AddressingMode::Absolute, Write, STX}},
 
     // Stack

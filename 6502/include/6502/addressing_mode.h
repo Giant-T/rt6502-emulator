@@ -28,6 +28,8 @@ QueuedInstr Implicit(CPU& cpu);
 QueuedInstr Accumulator(CPU& cpu);
 QueuedInstr Immediate(CPU& cpu);
 QueuedInstr Zeropage(CPU& cpu);
+QueuedInstr ZeropageX(CPU& cpu);
+QueuedInstr ZeropageY(CPU& cpu);
 QueuedInstr Relative(CPU& cpu);
 QueuedInstr Absolute(CPU& cpu);
 

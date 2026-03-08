@@ -45,10 +45,10 @@ RT6502::QueuedInstr RT6502::AddressingMode::Execute(CPU& cpu) {
             return Immediate(cpu);
         case AddressingMode::Zeropage:
             return Zeropage(cpu);
-            // case addressing_mode::ZeropageX:
-            // return "${:02X},X";
-            // case addressing_mode::ZeropageY:
-            // return "${:02X},Y";
+        case AddressingMode::ZeropageX:
+            return ZeropageX(cpu);
+        case AddressingMode::ZeropageY:
+            return ZeropageY(cpu);
         case AddressingMode::Relative:
             return Relative(cpu);
         case AddressingMode::Absolute:
@@ -64,7 +64,7 @@ RT6502::QueuedInstr RT6502::AddressingMode::Execute(CPU& cpu) {
         // case addressing_mode::IndirectIndexed:
         // return "(${:02X}),Y";
         default:
-            throw std::exception("not implemented");
+            throw std::exception("Addressing mode not implemented");
     }
 }
 
@@ -108,6 +108,60 @@ RT6502::QueuedInstr RT6502::AddressingMode::Zeropage(CPU& cpu) {
             }
 
             return cpu.IR->Func(cpu);
+        };
+    };
+}
+
+RT6502::QueuedInstr RT6502::AddressingMode::ZeropageX(CPU& cpu) {
+    return [&] {
+        // Une lecture pour obtenir l'adresse dans le Zéro Page
+        cpu.AddressBus = cpu.PC++;
+
+        return [&] {
+            // Lecture à l'adresse sans ajouter X
+            cpu.AddressRegister = cpu.DataBus;
+            cpu.AddressBus = cpu.AddressRegister;
+
+            return [&] -> std::optional<QueuedInstr> {
+                // On ajoute l'Index à l'adresse
+                cpu.AddressRegister.Low += cpu.X;
+
+                // La lecture pour obtenir la valeur à l'adresse + Index
+                cpu.AddressBus = cpu.AddressRegister;
+
+                if (cpu.IR->RW == Write) {
+                    return cpu.IR->Func(cpu)();
+                }
+
+                return cpu.IR->Func(cpu);
+            };
+        };
+    };
+}
+
+RT6502::QueuedInstr RT6502::AddressingMode::ZeropageY(CPU& cpu) {
+    return [&] {
+        // Une lecture pour obtenir l'adresse dans le Zéro Page
+        cpu.AddressBus = cpu.PC++;
+
+        return [&] {
+            // Lecture à l'adresse sans ajouter X
+            cpu.AddressRegister = cpu.DataBus;
+            cpu.AddressBus = cpu.AddressRegister;
+
+            return [&] -> std::optional<QueuedInstr> {
+                // On ajoute l'Index à l'adresse
+                cpu.AddressRegister.Low += cpu.Y;
+
+                // La lecture pour obtenir la valeur à l'adresse + Index
+                cpu.AddressBus = cpu.AddressRegister;
+
+                if (cpu.IR->RW == Write) {
+                    return cpu.IR->Func(cpu)();
+                }
+
+                return cpu.IR->Func(cpu);
+            };
         };
     };
 }
