@@ -192,6 +192,32 @@ TEST_CASE("SBC Immediate", "[Instruction][SBC][Imm]") {
     REQUIRE_FALSE(emulator.Cpu.PS.N);
 }
 
+TEST_CASE("ASL Accumulaor", "[Instruction][ASL][ACC]") {
+    size_t cyclesCounters = 0;
+    size_t bytesCounters = 1;
+    RT6502::RT6502 emulator;
+
+    constexpr auto instruction = INS_ASL_ACC;
+
+    INFO(OPCODE_LIST.at(instruction).Name);
+
+    emulator.Mem[0x0000] = instruction;
+    emulator.Reset();
+
+    emulator.Cpu.A = 0b10101101;
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(emulator.Cpu.A == 0b01011010);
+    REQUIRE(emulator.Cpu.PS.C);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.N);
+}
+
 TEST_CASE("ASL ZeroPage", "[Instruction][ASL][ZP]") {
     size_t cyclesCounters = 0;
     size_t bytesCounters = 1;
@@ -240,6 +266,32 @@ TEST_CASE("ASL Absolute", "[Instruction][ASL][ABS]") {
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == bytesCounters);
     REQUIRE(emulator.Mem[0x0034] == 0b01011010);
+    REQUIRE(emulator.Cpu.PS.C);
+    REQUIRE_FALSE(emulator.Cpu.PS.Z);
+    REQUIRE_FALSE(emulator.Cpu.PS.N);
+}
+
+TEST_CASE("LSR Accumulator", "[Instruction][LSR][ACC]") {
+    size_t cyclesCounters = 0;
+    size_t bytesCounters = 1;
+    RT6502::RT6502 emulator;
+
+    constexpr auto instruction = INS_LSR_ACC;
+
+    INFO(OPCODE_LIST.at(instruction).Name);
+
+    emulator.Mem[0x0000] = instruction;
+    emulator.Reset();
+
+    emulator.Cpu.A = 0b10101101;
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    bytesCounters += OPCODE_LIST.at(instruction).Bytes;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == bytesCounters);
+    REQUIRE(emulator.Cpu.A == 0b01010110);
     REQUIRE(emulator.Cpu.PS.C);
     REQUIRE_FALSE(emulator.Cpu.PS.Z);
     REQUIRE_FALSE(emulator.Cpu.PS.N);

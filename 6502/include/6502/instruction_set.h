@@ -31,9 +31,11 @@ enum Opcodes : Byte {
     INS_CLV_IMP = 0xB8,
 
     // Arithmetic
+    INS_ASL_ACC = 0x0A,
     INS_ASL_ZP = 0x06,
     INS_ASL_ABS = 0x0E,
-    INS_LSR_ZP = 0x4A,
+    INS_LSR_ACC = 0x4A,
+    INS_LSR_ZP = 0x46,
     INS_LSR_ABS = 0x4E,
 
     INS_BIT_ZP = 0x24,
@@ -164,7 +166,9 @@ QueuedInstr CLV(CPU&);
 
 // Arithmetic
 QueuedInstr ASL(CPU&);
+QueuedInstr ASL_ACC(CPU&);
 QueuedInstr LSR(CPU&);
+QueuedInstr LSR_ACC(CPU&);
 
 QueuedInstr ADC(CPU&);
 QueuedInstr SBC(CPU&);
@@ -248,8 +252,10 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_CLV_IMP, {INS_CLV_IMP, 1, 2, "CLV", AddressingMode::AddressingMode::Implicit, Read, CLV}},
 
     // Arithmetic
+    {INS_ASL_ACC, {INS_ASL_ACC, 1, 2, "ASL", AddressingMode::AddressingMode::Accumulator, Read, ASL_ACC}},
     {INS_ASL_ZP, {INS_ASL_ZP, 2, 5, "ASL", AddressingMode::AddressingMode::Zeropage, Read, ASL}},
     {INS_ASL_ABS, {INS_ASL_ABS, 3, 6, "ASL", AddressingMode::AddressingMode::Absolute, Read, ASL}},
+    {INS_LSR_ACC, {INS_LSR_ACC, 1, 2, "LSR", AddressingMode::AddressingMode::Accumulator, Read, LSR_ACC}},
     {INS_LSR_ZP, {INS_LSR_ZP, 2, 5, "LSR", AddressingMode::AddressingMode::Zeropage, Read, LSR}},
     {INS_LSR_ABS, {INS_LSR_ABS, 3, 6, "LSR", AddressingMode::AddressingMode::Absolute, Read, LSR}},
 

@@ -105,6 +105,16 @@ RT6502::QueuedInstr RT6502::InstructionSet::ASL(CPU& cpu) {
     };
 }
 
+RT6502::QueuedInstr RT6502::InstructionSet::ASL_ACC(CPU& cpu) {
+    return [&] {
+        cpu.PS.C = cpu.A >> 7;
+        cpu.A <<= 1;
+        cpu.PS.Z = cpu.A == 0;
+        cpu.PS.N = cpu.A >> 7;
+        return std::nullopt;
+    };
+}
+
 RT6502::QueuedInstr RT6502::InstructionSet::LSR(CPU& cpu) {
     return [&] {
         cpu.RW = false;
@@ -117,6 +127,16 @@ RT6502::QueuedInstr RT6502::InstructionSet::LSR(CPU& cpu) {
             cpu.PS.N = cpu.DataBus >> 7;
             return std::nullopt;
         };
+    };
+}
+
+RT6502::QueuedInstr RT6502::InstructionSet::LSR_ACC(CPU& cpu) {
+    return [&] {
+        cpu.PS.C = cpu.A & 0b1;
+        cpu.A >>= 1;
+        cpu.PS.Z = cpu.A == 0;
+        cpu.PS.N = cpu.A >> 7;
+        return std::nullopt;
     };
 }
 

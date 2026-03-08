@@ -25,6 +25,7 @@ std::string Format(AddressingMode);
 QueuedInstr Execute(CPU&);
 
 QueuedInstr Implicit(CPU& cpu);
+QueuedInstr Accumulator(CPU& cpu);
 QueuedInstr Immediate(CPU& cpu);
 QueuedInstr Zeropage(CPU& cpu);
 QueuedInstr Relative(CPU& cpu);

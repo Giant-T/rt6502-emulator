@@ -39,8 +39,8 @@ RT6502::QueuedInstr RT6502::AddressingMode::Execute(CPU& cpu) {
     switch (cpu.IR->AddrMode) {
         case AddressingMode::Implicit:
             return Implicit(cpu);
-        //  case addressing_mode::Accumulator:
-        //  return "A";
+        case AddressingMode::Accumulator:
+            return Accumulator(cpu);
         case AddressingMode::Immediate:
             return Immediate(cpu);
         case AddressingMode::Zeropage:
@@ -69,6 +69,14 @@ RT6502::QueuedInstr RT6502::AddressingMode::Execute(CPU& cpu) {
 }
 
 RT6502::QueuedInstr RT6502::AddressingMode::Implicit(CPU& cpu) {
+    return [&] {
+        // Dummy read
+        // Car on ne bouge pas le PC
+        return cpu.IR->Func(cpu);
+    };
+}
+
+RT6502::QueuedInstr RT6502::AddressingMode::Accumulator(CPU& cpu) {
     return [&] {
         // Dummy read
         // Car on ne bouge pas le PC
