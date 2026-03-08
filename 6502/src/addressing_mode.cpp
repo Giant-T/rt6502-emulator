@@ -57,8 +57,8 @@ RT6502::QueuedInstr RT6502::AddressingMode::Execute(CPU& cpu) {
             return AbsoluteX(cpu);
         case AddressingMode::AbsoluteY:
             return AbsoluteY(cpu);
-        // case AddressingMode::Indirect:
-        // return "(${:04X})";
+        case AddressingMode::Indirect:
+            return Indirect(cpu);
         // case AddressingMode::IndexedIndirect:
         // return "(${:02X},X)";
         // case AddressingMode::IndirectIndexed:
@@ -179,7 +179,7 @@ RT6502::QueuedInstr RT6502::AddressingMode::Absolute(CPU& cpu) {
         cpu.AddressBus = cpu.PC++;
 
         return [&] {
-            cpu.AddressRegister = cpu.DataBus;
+            cpu.AddressRegister.Low = cpu.DataBus;
 
             // Lecture pour ADH
             cpu.AddressBus = cpu.PC++;
@@ -289,6 +289,34 @@ RT6502::QueuedInstr RT6502::AddressingMode::AbsoluteY(CPU& cpu) {
                 }
 
                 return cpu.IR->Func(cpu);
+            };
+        };
+    };
+}
+
+RT6502::QueuedInstr RT6502::AddressingMode::Indirect(CPU& cpu) {
+    return [&] {
+        cpu.AddressBus = cpu.PC++;
+
+        return [&] {
+            cpu.AddressRegister.Low = cpu.DataBus;
+            cpu.AddressBus = cpu.PC++;
+
+            return [&] {
+                cpu.AddressRegister.High = cpu.DataBus;
+                cpu.AddressBus = cpu.AddressRegister;
+
+                return [&] {
+                    cpu.AddressRegister.Low = cpu.DataBus;
+                    cpu.AddressBus.Low++;
+
+                    return [&] {
+                        cpu.AddressRegister.High = cpu.DataBus;
+                        cpu.AddressBus = cpu.AddressRegister;
+
+                        return cpu.IR->Func(cpu)();
+                    };
+                };
             };
         };
     };

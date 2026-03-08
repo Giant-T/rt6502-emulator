@@ -8,46 +8,79 @@ using namespace RT6502::InstructionSet;
 TEST_CASE("JMP Absolute", "[Instruction][JMP][ABS]") {
     size_t cyclesCounters = 0;
 
+    constexpr auto instruction = INS_JMP_ABS;
+
     RT6502::RT6502 emulator;
-    emulator.Mem[0x0000] = INS_JMP_ABS;
+    emulator.Mem[0x0000] = instruction;
     emulator.Mem[0x0001] = 0x34;
     emulator.Mem[0x0002] = 0x12;
     emulator.Mem[0x0003] = INS_LDX_IMM;
     emulator.Mem[0x0004] = 0x15;
 
-    emulator.Mem[0x0101] = INS_JMP_ABS;
+    emulator.Mem[0x0101] = instruction;
     emulator.Mem[0x0102] = 0x03;
     emulator.Mem[0x0103] = 0x00;
 
-    emulator.Mem[0x1234] = INS_JMP_ABS;
+    emulator.Mem[0x1234] = instruction;
     emulator.Mem[0x1235] = 0x01;
     emulator.Mem[0x1236] = 0x01;
     emulator.Reset();
 
     emulator.Execute();
-    cyclesCounters += OPCODE_LIST.at(INS_JMP_ABS).Cycles;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == 0x1234 + 1);
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
 
     emulator.Execute();
-    cyclesCounters += OPCODE_LIST.at(INS_JMP_ABS).Cycles;
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == 0x0101 + 1);
-    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
-    REQUIRE(emulator.CyclesCounter == cyclesCounters);
 
     emulator.Execute();
-    cyclesCounters += OPCODE_LIST.at(INS_JMP_ABS).Cycles;
-    REQUIRE(emulator.Cpu.PC == 0x0003 + 1);
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == 0x0003 + 1);
 
     emulator.Execute();
     cyclesCounters += OPCODE_LIST.at(INS_LDX_IMM).Cycles;
-    REQUIRE(emulator.Cpu.PC == 0x0005 + 1);
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == 0x0005 + 1);
     REQUIRE(+emulator.Cpu.X == 0x15);
+}
+
+TEST_CASE("JMP Indirect", "[Instruction][JMP][IND]") {
+    size_t cyclesCounters = 0;
+
+    constexpr auto instruction = INS_JMP_IND;
+
+    RT6502::RT6502 emulator;
+    emulator.Mem[0x0000] = instruction;
+    emulator.Mem[0x0001] = 0x20;
+    emulator.Mem[0x0002] = 0x01;
+
+    emulator.Mem[0x0120] = 0xFC;
+    emulator.Mem[0x0121] = 0xBA;
+
+    emulator.Mem[0xBAFC] = INS_LDX_IMM;
+    emulator.Mem[0xBAFD] = 0x15;
+    emulator.Reset();
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == 0xBAFD);
+
+    emulator.Execute();
+    cyclesCounters += OPCODE_LIST.at(INS_LDX_IMM).Cycles;
+    REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
+    REQUIRE(emulator.CyclesCounter == cyclesCounters);
+    REQUIRE(emulator.Cpu.PC == 0xBAFF);
+    REQUIRE(emulator.Cpu.X == 0x15);
 }
 
 TEST_CASE("JSR Absolute", "[Instruction][JSR][ABS]") {
