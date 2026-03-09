@@ -61,8 +61,8 @@ RT6502::QueuedInstr RT6502::AddressingMode::Execute(CPU& cpu) {
             return Indirect(cpu);
         case AddressingMode::IndexedIndirect:
             return IndexedIndirect(cpu);
-        // case AddressingMode::IndirectIndexed:
-        // return "(${:02X}),Y";
+        case AddressingMode::IndirectIndexed:
+            return IndirectIndexed(cpu);
         default:
             throw std::exception("Addressing mode not implemented");
     }
@@ -346,6 +346,48 @@ RT6502::QueuedInstr RT6502::AddressingMode::IndexedIndirect(CPU& cpu) {
 
                         return cpu.IR->Func(cpu);
                     };
+                };
+            };
+        };
+    };
+}
+
+RT6502::QueuedInstr RT6502::AddressingMode::IndirectIndexed(CPU& cpu) {
+    return [&] {
+        cpu.AddressBus = cpu.PC++;
+
+        return [&] {
+            cpu.AddressBus = cpu.DataBus;
+
+            return [&] {
+                cpu.AddressRegister.Low = cpu.DataBus;
+                cpu.AddressBus.Low++;
+
+                return [&] -> std::optional<QueuedInstr> {
+                    cpu.AddressRegister.High = cpu.DataBus;
+                    cpu.AddressBus = cpu.AddressRegister;
+
+                    const bool isOverflow = cpu.AddressBus.Low + cpu.Y > 0xFF;
+                    cpu.AddressBus.Low += cpu.Y;
+
+                    if (cpu.IR->RW & Write) {
+                        return [&cpu, isOverflow] -> std::optional<QueuedInstr> {
+                            cpu.AddressBus.High += isOverflow;
+
+                            if (cpu.IR->RW == RMW)
+                                return cpu.IR->Func(cpu);
+
+                            return cpu.IR->Func(cpu)();
+                        };
+                    }
+
+                    if (isOverflow)
+                        return [&] {
+                            cpu.AddressBus.High += 1;
+                            return cpu.IR->Func(cpu);
+                        };
+
+                    return cpu.IR->Func(cpu);
                 };
             };
         };

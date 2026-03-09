@@ -90,6 +90,7 @@ enum Opcodes : Byte {
     INS_LDA_ABSX = 0xBD,
     INS_LDA_ABSY = 0xB9,
     INS_LDA_INDX = 0xA1,
+    INS_LDA_INDY = 0xB1,
 
     // Store
     INS_STY_ZP = 0x84,
@@ -99,6 +100,7 @@ enum Opcodes : Byte {
     INS_STA_ZPX = 0x95,
     INS_STA_ABS = 0x8D,
     INS_STA_INDX = 0x81,
+    INS_STA_INDY = 0x91,
     INS_STA_ABSX = 0x9D,
     INS_STA_ABSY = 0x99,
     INS_STX_ZP = 0x86,
@@ -334,6 +336,7 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_LDA_ABSX, {INS_LDA_ABSX, 3, 4, "LDA", AddressingMode::AddressingMode::AbsoluteX, Read, LDA}},
     {INS_LDA_ABSY, {INS_LDA_ABSY, 3, 4, "LDA", AddressingMode::AddressingMode::AbsoluteY, Read, LDA}},
     {INS_LDA_INDX, {INS_LDA_INDX, 2, 6, "LDA", AddressingMode::AddressingMode::IndexedIndirect, Read, LDA}},
+    {INS_LDA_INDY, {INS_LDA_INDY, 2, 5, "LDA", AddressingMode::AddressingMode::IndirectIndexed, Read, LDA}},
 
     // Store
     {INS_STA_ZP, {INS_STA_ZP, 2, 3, "STA", AddressingMode::AddressingMode::Zeropage, Write, STA}},
@@ -342,6 +345,7 @@ inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_STA_ABSX, {INS_STA_ABSX, 3, 5, "STA", AddressingMode::AddressingMode::AbsoluteX, Write, STA}},
     {INS_STA_ABSY, {INS_STA_ABSY, 3, 5, "STA", AddressingMode::AddressingMode::AbsoluteY, Write, STA}},
     {INS_STA_INDX, {INS_STA_INDX, 2, 6, "STA", AddressingMode::AddressingMode::IndexedIndirect, Write, STA}},
+    {INS_STA_INDY, {INS_STA_INDY, 2, 6, "STA", AddressingMode::AddressingMode::IndirectIndexed, Write, STA}},
     {INS_STY_ZP, {INS_STY_ZP, 2, 3, "STY", AddressingMode::AddressingMode::Zeropage, Write, STY}},
     {INS_STY_ZPX, {INS_STY_ZPX, 2, 4, "STY", AddressingMode::AddressingMode::ZeropageX, Write, STY}},
     {INS_STY_ABS, {INS_STY_ABS, 3, 4, "STY", AddressingMode::AddressingMode::Absolute, Write, STY}},
