@@ -14,9 +14,11 @@ struct RT6502 {
 
     std::optional<QueuedInstr> FonctionsToExecutes;
 
-    void Reset() noexcept;
+    void Reset(const Word = 0x0000) noexcept;
     void Execute();
     void ExecuteTick();
+
+    bool LoadFile(const char*);
 };
 
 }  // namespace RT6502

@@ -1,12 +1,15 @@
 #include "6502/6502.h"
 
+#include <fstream>
+
 #include "6502/decode.h"
 #include "6502/instruction_set.h"
 
-void RT6502::RT6502::Reset() noexcept {
+void RT6502::RT6502::Reset(const Word startAddress) noexcept {
     Cpu.Reset(Mem);
 
     // FIXME: Faire une première lecture mémoire pour le premier Fetch
+    Cpu.PC = startAddress;
     Cpu.AddressBus = Cpu.PC++;
     Mem.Read(Cpu.AddressBus, Cpu.DataBus);
 }
@@ -58,4 +61,16 @@ void RT6502::RT6502::ExecuteTick() {
     } else {
         Mem.Write(Cpu.AddressBus, Cpu.DataBus);
     }
+}
+
+bool RT6502::RT6502::LoadFile(const char* filepath) {
+    std::ifstream file(filepath, std::ios::binary | std::ios::in);
+
+    if (file.fail()) {
+        return false;
+    }
+
+    file.read(reinterpret_cast<char*>(Mem.Data), Memory::MAX_MEMORY);
+
+    return true;
 }

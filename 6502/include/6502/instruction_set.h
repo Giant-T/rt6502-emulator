@@ -1,7 +1,7 @@
 /**
  * Contient la liste des instructions CPU.
  *
- * @authors Nicolas Béland
+ * @authors Nicolas Beland
  * @date 2026-01-23
  */
 
