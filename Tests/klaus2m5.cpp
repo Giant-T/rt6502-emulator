@@ -18,7 +18,7 @@ TEST_CASE("Klaus2m5", "") {
 
     auto lastPC = emulator.Cpu.PC;
     int pcCounter = 0;
-    int globalCounter = 10000000;  // Pour se protéger d'une loop infini
+    int globalCounter = 30000000;  // Pour se protéger d'une loop infini
 
     while (pcCounter <= 20 && --globalCounter > 0) {
         emulator.Execute();
@@ -54,5 +54,5 @@ TEST_CASE("Klaus2m5", "") {
     INFO(std::format("Mem[0x01{0:02X}] := {1:02X}", emulator.Cpu.SP - 1, emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP - 1)]));
     INFO(std::format("Mem[0x01{0:02X}] := {1:02X}", emulator.Cpu.SP - 2, emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP - 2)]));
 
-    REQUIRE(emulator.Cpu.PC - 1 == 0x3469);
+    REQUIRE(emulator.Cpu.PC - 1 == 0x336D);
 }

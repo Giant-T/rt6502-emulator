@@ -181,7 +181,7 @@ TEST_CASE("BRK Implicit", "[Instruction][BRK][IMP]") {
     REQUIRE(emulator.Cpu.PS.B);
 
     REQUIRE(emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP + 3)] == 0x00);
-    REQUIRE(emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP + 2)] == 0x01);
+    REQUIRE(emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP + 2)] == 0x02);
     REQUIRE(emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP + 1)] == copyFlags);
 
     emulator.Execute();
@@ -196,8 +196,8 @@ TEST_CASE("RTI Implicit", "[Instruction][RTI][IMP]") {
 
     RT6502::RT6502 emulator;
     emulator.Mem[0x0000] = INS_BRK_IMP;
-    emulator.Mem[0x0001] = INS_LDX_IMM;
-    emulator.Mem[0x0002] = 0x25;
+    emulator.Mem[0x0002] = INS_LDX_IMM;
+    emulator.Mem[0x0003] = 0x25;
 
     emulator.Mem[0x1234] = INS_LDX_IMM;
     emulator.Mem[0x1235] = 0x15;
@@ -225,7 +225,7 @@ TEST_CASE("RTI Implicit", "[Instruction][RTI][IMP]") {
     cyclesCounters += OPCODE_LIST.at(INS_RTI_IMP).Cycles;
     REQUIRE_FALSE(emulator.FonctionsToExecutes.has_value());
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
-    REQUIRE(emulator.Cpu.PC == 0x0001 + 1);
+    REQUIRE(emulator.Cpu.PC == 0x0002 + 1);
     REQUIRE(emulator.Cpu.PS == copyFlags);
 
     emulator.Execute();

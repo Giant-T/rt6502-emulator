@@ -4,8 +4,11 @@ RT6502::QueuedInstr RT6502::InstructionSet::BRK(CPU& cpu) {
     return [&] {
         cpu.RW = false;
 
+        ++cpu.PC;
+
         cpu.DataBus = cpu.PC.High;
-        cpu.AddressBus = cpu.SP--;
+        cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
+        cpu.AddressBus.Low = cpu.SP--;
 
         return [&] {
             cpu.RW = false;
@@ -15,13 +18,16 @@ RT6502::QueuedInstr RT6502::InstructionSet::BRK(CPU& cpu) {
 
             return [&] {
                 cpu.RW = false;
-                cpu.PS.B = 1;
+                
                 cpu.DataBus = static_cast<Byte>(cpu.PS);
                 cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
                 cpu.AddressBus.Low = cpu.SP--;
 
                 return [&] {
                     cpu.AddressBus = CPU::IRQBRK_VECTOR_ADDR;
+
+                    cpu.PS.B = 1;
+                    cpu.PS.I = 1;
 
                     return [&] {
                         cpu.AddressRegister.Low = cpu.DataBus;
@@ -422,7 +428,6 @@ RT6502::QueuedInstr RT6502::InstructionSet::STA(CPU& cpu) {
 RT6502::QueuedInstr RT6502::InstructionSet::PHP(CPU& cpu) {
     return [&] {
         cpu.RW = false;
-        cpu.PS.B = 1;
         cpu.DataBus = static_cast<Byte>(cpu.PS);
         cpu.AddressBus.Low = cpu.SP--;
         cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
@@ -468,6 +473,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::PLP(CPU& cpu) {
 
             return [&] {
                 cpu.PS = cpu.DataBus;
+                cpu.PS.B = 1;
                 return std::nullopt;
             };
         };
