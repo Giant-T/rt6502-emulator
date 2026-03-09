@@ -101,7 +101,7 @@ TEST_CASE("JSR Absolute", "[Instruction][JSR][ABS]") {
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == 0x1234 + 1);
 
-    REQUIRE(emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP + 1)] == 0x03);
+    REQUIRE(emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP + 1)] == 0x02);
     REQUIRE(emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP + 2)] == 0x00);
 
     emulator.Execute();
@@ -132,7 +132,7 @@ TEST_CASE("RTS Impl", "[Instruction][RTS][Impl]") {
     REQUIRE(emulator.CyclesCounter == cyclesCounters);
     REQUIRE(emulator.Cpu.PC == 0x1234 + 1);
 
-    REQUIRE(emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP + 1)] == 0x03);
+    REQUIRE(emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP + 1)] == 0x02);
     REQUIRE(emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP + 2)] == 0x00);
 
     emulator.Execute();

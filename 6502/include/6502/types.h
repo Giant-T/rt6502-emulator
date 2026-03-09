@@ -34,12 +34,27 @@ union Word {
         return *this;
     }
 
+    constexpr Word operator--(int) {
+        const auto old = *this;
+        operator--();
+        return old;
+    }
+
+    constexpr Word& operator--() {
+        --Value;
+        return *this;
+    }
+
     constexpr void operator+=(const Byte rvalue) {
         Value += rvalue;
     }
 
     constexpr void operator+=(const int8_t rvalue) {
         Value += rvalue;
+    }
+
+    constexpr bool operator>=(const int rvalue) const {
+        return Value >= rvalue;
     }
 
     operator uint16_t() const {
@@ -57,12 +72,19 @@ struct Flags {
     Byte V : 1;  // Bit 6 - Overflow
     Byte N : 1;  // Bit 7 - Negative Result
 
+    Flags() : C(0), Z(0), I(0), D(0), B(1), _(1), V(0), N(0) {
+    }
+
+    Flags(const Byte c, const Byte z, const Byte i, const Byte d, const Byte b, const Byte _, const Byte v, const Byte n) : C(c), Z(z), I(i), D(d), B(b), _(1), V(v), N(n) {
+    }
+
     explicit operator Byte() const {
         return std::bit_cast<Byte>(*this);
     }
 
     void operator=(const Byte value) {
         *this = std::bit_cast<Flags, Byte>(value);
+        _ = 1;  // S'assurer que le Bit reste allumé
     }
 
     bool operator==(const Flags& value) const {

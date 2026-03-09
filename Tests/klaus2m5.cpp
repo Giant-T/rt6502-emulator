@@ -39,10 +39,20 @@ TEST_CASE("Klaus2m5", "") {
     INFO(std::format("Y  := {:02X}", emulator.Cpu.Y));
     INFO("N  := " << std::to_string(emulator.Cpu.PS.N));
     INFO("V  := " << std::to_string(emulator.Cpu.PS.V));
+    INFO("_  := " << std::to_string(emulator.Cpu.PS._));
     INFO("B  := " << std::to_string(emulator.Cpu.PS.B));
     INFO("D  := " << std::to_string(emulator.Cpu.PS.D));
     INFO("I  := " << std::to_string(emulator.Cpu.PS.I));
     INFO("Z  := " << std::to_string(emulator.Cpu.PS.Z));
     INFO("C  := " << std::to_string(emulator.Cpu.PS.C));
+
+    // Afficher la stack
+    INFO(std::format("Mem[0x01{0:02X}] := {1:02X}", emulator.Cpu.SP + 3, emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP + 3)]));
+    INFO(std::format("Mem[0x01{0:02X}] := {1:02X}", emulator.Cpu.SP + 2, emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP + 2)]));
+    INFO(std::format("Mem[0x01{0:02X}] := {1:02X}", emulator.Cpu.SP + 1, emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP + 1)]));
+    INFO(std::format("Mem[0x01{0:02X}] := {1:02X}", emulator.Cpu.SP + 0, emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP + 0)]));
+    INFO(std::format("Mem[0x01{0:02X}] := {1:02X}", emulator.Cpu.SP - 1, emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP - 1)]));
+    INFO(std::format("Mem[0x01{0:02X}] := {1:02X}", emulator.Cpu.SP - 2, emulator.Mem[RT6502::Word(RT6502::CPU::STACK_POINTER_PAGE, emulator.Cpu.SP - 2)]));
+
     REQUIRE(emulator.Cpu.PC - 1 == 0x3469);
 }

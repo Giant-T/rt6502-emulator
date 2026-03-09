@@ -2,7 +2,7 @@
 
 #include "6502/decode.h"
 
-RT6502::CPU::CPU() : PC(0), SP(STACK_POINTER_BEGIN), A(0), X(0), Y(0), PS(), RW(true), SYNC(true), DataBus(0), AddressBus(0), AddressRegister(0), IR(nullptr) {
+RT6502::CPU::CPU() : PC(0), SP(STACK_POINTER_BEGIN), A(0), X(0), Y(0), RW(true), SYNC(true), DataBus(0), AddressBus(0), AddressRegister(0), IR(nullptr) {
 }
 
 void RT6502::CPU::Reset(Memory& memory) noexcept {
@@ -14,6 +14,6 @@ void RT6502::CPU::Reset(Memory& memory) noexcept {
     PC = Decode::FetchWord(PC, memory);
 
     SP = STACK_POINTER_BEGIN;  // TODO: Revalider
-    PS = {};
+    PS = Flags();
     A = X = Y = 0;
 }

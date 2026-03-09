@@ -60,7 +60,9 @@ TEST_CASE("PHP PLP Impl", "[Instruction][PHP][PLP][Impl]") {
 
     emulator.Cpu.PS = {1, 0, 1, 0, 0, 1, 1, 1};
 
-    const auto psOriginal = emulator.Cpu.PS;
+    auto psOriginal = emulator.Cpu.PS;
+
+    psOriginal.B = 1;
 
     emulator.Execute();
     cyclesCounters += OPCODE_LIST.at(instruction).Cycles;
