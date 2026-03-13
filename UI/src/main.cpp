@@ -6,14 +6,13 @@
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/component_base.hpp>
 #include <ftxui/component/event.hpp>
+#include <ftxui/component/loop.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/dom/node.hpp>
 #include <ftxui/dom/table.hpp>
 #include <ftxui/screen/color.hpp>
 #include <utility>
-
-#include "6502/memory.h"
 
 enum : uint8_t { TOP_SIZE = 18 };
 
@@ -115,19 +114,19 @@ int main() {
     RT6502::RT6502 emulator;
 
     emulator.Reset();
-    emulator.Reset();
-    emulator.Execute();
-    emulator.Execute();
-    emulator.Execute();
-    emulator.Execute();
-    emulator.Execute();
 
     auto screen = ftxui::ScreenInteractive::Fullscreen();
 
     int topSize = TOP_SIZE;
     int registersSize = TOP_SIZE;
 
-    screen.Loop(App(screen, topSize, registersSize, emulator));
+    ftxui::Loop loop{&screen, App(screen, topSize, registersSize, emulator)};
+
+    while (!loop.HasQuitted()) {
+        loop.RunOnce();
+
+        emulator.Execute();
+    }
 
     return EXIT_SUCCESS;
 }
