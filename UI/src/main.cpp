@@ -1,4 +1,5 @@
 #include <6502/6502.h>
+#include <6502/decode.h>
 
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
@@ -10,23 +11,47 @@
 using namespace ftxui;
 
 int main() {
-    rt6502::rt6502 emulator;
-    emulator.reset();
+    RT6502::RT6502 emulator;
+
+    // TEST: Insérer dans la mémoire
+    emulator.Mem[0x0000] = RT6502::InstructionSet::INS_LDA_IMM;  // LDA immediate
+    emulator.Mem[0x0001] = 0x0D;
+    emulator.Mem[0x0002] = RT6502::InstructionSet::INS_LDA_ZP;  // LDA zeropage
+    emulator.Mem[0x0003] = 0x02;
+    emulator.Mem[0x0004] = RT6502::InstructionSet::INS_LDA_ABS;  // LDA absolute
+    emulator.Mem[0x0005] = 0x04;
+    emulator.Mem[0x0006] = 0x00;
+    emulator.Mem[0x0007] = RT6502::InstructionSet::INS_STA_ZP;  // STA Zeropage
+    emulator.Mem[0x0008] = 0x0D;
+    emulator.Mem[0x0009] = RT6502::InstructionSet::INS_STX_ZP;  // STX Zeropage
+    emulator.Mem[0x000A] = 0x03;
+    emulator.Mem[0x000B] = RT6502::InstructionSet::INS_LDA_IMM;  // LDA immediate
+    emulator.Mem[0x000C] = 0x0A;
+
+    emulator.Reset();
+    emulator.Execute();
+    emulator.Execute();
+    emulator.Execute();
+    emulator.Execute();
+    emulator.Execute();
+
+    const auto oper = RT6502::Decode::Decode(emulator.Cpu.PC - 1, emulator.Mem);
 
     auto table = Table({
         {"Register", "Values"},
-        {"PC", std::format("{:04X}", emulator.cpu.PC)},
-        {"SP", std::format("{:02X}", emulator.cpu.SP)},
-        {"A", std::format("{:02X}", emulator.cpu.A)},
-        {"X", std::format("{:02X}", emulator.cpu.X)},
-        {"Y", std::format("{:02X}", emulator.cpu.Y)},
-        {"N", std::to_string(emulator.cpu.PS.N)},
-        {"V", std::to_string(emulator.cpu.PS.O)},
-        {"B", std::to_string(emulator.cpu.PS.B)},
-        {"D", std::to_string(emulator.cpu.PS.D)},
-        {"I", std::to_string(emulator.cpu.PS.I)},
-        {"Z", std::to_string(emulator.cpu.PS.Z)},
-        {"C", std::to_string(emulator.cpu.PS.C)},
+        {"PC", std::format("{:04X}", emulator.Cpu.PC)},
+        {"SP", std::format("{:02X}", emulator.Cpu.SP)},
+        {"A", std::format("{:02X}", emulator.Cpu.A)},
+        {"X", std::format("{:02X}", emulator.Cpu.X)},
+        {"Y", std::format("{:02X}", emulator.Cpu.Y)},
+        {"N", std::to_string(emulator.Cpu.PS.N)},
+        {"V", std::to_string(emulator.Cpu.PS.V)},
+        {"B", std::to_string(emulator.Cpu.PS.B)},
+        {"D", std::to_string(emulator.Cpu.PS.D)},
+        {"I", std::to_string(emulator.Cpu.PS.I)},
+        {"Z", std::to_string(emulator.Cpu.PS.Z)},
+        {"C", std::to_string(emulator.Cpu.PS.C)},
+        {"Decode", oper.Display()},
     });
 
     table.SelectAll().Border(LIGHT);

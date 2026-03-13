@@ -1,13 +1,19 @@
 #include "6502/cpu.h"
 
-rt6502::CPU::CPU() : PC(0), SP(0), A(0), X(0), Y(0), PS() {
+#include "6502/decode.h"
+
+RT6502::CPU::CPU() : PC(0), SP(STACK_POINTER_BEGIN), A(0), X(0), Y(0), RW(true), SYNC(true), DataBus(0), AddressBus(0), AddressRegister(0), IR(nullptr) {
 }
 
-void rt6502::CPU::reset(Memory& memory) noexcept {
-    PC = 0xFFFC;
-    SP = 0xFD;  // TODO: Revalider
-    PS = {};
-    A = X = Y = 0;
+void RT6502::CPU::Reset(Memory& memory) noexcept {
+    // Source : https://www.pagetable.com/?p=410
 
-    memory.init();
+    PC = RESET_VECTOR_ADDR;  // Adresse du Reset Vector
+
+    // PC = l'adresse que contient le RESET VECTOR
+    PC = Decode::FetchWord(PC, memory);
+
+    SP = STACK_POINTER_BEGIN;  // TODO: Revalider
+    PS = Flags();
+    A = X = Y = 0;
 }

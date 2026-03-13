@@ -1,0 +1,39 @@
+cmake_minimum_required(VERSION 4.1.1)
+
+project(UnitTests
+        VERSION 1.0.0 
+        LANGUAGES CXX
+)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if (DEFINED ENV{NIX_STORE})
+    find_package(Catch2 3 REQUIRED) 
+else()
+    include(FetchContent)
+
+    set(FETCHCONTENT_QUIET OFF)
+
+    FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v3.13.0   
+    )
+
+    FetchContent_MakeAvailable(Catch2)
+endif()
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/ressources/6502_functional_test.bin" "${CMAKE_CURRENT_BINARY_DIR}/ressources/6502_functional_test.bin" COPYONLY)
+
+add_executable(unit_tests "6502Tests.cpp" "branching.cpp" "jump.cpp" "compare.cpp" "stack.cpp" "store.cpp" "load.cpp" "memory.cpp" "arithmetic.cpp" "klaus2m5.cpp")
+
+target_link_libraries(unit_tests 
+    PRIVATE 
+        6502::6502 
+        Catch2::Catch2WithMain
+)
+
+include(Catch)
+catch_discover_tests(unit_tests)
