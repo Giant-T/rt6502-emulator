@@ -2,7 +2,6 @@
 
 #include <string>
 
-#include "6502/memory.h"
 #include "cpu.h"
 
 namespace RT6502::AddressingMode {
@@ -23,11 +22,20 @@ enum class AddressingMode {
 };
 
 std::string Format(AddressingMode);
-void Execute(CPU&, Memory&);
+QueuedInstr Execute(CPU&);
 
-void Implicit(CPU& cpu, Memory& memory);
-void Immediate(CPU& cpu, Memory& memory);
-void Zeropage(CPU& cpu, Memory& memory);
-void Absolute(CPU& cpu, Memory& memory);
+QueuedInstr Implicit(CPU& cpu);
+QueuedInstr Accumulator(CPU& cpu);
+QueuedInstr Immediate(CPU& cpu);
+QueuedInstr Zeropage(CPU& cpu);
+QueuedInstr ZeropageX(CPU& cpu);
+QueuedInstr ZeropageY(CPU& cpu);
+QueuedInstr Relative(CPU& cpu);
+QueuedInstr Absolute(CPU& cpu);
+QueuedInstr AbsoluteX(CPU& cpu);
+QueuedInstr AbsoluteY(CPU& cpu);
+QueuedInstr Indirect(CPU& cpu);
+QueuedInstr IndexedIndirect(CPU& cpu);
+QueuedInstr IndirectIndexed(CPU& cpu);
 
 }  // namespace RT6502::AddressingMode

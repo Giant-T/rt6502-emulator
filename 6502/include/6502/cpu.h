@@ -13,7 +13,9 @@ namespace RT6502 {
  */
 class CPU {
    public:
+    static constexpr Byte STACK_POINTER_PAGE = 0x01;
     static constexpr Byte STACK_POINTER_BEGIN = 0xFF;
+    static constexpr Word STACK_POINTER_ADDRESS = 0x01FF;
     static constexpr Word NMI_VECTOR_ADDR = 0xFFFA;
     static constexpr Word RESET_VECTOR_ADDR = 0xFFFC;
     static constexpr Word IRQBRK_VECTOR_ADDR = 0xFFFE;
@@ -27,7 +29,8 @@ class CPU {
 
     Flags PS;  // Processor Status
 
-    bool RW;  // Read or Write on memory. Read = 1, Write = 0; C'est la direction du transfert de données entre le processeur et les chips.
+    bool RW;    // Read or Write on memory. Read = 1, Write = 0; C'est la direction du transfert de données entre le processeur et les chips.
+    bool SYNC;  // 1 = OPCODE Fetch, 0 = no fetch
 
     Byte DataBus;                           // All instructions and data transfers between the processor and memory take place on these lines. Page 47
     Word AddressBus;                        // Also Address Register. Est utilisé pour accéder à la mémoire
@@ -38,14 +41,10 @@ class CPU {
 
     CPU();
 
-    void StackPush(Memory&, Byte);
-    Byte StackPull(Memory&);
-
     /**
      * @ref Procedure ["https://www.c64-wiki.com/wiki/Reset_(Process)"]
      */
     void Reset(Memory&) noexcept;
-    void Execute(Memory&);
 };
 
 }  // namespace RT6502

@@ -1,25 +1,76 @@
 #include "6502/6502.h"
 
-void RT6502::RT6502::Reset() noexcept {
+#include <fstream>
+
+#include "6502/decode.h"
+#include "6502/instruction_set.h"
+
+void RT6502::RT6502::Reset(const Word startAddress) noexcept {
     Cpu.Reset(Mem);
 
-    // TEST: Insérer dans la mémoire
-    Cpu.PC = 0x0000;
-    Mem[0x0000] = 0xA9;  // LDA immediate
-    Mem[0x0001] = 0x0D;
-    Mem[0x0002] = 0xA5;  // LDA zeropage
-    Mem[0x0003] = 0x02;
-    Mem[0x0004] = 0xAD;  // LDA absolute
-    Mem[0x0005] = 0x04;
-    Mem[0x0006] = 0x00;
-    Mem[0x0007] = 0x85;  // STA Zeropage
-    Mem[0x0008] = 0x0D;
-    Mem[0x0009] = 0x86;  // STX Zeropage
-    Mem[0x000A] = 0x03;
-    Mem[0x000B] = 0xA9;  // LDA immediate
-    Mem[0x000C] = 0x0A;
+    // FIXME: Faire une première lecture mémoire pour le premier Fetch
+    Cpu.PC = startAddress;
+    Cpu.AddressBus = Cpu.PC++;
+    Mem.Read(Cpu.AddressBus, Cpu.DataBus);
 }
 
+/**
+ * Ici, on va exécuter une instruction au complet
+ * On suit la séquence d'exécution décrit ici: https://www.cpcwiki.eu/index.php/MOS_6502
+ */
 void RT6502::RT6502::Execute() {
-    Cpu.Execute(Mem);
+    do {
+        ExecuteTick();
+        ++CyclesCounter;
+    } while (FonctionsToExecutes.has_value());
+}
+
+void RT6502::RT6502::ExecuteTick() {
+    Cpu.RW = true;  // Remettre la ligne en Read par défaut
+
+    if (Cpu.SYNC) {
+        // Décoder la prochaine instruction
+        Cpu.IR = &InstructionSet::OPCODE_LIST.at(static_cast<InstructionSet::Opcodes>(Cpu.DataBus));
+
+        FonctionsToExecutes.emplace(AddressingMode::Execute(Cpu));
+
+        Cpu.SYNC = false;
+    }
+
+    FonctionsToExecutes = FonctionsToExecutes.value()();
+
+    // Gérer automatiquement le SYNC/Fetch à la fin de l'instruction
+    if (!FonctionsToExecutes.has_value()) {
+        if (Cpu.RW) {
+            // Si c'est une lecture, alors on fait le Fetch
+            Cpu.AddressBus = Cpu.PC++;
+            Cpu.SYNC = true;
+        } else {
+            // Sinon, on rajoute un cycle
+            FonctionsToExecutes.emplace([&] {
+                // C'est vide, car sera traité par le IF juste au dessus
+                // Cpu.AddressBus = Cpu.PC++;
+                // Cpu.SYNC = true;
+                return std::nullopt;
+            });
+        }
+    }
+
+    if (Cpu.RW) {
+        Mem.Read(Cpu.AddressBus, Cpu.DataBus);
+    } else {
+        Mem.Write(Cpu.AddressBus, Cpu.DataBus);
+    }
+}
+
+bool RT6502::RT6502::LoadFile(const char* filepath) {
+    std::ifstream file(filepath, std::ios::binary | std::ios::in);
+
+    if (file.fail()) {
+        return false;
+    }
+
+    file.read(reinterpret_cast<char*>(Mem.Data), Memory::MAX_MEMORY);
+
+    return true;
 }

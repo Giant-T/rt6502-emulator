@@ -2,25 +2,7 @@
 
 #include "6502/decode.h"
 
-RT6502::CPU::CPU() : PC(0), SP(STACK_POINTER_BEGIN), A(0), X(0), Y(0), PS(), RW(false), DataBus(0), AddressBus(0), AddressRegister(0), IR(nullptr) {
-}
-
-/**
- * Écriture du Stack
- * @param memory
- * @param value
- */
-void RT6502::CPU::StackPush(Memory& memory, const Byte value) {
-    memory[0x0100 + SP--] = value;
-}
-
-/**
- * Lecture du Stack
- * @param memory
- * @return
- */
-RT6502::Byte RT6502::CPU::StackPull(Memory& memory) {
-    return memory[0x0100 + SP++];
+RT6502::CPU::CPU() : PC(0), SP(STACK_POINTER_BEGIN), A(0), X(0), Y(0), RW(true), SYNC(true), DataBus(0), AddressBus(0), AddressRegister(0), IR(nullptr) {
 }
 
 void RT6502::CPU::Reset(Memory& memory) noexcept {
@@ -31,21 +13,7 @@ void RT6502::CPU::Reset(Memory& memory) noexcept {
     // PC = l'adresse que contient le RESET VECTOR
     PC = Decode::FetchWord(PC, memory);
 
-    SP = 0xFD;  // TODO: Revalider
-    PS = {};
+    SP = STACK_POINTER_BEGIN;  // TODO: Revalider
+    PS = Flags();
     A = X = Y = 0;
-
-    memory.Init();  // TODO: Le déplacer ailleur, car n'est pas une opération normal du RESET
-}
-
-/**
- * Ici, on va exécuter une instruction au complet
- * @param memory
- */
-void RT6502::CPU::Execute(Memory& memory) {
-    // Récupérer l'instruction et le mettre dans le IR
-    IR = &Decode::FetchInstruction(PC, memory);
-
-    // Exécuter l'instruction (c'est le mode d'adressage qui va gérer ça)
-    AddressingMode::Execute(*this, memory);
 }
