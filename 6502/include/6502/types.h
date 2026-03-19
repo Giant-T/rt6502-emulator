@@ -1,3 +1,7 @@
+/**
+ * Contient les types généraux qui sont utilisé pour la représentation du 6502.
+ */
+
 #pragma once
 
 #include <cstdint>
@@ -7,11 +11,15 @@
 
 namespace RT6502 {
 
+/**
+ * Représentation de 8 bits sur un 6502.
+ */
 using Byte = uint8_t;
-// using Word = uint16_t;
 
-// using InstrFuncPtr = std::function<void()>;
-
+/**
+ * Représentation de 16 bits sur un 6502.
+ * Séparation entre 8 bits Low et 8 bits High.
+ */
 union Word {
     uint16_t Value;
 
@@ -62,6 +70,9 @@ union Word {
     }
 };
 
+/**
+ * Représente les différents flags du Processor Status sur 8 bits.
+ */
 struct Flags {
     Byte C : 1;  // Bit 0 - Carry
     Byte Z : 1;  // Bit 1 - Zero Result
@@ -96,27 +107,30 @@ struct Flags {
     }
 };
 
-enum TimeStates {
-    T0 = 0,
-    T1 = 1,
-    T2 = 2,
-    T3 = 3,
-    T4 = 4,
-    T5 = 5
-};
-
+/**
+ * Utilisé pour le mode d'adressage.
+ * Permet de savoir si le mode d'adressage doit faire une lecture et/ou attendre pour faire une écriture.
+ */
 enum ReadWrite {
     Read = 1 << 0,
     Write = 1 << 1,
     RMW = Read | Write
 };
 
+/**
+ * Nous permet d'avoir une fonction qui pointe vers la prochaine fonction à exécuter.
+ * C'est utilisé pour définir chaque action par cycle.
+ */
 struct QueuedInstr {
     std::function<std::optional<QueuedInstr>()> Func;
 
     template <typename T>
     QueuedInstr(const T& f) : Func(f) {}
 
+    /**
+     * Exécute la fonction actuel et retourne la prochaine fonction à exécuter.
+     * @return La prochaine fonction à exécuter
+     */
     std::optional<QueuedInstr> operator()() const {
         return Func();
     }
@@ -124,6 +138,9 @@ struct QueuedInstr {
 
 }  // namespace RT6502
 
+/**
+ * Nous permet de formatter le type Word comme un uint16_t.
+ */
 template <>
 struct std::formatter<RT6502::Word> : std::formatter<uint16_t> {
     auto format(const RT6502::Word& id, std::format_context& ctx) const {

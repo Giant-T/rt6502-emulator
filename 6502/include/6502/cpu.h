@@ -9,7 +9,7 @@ struct Instruction;
 
 namespace RT6502 {
 /**
- * @ref http://www.erich-foltyn.eu/Technique/6502.html
+ * http://www.erich-foltyn.eu/Technique/6502.html
  */
 class CPU {
    public:
@@ -37,12 +37,10 @@ class CPU {
     Word AddressRegister;                   // Contient ADL et ADH;
     const InstructionSet::Instruction* IR;  // Instruction Register. Holds the fetched instruction opcode byte while the CPU decodes and executes it.
 
-    TimeStates CurrentState = T0;
-
     CPU();
 
     /**
-     * @ref Procedure ["https://www.c64-wiki.com/wiki/Reset_(Process)"]
+     * Procédure de Reset: "https://www.c64-wiki.com/wiki/Reset_(Process)"
      */
     void Reset(Memory&) noexcept;
 };

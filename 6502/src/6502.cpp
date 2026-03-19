@@ -8,16 +8,14 @@
 void RT6502::RT6502::Reset(const Word startAddress) noexcept {
     Cpu.Reset(Mem);
 
+    CyclesCounter = 0;
+
     // FIXME: Faire une première lecture mémoire pour le premier Fetch
     Cpu.PC = startAddress;
     Cpu.AddressBus = Cpu.PC++;
     Mem.Read(Cpu.AddressBus, Cpu.DataBus);
 }
 
-/**
- * Ici, on va exécuter une instruction au complet
- * On suit la séquence d'exécution décrit ici: https://www.cpcwiki.eu/index.php/MOS_6502
- */
 void RT6502::RT6502::Execute() {
     do {
         ExecuteTick();
@@ -49,8 +47,6 @@ void RT6502::RT6502::ExecuteTick() {
             // Sinon, on rajoute un cycle
             FonctionsToExecutes.emplace([&] {
                 // C'est vide, car sera traité par le IF juste au dessus
-                // Cpu.AddressBus = Cpu.PC++;
-                // Cpu.SYNC = true;
                 return std::nullopt;
             });
         }

@@ -15,11 +15,13 @@
 #include "types.h"
 
 namespace RT6502::InstructionSet {
-
-// opcodes
+/**
+ * La liste des 256 opcodes du 6502.
+ * La liste des opcodes: http://www.6502.org/users/obelisk/6502/reference.html
+ */
 enum Opcodes : Byte {
 
-    INS_BRK_IMP = 0X00,
+    INS_BRK_IMP = 0x00,
 
     // Set Flags
     INS_CLC_IMP = 0x18,
@@ -200,15 +202,22 @@ enum Opcodes : Byte {
 
 };
 
+/**
+ * Représente une instruction avec ses métadonnées.
+ */
 struct Instruction {
     Opcodes Opcode;
-    Byte Bytes;
-    Byte Cycles;
+    Byte Bytes;   // Le nombre de bytes utilisé
+    Byte Cycles;  // Le nombre minimal de cycles pour l'exécution complète
     std::string Name;
-    AddressingMode::AddressingMode AddrMode;
+    AddressingMode::AddressingMode AddrMode;  // Son mode d'adressage
     ReadWrite RW;
     std::function<QueuedInstr(CPU&)> Func;
 
+    /**
+     * Affiche l'instruction sous format assembleur.
+     * @return Texte formatté
+     */
     std::string Format() const noexcept {
         return AddressingMode::Format(AddrMode);
     }
@@ -302,6 +311,9 @@ QueuedInstr BEQ(CPU&);
 
 QueuedInstr NOP(CPU&);
 
+/**
+ * La liste des instructions implémenté et exécutable.
+ */
 inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
     {INS_BRK_IMP, {INS_BRK_IMP, 1, 7, "BRK", AddressingMode::AddressingMode::Implicit, Read, BRK}},
 
