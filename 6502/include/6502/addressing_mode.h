@@ -22,7 +22,7 @@ enum class AddressingMode {
 };
 
 std::string Format(AddressingMode);
-QueuedInstr Execute(CPU&);
+std::function<QueuedInstr(CPU&)> Execute(const AddressingMode addressingMode);
 
 QueuedInstr Implicit(CPU& cpu);
 QueuedInstr Accumulator(CPU& cpu);

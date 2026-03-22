@@ -30,12 +30,12 @@ void RT6502::RT6502::ExecuteTick() {
         // Décoder la prochaine instruction
         Cpu.IR = &InstructionSet::OPCODE_LIST.at(static_cast<InstructionSet::Opcodes>(Cpu.DataBus));
 
-        FonctionsToExecutes.emplace(AddressingMode::Execute(Cpu));
+        FonctionsToExecutes.emplace(Cpu.IR->AddrMode);
 
         Cpu.SYNC = false;
     }
 
-    FonctionsToExecutes = FonctionsToExecutes.value()();
+    FonctionsToExecutes = FonctionsToExecutes.value()(Cpu);
 
     // Gérer automatiquement le SYNC/Fetch à la fin de l'instruction
     if (!FonctionsToExecutes.has_value()) {
@@ -45,7 +45,7 @@ void RT6502::RT6502::ExecuteTick() {
             Cpu.SYNC = true;
         } else {
             // Sinon, on rajoute un cycle
-            FonctionsToExecutes.emplace([&] {
+            FonctionsToExecutes.emplace([](CPU&) {
                 // C'est vide, car sera traité par le IF juste au dessus
                 return std::nullopt;
             });

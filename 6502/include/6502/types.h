@@ -10,6 +10,7 @@
 #include <optional>
 
 namespace RT6502 {
+class CPU;
 
 /**
  * Représentation de 8 bits sur un 6502.
@@ -122,7 +123,7 @@ enum ReadWrite {
  * C'est utilisé pour définir chaque action par cycle.
  */
 struct QueuedInstr {
-    std::function<std::optional<QueuedInstr>()> Func;
+    std::function<std::optional<QueuedInstr>(CPU&)> Func;
 
     template <typename T>
     QueuedInstr(const T& f) : Func(f) {}
@@ -131,8 +132,8 @@ struct QueuedInstr {
      * Exécute la fonction actuel et retourne la prochaine fonction à exécuter.
      * @return La prochaine fonction à exécuter
      */
-    std::optional<QueuedInstr> operator()() const {
-        return Func();
+    std::optional<QueuedInstr> operator()(CPU& cpu) const {
+        return Func(cpu);
     }
 };
 
