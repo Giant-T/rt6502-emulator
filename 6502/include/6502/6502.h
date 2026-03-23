@@ -1,11 +1,15 @@
 #pragma once
 
+#include <chrono>
 #include <optional>
 
 #include "cpu.h"
+#include "frequency.h"
 #include "memory.h"
 
 namespace RT6502 {
+using namespace std::chrono;
+
 /**
  * Instance d'un 6502 émulé.
  */
@@ -20,6 +24,10 @@ struct RT6502 {
      * La prochaine fonction à exécuter pour le prochain cycle.
      */
     std::optional<QueuedInstr> FonctionsToExecutes;
+
+    nanoseconds TotalCycleElapsedTime = nanoseconds::zero();
+
+    Frequency Freq = 1.0_MHz;
 
     /**
      * Réinitialise le 6502 et le prépare à démarrer.
@@ -40,6 +48,11 @@ struct RT6502 {
      * @return Succès ou échec du chargement du fichier.
      */
     bool LoadFile(const char*);
+
+    template <class T>
+    T AverageCycleElapsedTime() const {
+        return duration_cast<T>(TotalCycleElapsedTime / CyclesCounter);
+    }
 };
 
 }  // namespace RT6502

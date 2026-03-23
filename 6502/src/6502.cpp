@@ -9,6 +9,7 @@ void RT6502::RT6502::Reset(const Word startAddress) noexcept {
     Cpu.Reset(Mem);
 
     CyclesCounter = 0;
+    TotalCycleElapsedTime = nanoseconds::zero();
 
     // FIXME: Faire une première lecture mémoire pour le premier Fetch
     Cpu.PC = startAddress;
@@ -18,8 +19,12 @@ void RT6502::RT6502::Reset(const Word startAddress) noexcept {
 
 void RT6502::RT6502::Execute() {
     do {
+        const auto pre = high_resolution_clock::now();
         ExecuteTick();
+        const auto post = high_resolution_clock::now();
+
         ++CyclesCounter;
+        TotalCycleElapsedTime += post - pre;
     } while (FonctionsToExecutes.has_value());
 }
 
