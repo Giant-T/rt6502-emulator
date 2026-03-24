@@ -27,7 +27,7 @@ endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/ressources/6502_functional_test.bin" "${CMAKE_CURRENT_BINARY_DIR}/ressources/6502_functional_test.bin" COPYONLY)
 
-add_executable(unit_tests "6502Tests.cpp" "branching.cpp" "jump.cpp" "compare.cpp" "stack.cpp" "store.cpp" "load.cpp" "memory.cpp" "arithmetic.cpp" "klaus2m5.cpp")
+add_executable(unit_tests "6502Tests.cpp" "branching.cpp" "jump.cpp" "compare.cpp" "stack.cpp" "store.cpp" "load.cpp" "memory.cpp" "arithmetic.cpp" "klaus2m5.cpp" "benchmarking.cpp")
 
 target_link_libraries(unit_tests 
     PRIVATE 
