@@ -1,11 +1,12 @@
 #pragma once
 
 #include <string>
+#include <array>
 
 #include "cpu.h"
 
 namespace RT6502::AddressingMode {
-enum class AddressingMode {
+enum class AddressingMode : Byte {
     Implicit,
     Accumulator,
     Immediate,
@@ -21,7 +22,27 @@ enum class AddressingMode {
     IndirectIndexed
 };
 
-std::string Format(AddressingMode);
+using namespace std::string_view_literals;
+
+constexpr std::array FORMATS_LIST = {
+    ""sv,
+    "A"sv,
+    "#${:02X}"sv,
+    "${:02X}"sv,
+    "${:02X},X"sv,
+    "${:02X},Y"sv,
+    "${:02X}"sv,
+    "${:04X}"sv,
+    "${:04X},X"sv,
+    "${:04X},Y"sv,
+    "(${:04X})"sv,
+    "(${:02X},X)"sv,
+    "(${:02X}),Y"sv,
+};
+
+constexpr const std::string_view& Format(const AddressingMode addrMode) {
+    return FORMATS_LIST[static_cast<Byte>(addrMode)];
+}
 std::function<QueuedInstr(CPU&)> Execute(const AddressingMode addressingMode);
 
 QueuedInstr Implicit(CPU& cpu);

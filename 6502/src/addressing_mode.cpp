@@ -2,71 +2,38 @@
 
 #include "6502/instruction_set.h"
 
-std::string RT6502::AddressingMode::Format(const AddressingMode addrMode) {
-    switch (addrMode) {
-        case AddressingMode::Implicit:
-            return "";
-        case AddressingMode::Accumulator:
-            return "A";
-        case AddressingMode::Immediate:
-            return "#${:02X}";
-        case AddressingMode::Zeropage:
-            return "${:02X}";
-        case AddressingMode::ZeropageX:
-            return "${:02X},X";
-        case AddressingMode::ZeropageY:
-            return "${:02X},Y";
-        case AddressingMode::Relative:
-            return "${:02X}";
-        case AddressingMode::Absolute:
-            return "${:04X}";
-        case AddressingMode::AbsoluteX:
-            return "${:04X},X";
-        case AddressingMode::AbsoluteY:
-            return "${:04X},Y";
-        case AddressingMode::Indirect:
-            return "(${:04X})";
-        case AddressingMode::IndexedIndirect:
-            return "(${:02X},X)";
-        case AddressingMode::IndirectIndexed:
-            return "(${:02X}),Y";
-        default:
-            return "";
-    }
-}
-
 std::function<RT6502::QueuedInstr(RT6502::CPU&)> RT6502::AddressingMode::Execute(const AddressingMode addressingMode) {
     switch (addressingMode) {
-          case AddressingMode::Implicit:
-              return Implicit;
-          case AddressingMode::Accumulator:
-              return Accumulator;
-          case AddressingMode::Immediate:
-              return Immediate;
-          case AddressingMode::Zeropage:
-              return Zeropage;
-          case AddressingMode::ZeropageX:
-              return ZeropageX;
-          case AddressingMode::ZeropageY:
-              return ZeropageY;
-          case AddressingMode::Relative:
-              return Relative;
-          case AddressingMode::Absolute:
-              return Absolute;
-          case AddressingMode::AbsoluteX:
-              return AbsoluteX;
-          case AddressingMode::AbsoluteY:
-              return AbsoluteY;
-          case AddressingMode::Indirect:
-              return Indirect;
-          case AddressingMode::IndexedIndirect:
-              return IndexedIndirect;
-          case AddressingMode::IndirectIndexed:
-              return IndirectIndexed;
-          default:
-     throw std::exception("Addressing mode not implemented");
-     }
- }
+        case AddressingMode::Implicit:
+            return Implicit;
+        case AddressingMode::Accumulator:
+            return Accumulator;
+        case AddressingMode::Immediate:
+            return Immediate;
+        case AddressingMode::Zeropage:
+            return Zeropage;
+        case AddressingMode::ZeropageX:
+            return ZeropageX;
+        case AddressingMode::ZeropageY:
+            return ZeropageY;
+        case AddressingMode::Relative:
+            return Relative;
+        case AddressingMode::Absolute:
+            return Absolute;
+        case AddressingMode::AbsoluteX:
+            return AbsoluteX;
+        case AddressingMode::AbsoluteY:
+            return AbsoluteY;
+        case AddressingMode::Indirect:
+            return Indirect;
+        case AddressingMode::IndexedIndirect:
+            return IndexedIndirect;
+        case AddressingMode::IndirectIndexed:
+            return IndirectIndexed;
+        default:
+            throw std::exception("Addressing mode not implemented");
+    }
+}
 
 RT6502::QueuedInstr RT6502::AddressingMode::Implicit(CPU& cpu) {
     // Dummy read

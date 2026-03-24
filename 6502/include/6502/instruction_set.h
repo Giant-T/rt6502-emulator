@@ -213,7 +213,7 @@ struct Instruction {
     const char (&Name)[4];
     const std::function<QueuedInstr(CPU&)> AddrMode;  // Son mode d'adressage
     const std::function<std::optional<QueuedInstr>(CPU&)> Func;
-    const std::string FormatText;
+    const std::string_view& FormatText;
 
     Instruction(const Opcodes opcodes, const Byte bytes, const Byte cycles, const char (&name)[4], const AddressingMode::AddressingMode addressingMode, const ReadWrite rw, const std::function<std::optional<QueuedInstr>(CPU&)>& func)
         : Opcode(opcodes), Bytes(bytes), Cycles(cycles), RW(rw), Name(name), AddrMode(AddressingMode::Execute(addressingMode)), Func(func), FormatText(AddressingMode::Format(addressingMode)) {
@@ -223,7 +223,7 @@ struct Instruction {
      * Affiche l'instruction sous format assembleur.
      * @return Texte formatté
      */
-    std::string Format() const noexcept {
+    const std::string_view& Format() const noexcept {
         return FormatText;
     }
 };
