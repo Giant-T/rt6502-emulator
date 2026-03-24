@@ -22,7 +22,7 @@ struct Operation {
     Word Param;
 
     [[nodiscard]] std::string Display() const {
-        return std::vformat(Info.Name + " " + Info.Format(), std::make_format_args(Param));
+        return std::vformat(std::string(Info.Name) + " " + Info.Format(), std::make_format_args(Param));
     }
 };
 

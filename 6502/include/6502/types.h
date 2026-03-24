@@ -112,7 +112,7 @@ struct Flags {
  * Utilisé pour le mode d'adressage.
  * Permet de savoir si le mode d'adressage doit faire une lecture et/ou attendre pour faire une écriture.
  */
-enum ReadWrite {
+enum ReadWrite : Byte {
     Read = 1 << 0,
     Write = 1 << 1,
     RMW = Read | Write

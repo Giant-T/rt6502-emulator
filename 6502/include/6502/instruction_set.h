@@ -206,17 +206,17 @@ enum Opcodes : Byte {
  * Représente une instruction avec ses métadonnées.
  */
 struct Instruction {
-    Opcodes Opcode;
-    Byte Bytes;   // Le nombre de bytes utilisé
-    Byte Cycles;  // Le nombre minimal de cycles pour l'exécution complète
-    std::string Name;
-    std::function<QueuedInstr(CPU&)> AddrMode;  // Son mode d'adressage
-    ReadWrite RW;
-    std::function<std::optional<QueuedInstr>(CPU&)> Func;
-    std::string FormatText;
+    const Opcodes Opcode;
+    const Byte Bytes;   // Le nombre de bytes utilisé
+    const Byte Cycles;  // Le nombre minimal de cycles pour l'exécution complète
+    const ReadWrite RW;
+    const char (&Name)[4];
+    const std::function<QueuedInstr(CPU&)> AddrMode;  // Son mode d'adressage
+    const std::function<std::optional<QueuedInstr>(CPU&)> Func;
+    const std::string FormatText;
 
-    Instruction(const Opcodes opcodes, const Byte bytes, const Byte cycles, const std::string& name, const AddressingMode::AddressingMode addressingMode, const ReadWrite rw, const std::function<std::optional<QueuedInstr>(CPU&)>& func)
-        : Opcode(opcodes), Bytes(bytes), Cycles(cycles), Name(name), AddrMode(AddressingMode::Execute(addressingMode)), RW(rw), Func(func), FormatText(AddressingMode::Format(addressingMode)) {
+    Instruction(const Opcodes opcodes, const Byte bytes, const Byte cycles, const char (&name)[4], const AddressingMode::AddressingMode addressingMode, const ReadWrite rw, const std::function<std::optional<QueuedInstr>(CPU&)>& func)
+        : Opcode(opcodes), Bytes(bytes), Cycles(cycles), RW(rw), Name(name), AddrMode(AddressingMode::Execute(addressingMode)), Func(func), FormatText(AddressingMode::Format(addressingMode)) {
     }
 
     /**
