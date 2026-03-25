@@ -1,6 +1,6 @@
 #include "6502/instruction_set.h"
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BRK(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::BRK(CPU& cpu) {
     cpu.RW = false;
 
     ++cpu.PC;
@@ -37,7 +37,7 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BRK(CPU& cpu) {
 
                         cpu.PC = cpu.AddressRegister;
 
-                        return std::nullopt;
+                        return nullptr;
                     };
                 };
             };
@@ -45,42 +45,42 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BRK(CPU& cpu) {
     };
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::CLC(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::CLC(CPU& cpu) {
     cpu.PS.C = 0;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::SEC(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::SEC(CPU& cpu) {
     cpu.PS.C = 1;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::CLI(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::CLI(CPU& cpu) {
     cpu.PS.I = 0;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::SEI(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::SEI(CPU& cpu) {
     cpu.PS.I = 1;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::CLD(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::CLD(CPU& cpu) {
     cpu.PS.D = 0;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::SED(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::SED(CPU& cpu) {
     cpu.PS.D = 1;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::CLV(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::CLV(CPU& cpu) {
     cpu.PS.V = 0;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::ASL(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::ASL(CPU& cpu) {
     cpu.RW = false;
     return [](CPU& cpu) {
         cpu.RW = false;
@@ -89,19 +89,19 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::ASL(CPU& cpu) {
         cpu.DataBus <<= 1;
         cpu.PS.Z = cpu.DataBus == 0;
         cpu.PS.N = cpu.DataBus >> 7;
-        return std::nullopt;
+        return nullptr;
     };
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::ASL_ACC(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::ASL_ACC(CPU& cpu) {
     cpu.PS.C = cpu.A >> 7;
     cpu.A <<= 1;
     cpu.PS.Z = cpu.A == 0;
     cpu.PS.N = cpu.A >> 7;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::LSR(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::LSR(CPU& cpu) {
     cpu.RW = false;
     return [](CPU& cpu) {
         cpu.RW = false;
@@ -110,19 +110,19 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::LSR(CPU& cpu) {
         cpu.DataBus >>= 1;
         cpu.PS.Z = cpu.DataBus == 0;
         cpu.PS.N = cpu.DataBus >> 7;
-        return std::nullopt;
+        return nullptr;
     };
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::LSR_ACC(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::LSR_ACC(CPU& cpu) {
     cpu.PS.C = cpu.A & 0b1;
     cpu.A >>= 1;
     cpu.PS.Z = cpu.A == 0;
     cpu.PS.N = cpu.A >> 7;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::ADC(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::ADC(CPU& cpu) {
     const Word result = static_cast<Word>(cpu.A) + static_cast<Word>(cpu.DataBus) + static_cast<Word>(cpu.PS.C);
 
     cpu.PS.V = (~(cpu.A ^ cpu.DataBus) & (cpu.A ^ result.Low)) >> 7;
@@ -131,10 +131,10 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::ADC(CPU& cpu) {
     cpu.PS.Z = cpu.A == 0;
     cpu.PS.N = cpu.A >> 7;
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::SBC(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::SBC(CPU& cpu) {
     const Word result = static_cast<Word>(cpu.A) - static_cast<Word>(cpu.DataBus) - static_cast<Word>(!cpu.PS.C);
 
     cpu.PS.V = ((cpu.A ^ cpu.DataBus) & (cpu.A ^ result.Low)) >> 7;
@@ -143,17 +143,17 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::SBC(CPU& cpu) {
     cpu.PS.Z = cpu.A == 0;
     cpu.PS.N = cpu.A >> 7;
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BIT(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::BIT(CPU& cpu) {
     cpu.PS.Z = (cpu.A & cpu.DataBus) == 0;
     cpu.PS.V = cpu.DataBus >> 6 & 0b1;
     cpu.PS.N = cpu.DataBus >> 7;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::ROL(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::ROL(CPU& cpu) {
     cpu.RW = false;
 
     return [](CPU& cpu) {
@@ -166,11 +166,11 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::ROL(CPU& cpu) {
         cpu.PS.Z = cpu.DataBus == 0;
         cpu.PS.N = cpu.DataBus >> 7;
 
-        return std::nullopt;
+        return nullptr;
     };
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::ROL_ACC(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::ROL_ACC(CPU& cpu) {
     const Byte newCarry = cpu.A >> 7;
 
     cpu.A <<= 1;
@@ -179,10 +179,10 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::ROL_ACC(CPU& cpu) {
     cpu.PS.Z = cpu.A == 0;
     cpu.PS.N = cpu.A >> 7;
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::ROR(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::ROR(CPU& cpu) {
     cpu.RW = false;
 
     return [](CPU& cpu) {
@@ -195,11 +195,11 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::ROR(CPU& cpu) {
         cpu.PS.Z = cpu.DataBus == 0;
         cpu.PS.N = cpu.DataBus >> 7;
 
-        return std::nullopt;
+        return nullptr;
     };
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::ROR_ACC(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::ROR_ACC(CPU& cpu) {
     const Byte newCarry = cpu.A & 0b1;
 
     cpu.A >>= 1;
@@ -208,35 +208,35 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::ROR_ACC(CPU& cpu) {
     cpu.PS.Z = cpu.A == 0;
     cpu.PS.N = cpu.A >> 7;
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::ORA(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::ORA(CPU& cpu) {
     cpu.A |= cpu.DataBus;
     cpu.PS.Z = cpu.A == 0;
     cpu.PS.N = cpu.A >> 7;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::AND(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::AND(CPU& cpu) {
     cpu.A &= cpu.DataBus;
     cpu.PS.Z = cpu.A == 0;
     cpu.PS.N = cpu.A >> 7;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::EOR(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::EOR(CPU& cpu) {
     cpu.A ^= cpu.DataBus;
     cpu.PS.Z = cpu.A == 0;
     cpu.PS.N = cpu.A >> 7;
-    return std::nullopt;
+    return nullptr;
 }
 
 /**
  *
  * @warning Ce n'est pas la bonne séquence d'exécution, mais on peut vivre avec
  */
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::JSR(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::JSR(CPU& cpu) {
     cpu.RW = false;
     --cpu.PC;
     cpu.DataBus = cpu.PC.High;
@@ -251,17 +251,17 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::JSR(CPU& cpu) {
 
         return [](CPU& cpu) {
             cpu.PC = cpu.AddressRegister;
-            return std::nullopt;
+            return nullptr;
         };
     };
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::JMP(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::JMP(CPU& cpu) {
     cpu.PC = cpu.AddressBus;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::RTI(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::RTI(CPU& cpu) {
     ++cpu.SP;
 
     return [](CPU& cpu) {
@@ -281,7 +281,7 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::RTI(CPU& cpu) {
 
                     cpu.AddressBus = cpu.PC;
 
-                    return std::nullopt;
+                    return nullptr;
                 };
             };
         };
@@ -292,7 +292,7 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::RTI(CPU& cpu) {
  *
  * @warning Ce n'est pas la bonne séquence d'exécution, mais on peut vivre avec
  */
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::RTS(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::RTS(CPU& cpu) {
     cpu.SP++;
 
     return [](CPU& cpu) {
@@ -310,25 +310,25 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::RTS(CPU& cpu) {
                 return [](CPU& cpu) {
                     cpu.PC = cpu.AddressRegister;
                     ++cpu.PC;
-                    return std::nullopt;
+                    return nullptr;
                 };
             };
         };
     };
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::LDY(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::LDY(CPU& cpu) {
     cpu.Y = cpu.DataBus;
     cpu.PS.Z = cpu.Y == 0;
     cpu.PS.N = cpu.Y >> 7;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::LDX(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::LDX(CPU& cpu) {
     cpu.X = cpu.DataBus;
     cpu.PS.Z = cpu.X == 0;
     cpu.PS.N = cpu.X >> 7;
-    return std::nullopt;
+    return nullptr;
 }
 
 /**
@@ -336,40 +336,40 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::LDX(CPU& cpu) {
  * @param cpu
  * @ref source [http://www.6502.org/users/obelisk/6502/reference.html#LDA]
  */
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::LDA(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::LDA(CPU& cpu) {
     cpu.A = cpu.DataBus;
     cpu.PS.Z = cpu.A == 0;
     cpu.PS.N = cpu.A >> 7;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::STY(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::STY(CPU& cpu) {
     cpu.RW = false;
     cpu.DataBus = cpu.Y;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::STX(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::STX(CPU& cpu) {
     cpu.RW = false;
     cpu.DataBus = cpu.X;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::STA(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::STA(CPU& cpu) {
     cpu.RW = false;
     cpu.DataBus = cpu.A;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::PHP(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::PHP(CPU& cpu) {
     cpu.RW = false;
     cpu.DataBus = static_cast<Byte>(cpu.PS);
     cpu.AddressBus.Low = cpu.SP--;
     cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::PLA(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::PLA(CPU& cpu) {
     cpu.SP++;
 
     return [](CPU& cpu) {
@@ -380,20 +380,20 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::PLA(CPU& cpu) {
             cpu.A = cpu.DataBus;
             cpu.PS.Z = cpu.A == 0;
             cpu.PS.N = cpu.A >> 7;
-            return std::nullopt;
+            return nullptr;
         };
     };
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::PHA(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::PHA(CPU& cpu) {
     cpu.RW = false;
     cpu.DataBus = cpu.A;
     cpu.AddressBus.Low = cpu.SP--;
     cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::PLP(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::PLP(CPU& cpu) {
     cpu.SP++;
 
     return [](CPU& cpu) {
@@ -403,137 +403,137 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::PLP(CPU& cpu) {
         return [](CPU& cpu) {
             cpu.PS = cpu.DataBus;
             cpu.PS.B = 1;
-            return std::nullopt;
+            return nullptr;
         };
     };
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::TXA(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::TXA(CPU& cpu) {
     cpu.A = cpu.X;
     cpu.PS.Z = cpu.A == 0;
     cpu.PS.N = cpu.A >> 7;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::TYA(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::TYA(CPU& cpu) {
     cpu.A = cpu.Y;
     cpu.PS.Z = cpu.A == 0;
     cpu.PS.N = cpu.A >> 7;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::TXS(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::TXS(CPU& cpu) {
     cpu.SP = cpu.X;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::TAY(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::TAY(CPU& cpu) {
     cpu.Y = cpu.A;
     cpu.PS.Z = cpu.Y == 0;
     cpu.PS.N = cpu.Y >> 7;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::TAX(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::TAX(CPU& cpu) {
     cpu.X = cpu.A;
     cpu.PS.Z = cpu.X == 0;
     cpu.PS.N = cpu.X >> 7;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::TSX(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::TSX(CPU& cpu) {
     cpu.X = cpu.SP;
     cpu.PS.Z = cpu.X == 0;
     cpu.PS.N = cpu.X >> 7;
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::CPY(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::CPY(CPU& cpu) {
     cpu.PS.C = cpu.Y >= cpu.DataBus;
     cpu.PS.Z = cpu.Y == cpu.DataBus;
     cpu.PS.N = (cpu.Y - cpu.DataBus) >> 7;
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::CMP(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::CMP(CPU& cpu) {
     cpu.PS.C = cpu.A >= cpu.DataBus;
     cpu.PS.Z = cpu.A == cpu.DataBus;
     cpu.PS.N = (cpu.A - cpu.DataBus) >> 7;
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::CPX(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::CPX(CPU& cpu) {
     cpu.PS.C = cpu.X >= cpu.DataBus;
     cpu.PS.Z = cpu.X == cpu.DataBus;
     cpu.PS.N = (cpu.X - cpu.DataBus) >> 7;
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::DEY(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::DEY(CPU& cpu) {
     --cpu.Y;
     cpu.PS.Z = cpu.Y == 0;
     cpu.PS.N = cpu.Y >> 7;
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::DEX(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::DEX(CPU& cpu) {
     --cpu.X;
     cpu.PS.Z = cpu.X == 0;
     cpu.PS.N = cpu.X >> 7;
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::DEC(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::DEC(CPU& cpu) {
     cpu.RW = false;
     return [](CPU& cpu) {
         cpu.RW = false;
         cpu.DataBus -= 1;
         cpu.PS.Z = cpu.DataBus == 0;
         cpu.PS.N = cpu.DataBus >> 7;
-        return std::nullopt;
+        return nullptr;
     };
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::INY(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::INY(CPU& cpu) {
     ++cpu.Y;
     cpu.PS.Z = cpu.Y == 0;
     cpu.PS.N = cpu.Y >> 7;
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::INX(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::INX(CPU& cpu) {
     ++cpu.X;
     cpu.PS.Z = cpu.X == 0;
     cpu.PS.N = cpu.X >> 7;
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::INC(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::INC(CPU& cpu) {
     cpu.RW = false;
     return [](CPU& cpu) {
         cpu.RW = false;
         cpu.DataBus += 1;
         cpu.PS.Z = cpu.DataBus == 0;
         cpu.PS.N = cpu.DataBus >> 7;
-        return std::nullopt;
+        return nullptr;
     };
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BPL(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::BPL(CPU& cpu) {
     cpu.AddressBus = cpu.PC;
     cpu.AddressRegister = cpu.PC;
     cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
 
     if (!cpu.PS.N) {
         // Faire le branchement
-        return [](CPU& cpu) -> std::optional<QueuedInstr> {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.PC.Low = cpu.AddressRegister.Low;
 
             // Si on traverse une page
@@ -541,25 +541,25 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BPL(CPU& cpu) {
                 return [](CPU& cpu) {
                     cpu.PC.High = cpu.AddressRegister.High;
 
-                    return std::nullopt;
+                    return nullptr;
                 };
             }
 
-            return std::nullopt;
+            return nullptr;
         };
     }
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BMI(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::BMI(CPU& cpu) {
     cpu.AddressBus = cpu.PC;
     cpu.AddressRegister = cpu.PC;
     cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
 
     if (cpu.PS.N) {
         // Faire le branchement
-        return [](CPU& cpu) -> std::optional<QueuedInstr> {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.PC.Low = cpu.AddressRegister.Low;
 
             // Si on traverse une page
@@ -567,25 +567,25 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BMI(CPU& cpu) {
                 return [](CPU& cpu) {
                     cpu.PC.High = cpu.AddressRegister.High;
 
-                    return std::nullopt;
+                    return nullptr;
                 };
             }
 
-            return std::nullopt;
+            return nullptr;
         };
     }
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BVC(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::BVC(CPU& cpu) {
     cpu.AddressBus = cpu.PC;
     cpu.AddressRegister = cpu.PC;
     cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
 
     if (!cpu.PS.V) {
         // Faire le branchement
-        return [](CPU& cpu) -> std::optional<QueuedInstr> {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.PC.Low = cpu.AddressRegister.Low;
 
             // Si on traverse une page
@@ -593,25 +593,25 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BVC(CPU& cpu) {
                 return [](CPU& cpu) {
                     cpu.PC.High = cpu.AddressRegister.High;
 
-                    return std::nullopt;
+                    return nullptr;
                 };
             }
 
-            return std::nullopt;
+            return nullptr;
         };
     }
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BVS(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::BVS(CPU& cpu) {
     cpu.AddressBus = cpu.PC;
     cpu.AddressRegister = cpu.PC;
     cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
 
     if (cpu.PS.V) {
         // Faire le branchement
-        return [](CPU& cpu) -> std::optional<QueuedInstr> {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.PC.Low = cpu.AddressRegister.Low;
 
             // Si on traverse une page
@@ -619,25 +619,25 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BVS(CPU& cpu) {
                 return [](CPU& cpu) {
                     cpu.PC.High = cpu.AddressRegister.High;
 
-                    return std::nullopt;
+                    return nullptr;
                 };
             }
 
-            return std::nullopt;
+            return nullptr;
         };
     }
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BCC(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::BCC(CPU& cpu) {
     cpu.AddressBus = cpu.PC;
     cpu.AddressRegister = cpu.PC;
     cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
 
     if (!cpu.PS.C) {
         // Faire le branchement
-        return [](CPU& cpu) -> std::optional<QueuedInstr> {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.PC.Low = cpu.AddressRegister.Low;
 
             // Si on traverse une page
@@ -645,25 +645,25 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BCC(CPU& cpu) {
                 return [](CPU& cpu) {
                     cpu.PC.High = cpu.AddressRegister.High;
 
-                    return std::nullopt;
+                    return nullptr;
                 };
             }
 
-            return std::nullopt;
+            return nullptr;
         };
     }
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BCS(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::BCS(CPU& cpu) {
     cpu.AddressBus = cpu.PC;
     cpu.AddressRegister = cpu.PC;
     cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
 
     if (cpu.PS.C) {
         // Faire le branchement
-        return [](CPU& cpu) -> std::optional<QueuedInstr> {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.PC.Low = cpu.AddressRegister.Low;
 
             // Si on traverse une page
@@ -671,25 +671,25 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BCS(CPU& cpu) {
                 return [](CPU& cpu) {
                     cpu.PC.High = cpu.AddressRegister.High;
 
-                    return std::nullopt;
+                    return nullptr;
                 };
             }
 
-            return std::nullopt;
+            return nullptr;
         };
     }
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BNE(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::BNE(CPU& cpu) {
     cpu.AddressBus = cpu.PC;
     cpu.AddressRegister = cpu.PC;
     cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
 
     if (!cpu.PS.Z) {
         // Faire le branchement
-        return [](CPU& cpu) -> std::optional<QueuedInstr> {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.PC.Low = cpu.AddressRegister.Low;
 
             // Si on traverse une page
@@ -697,25 +697,25 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BNE(CPU& cpu) {
                 return [](CPU& cpu) {
                     cpu.PC.High = cpu.AddressRegister.High;
 
-                    return std::nullopt;
+                    return nullptr;
                 };
             }
 
-            return std::nullopt;
+            return nullptr;
         };
     }
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BEQ(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::BEQ(CPU& cpu) {
     cpu.AddressBus = cpu.PC;
     cpu.AddressRegister = cpu.PC;
     cpu.AddressRegister += static_cast<int8_t>(cpu.DataBus);
 
     if (cpu.PS.Z) {
         // Faire le branchement
-        return [](CPU& cpu) -> std::optional<QueuedInstr> {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.PC.Low = cpu.AddressRegister.Low;
 
             // Si on traverse une page
@@ -723,17 +723,17 @@ std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::BEQ(CPU& cpu) {
                 return [](CPU& cpu) {
                     cpu.PC.High = cpu.AddressRegister.High;
 
-                    return std::nullopt;
+                    return nullptr;
                 };
             }
 
-            return std::nullopt;
+            return nullptr;
         };
     }
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<RT6502::QueuedInstr> RT6502::InstructionSet::NOP(CPU& cpu) {
-    return std::nullopt;
+RT6502::QueuedInstr RT6502::InstructionSet::NOP(CPU& cpu) {
+    return nullptr;
 }

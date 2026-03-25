@@ -1,7 +1,6 @@
 #pragma once
 
 #include <chrono>
-#include <optional>
 
 #include "cpu.h"
 #include "frequency.h"
@@ -23,7 +22,7 @@ struct RT6502 {
     /**
      * La prochaine fonction à exécuter pour le prochain cycle.
      */
-    std::optional<QueuedInstr> FonctionsToExecutes;
+    QueuedInstr FonctionsToExecutes = nullptr;
 
     nanoseconds TotalCycleElapsedTime = nanoseconds::zero();
 

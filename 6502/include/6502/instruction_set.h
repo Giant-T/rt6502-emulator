@@ -212,10 +212,10 @@ struct Instruction {
     const ReadWrite RW;
     const char (&Name)[4];
     const std::function<QueuedInstr(CPU&)> AddrMode;  // Son mode d'adressage
-    const std::function<std::optional<QueuedInstr>(CPU&)> Func;
+    const std::function<QueuedInstr(CPU&)> Func;
     const std::string_view& FormatText;
 
-    Instruction(const Opcodes opcodes, const Byte bytes, const Byte cycles, const char (&name)[4], const AddressingMode::AddressingMode addressingMode, const ReadWrite rw, const std::function<std::optional<QueuedInstr>(CPU&)>& func)
+    Instruction(const Opcodes opcodes, const Byte bytes, const Byte cycles, const char (&name)[4], const AddressingMode::AddressingMode addressingMode, const ReadWrite rw, const std::function<QueuedInstr(CPU&)>& func)
         : Opcode(opcodes), Bytes(bytes), Cycles(cycles), RW(rw), Name(name), AddrMode(AddressingMode::Execute(addressingMode)), Func(func), FormatText(AddressingMode::Format(addressingMode)) {
     }
 
@@ -228,93 +228,93 @@ struct Instruction {
     }
 };
 
-std::optional<QueuedInstr> BRK(CPU&);
+QueuedInstr BRK(CPU&);
 
 // Flags
-std::optional<QueuedInstr> CLC(CPU&);
-std::optional<QueuedInstr> SEC(CPU&);
-std::optional<QueuedInstr> CLI(CPU&);
-std::optional<QueuedInstr> SEI(CPU&);
-std::optional<QueuedInstr> CLD(CPU&);
-std::optional<QueuedInstr> SED(CPU&);
-std::optional<QueuedInstr> CLV(CPU&);
+QueuedInstr CLC(CPU&);
+QueuedInstr SEC(CPU&);
+QueuedInstr CLI(CPU&);
+QueuedInstr SEI(CPU&);
+QueuedInstr CLD(CPU&);
+QueuedInstr SED(CPU&);
+QueuedInstr CLV(CPU&);
 
 // Arithmetic
-std::optional<QueuedInstr> ASL(CPU&);
-std::optional<QueuedInstr> ASL_ACC(CPU&);
-std::optional<QueuedInstr> LSR(CPU&);
-std::optional<QueuedInstr> LSR_ACC(CPU&);
+QueuedInstr ASL(CPU&);
+QueuedInstr ASL_ACC(CPU&);
+QueuedInstr LSR(CPU&);
+QueuedInstr LSR_ACC(CPU&);
 
-std::optional<QueuedInstr> ADC(CPU&);
-std::optional<QueuedInstr> SBC(CPU&);
+QueuedInstr ADC(CPU&);
+QueuedInstr SBC(CPU&);
 
-std::optional<QueuedInstr> BIT(CPU&);
+QueuedInstr BIT(CPU&);
 
-std::optional<QueuedInstr> ROL(CPU&);
-std::optional<QueuedInstr> ROL_ACC(CPU&);
-std::optional<QueuedInstr> ROR(CPU&);
-std::optional<QueuedInstr> ROR_ACC(CPU&);
+QueuedInstr ROL(CPU&);
+QueuedInstr ROL_ACC(CPU&);
+QueuedInstr ROR(CPU&);
+QueuedInstr ROR_ACC(CPU&);
 
-std::optional<QueuedInstr> ORA(CPU&);
-std::optional<QueuedInstr> AND(CPU&);
-std::optional<QueuedInstr> EOR(CPU&);
+QueuedInstr ORA(CPU&);
+QueuedInstr AND(CPU&);
+QueuedInstr EOR(CPU&);
 
 // Jump
-std::optional<QueuedInstr> JSR(CPU&);
-std::optional<QueuedInstr> JMP(CPU&);
-std::optional<QueuedInstr> RTI(CPU&);
-std::optional<QueuedInstr> RTS(CPU&);
+QueuedInstr JSR(CPU&);
+QueuedInstr JMP(CPU&);
+QueuedInstr RTI(CPU&);
+QueuedInstr RTS(CPU&);
 
 // Load
-std::optional<QueuedInstr> LDY(CPU&);
-std::optional<QueuedInstr> LDX(CPU&);
-std::optional<QueuedInstr> LDA(CPU&);
+QueuedInstr LDY(CPU&);
+QueuedInstr LDX(CPU&);
+QueuedInstr LDA(CPU&);
 
 // Store
-std::optional<QueuedInstr> STY(CPU&);
-std::optional<QueuedInstr> STX(CPU&);
-std::optional<QueuedInstr> STA(CPU&);
+QueuedInstr STY(CPU&);
+QueuedInstr STX(CPU&);
+QueuedInstr STA(CPU&);
 
 // Stack
-std::optional<QueuedInstr> PHP(CPU&);
-std::optional<QueuedInstr> PLA(CPU&);
-std::optional<QueuedInstr> PHA(CPU&);
-std::optional<QueuedInstr> PLP(CPU&);
+QueuedInstr PHP(CPU&);
+QueuedInstr PLA(CPU&);
+QueuedInstr PHA(CPU&);
+QueuedInstr PLP(CPU&);
 
 // Transfer
-std::optional<QueuedInstr> TXA(CPU&);
-std::optional<QueuedInstr> TYA(CPU&);
-std::optional<QueuedInstr> TXS(CPU&);
-std::optional<QueuedInstr> TAY(CPU&);
-std::optional<QueuedInstr> TAX(CPU&);
-std::optional<QueuedInstr> TSX(CPU&);
+QueuedInstr TXA(CPU&);
+QueuedInstr TYA(CPU&);
+QueuedInstr TXS(CPU&);
+QueuedInstr TAY(CPU&);
+QueuedInstr TAX(CPU&);
+QueuedInstr TSX(CPU&);
 
 // Compare
-std::optional<QueuedInstr> CPY(CPU&);
-std::optional<QueuedInstr> CMP(CPU&);
-std::optional<QueuedInstr> CPX(CPU&);
+QueuedInstr CPY(CPU&);
+QueuedInstr CMP(CPU&);
+QueuedInstr CPX(CPU&);
 
 // Decrement
-std::optional<QueuedInstr> DEY(CPU&);
-std::optional<QueuedInstr> DEX(CPU&);
-std::optional<QueuedInstr> DEC(CPU&);
+QueuedInstr DEY(CPU&);
+QueuedInstr DEX(CPU&);
+QueuedInstr DEC(CPU&);
 
 // Increment
-std::optional<QueuedInstr> INY(CPU&);
-std::optional<QueuedInstr> INX(CPU&);
-std::optional<QueuedInstr> INC(CPU&);
+QueuedInstr INY(CPU&);
+QueuedInstr INX(CPU&);
+QueuedInstr INC(CPU&);
 
 // Branching
-std::optional<QueuedInstr> BPL(CPU&);
-std::optional<QueuedInstr> BMI(CPU&);
-std::optional<QueuedInstr> BVC(CPU&);
-std::optional<QueuedInstr> BVS(CPU&);
-std::optional<QueuedInstr> BCC(CPU&);
-std::optional<QueuedInstr> BCS(CPU&);
-std::optional<QueuedInstr> BNE(CPU&);
-std::optional<QueuedInstr> BEQ(CPU&);
+QueuedInstr BPL(CPU&);
+QueuedInstr BMI(CPU&);
+QueuedInstr BVC(CPU&);
+QueuedInstr BVS(CPU&);
+QueuedInstr BCC(CPU&);
+QueuedInstr BCS(CPU&);
+QueuedInstr BNE(CPU&);
+QueuedInstr BEQ(CPU&);
 
-std::optional<QueuedInstr> NOP(CPU&);
+QueuedInstr NOP(CPU&);
 
 /**
  * La liste des instructions implémenté et exécutable.
