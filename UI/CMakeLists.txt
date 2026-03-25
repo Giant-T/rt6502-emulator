@@ -29,12 +29,19 @@ else()
 endif()
 
 # ---------------
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/ressources/6502_functional_test.bin" "${CMAKE_CURRENT_BINARY_DIR}/ressources/6502_functional_test.bin" COPYONLY)
 
 add_executable(UI)
 
 target_sources(UI
     PRIVATE
         src/main.cpp
+        src/app.cpp
+)
+
+target_include_directories(6502
+    PUBLIC
+        include
 )
 
 target_link_libraries(UI

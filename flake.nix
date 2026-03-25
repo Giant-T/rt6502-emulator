@@ -13,7 +13,13 @@
       llvm = pkgs.llvmPackages_latest;
     in {
       devShells.${system}.default = pkgs.mkShell {
-        nativeBuildInputs = with pkgs; [ cmake clang-tools llvm.clang lldb ];
+        nativeBuildInputs = with pkgs; [
+          cmake
+          clang-tools
+          llvm.clang
+          lldb
+          catch2_3
+        ];
         buildInputs = [ ftxui.packages.${system}.ftxui ];
       };
     };

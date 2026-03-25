@@ -1,0 +1,161 @@
+#include "app.h"
+
+#include <cctype>
+#include <ftxui/component/component.hpp>
+#include <ftxui/component/component_base.hpp>
+#include <ftxui/component/component_options.hpp>
+#include <ftxui/component/event.hpp>
+#include <ftxui/component/loop.hpp>
+#include <ftxui/component/screen_interactive.hpp>
+#include <ftxui/dom/elements.hpp>
+#include <ftxui/dom/table.hpp>
+#include <ftxui/screen/box.hpp>
+#include <string>
+
+#include "6502/decode.h"
+
+App::App() : layoutHeight(LAYOUT_HEIGHT), layoutWidth(LAYOUT_WIDTH) {
+    emulator.Reset();
+}
+
+App::App(const std::string& fileName, int firstMemAddr, int layoutHeight, int layoutWidth) : layoutHeight(layoutHeight), layoutWidth(layoutWidth) {
+    emulator.LoadFile(fileName.data());
+    emulator.Reset(firstMemAddr);
+}
+
+ftxui::Component App::KeyboardEvents(ftxui::ScreenInteractive& screen, ftxui::Component component) {
+    return ftxui::CatchEvent(
+        std::move(component),
+        [&](const ftxui::Event& event) {
+            if (event.character() == "q") {  // Exits the program when pressing 'q'
+                screen.Exit();
+                return true;
+            }
+
+            return false;
+        }
+    );
+}
+
+ftxui::Element App::RegistersTable() {
+    const auto oper = RT6502::Decode::Decode(emulator.Cpu.PC, emulator.Mem);
+
+    auto table = ftxui::Table({
+        {"Register", "Values"},
+        {"PC", std::format("{:04X}", emulator.Cpu.PC)},
+        {"SP", std::format("{:02X}", emulator.Cpu.SP)},
+        {"A", std::format("{:02X}", emulator.Cpu.A)},
+        {"X", std::format("{:02X}", emulator.Cpu.X)},
+        {"Y", std::format("{:02X}", emulator.Cpu.Y)},
+        {"N", std::to_string(emulator.Cpu.PS.N)},
+        {"V", std::to_string(emulator.Cpu.PS.V)},
+        {"B", std::to_string(emulator.Cpu.PS.B)},
+        {"D", std::to_string(emulator.Cpu.PS.D)},
+        {"I", std::to_string(emulator.Cpu.PS.I)},
+        {"Z", std::to_string(emulator.Cpu.PS.Z)},
+        {"C", std::to_string(emulator.Cpu.PS.C)},
+        {"Decode", oper.Display()},
+    });
+
+    table.SelectColumns(0, -1).Border();
+    table.SelectColumn(1).Border();
+
+    table.SelectRow(0).Decorate(ftxui::bold);
+    table.SelectRow(0).Border(ftxui::DOUBLE);
+
+    return table.Render();
+}
+
+ftxui::Component App::RegistersLayout() {
+    return ftxui::Renderer(
+        [&] {
+            return ftxui::vbox({ftxui::text("Registers"), ftxui::separator(), RegistersTable()});
+        }
+    );
+}
+
+ftxui::Component App::AssemblyLayout() {
+    return ftxui::Renderer(
+        [] {
+            return ftxui::vbox({
+                ftxui::text("Assembly"),
+                ftxui::separator(),
+                ftxui::text("Informations") | ftxui::flex,
+            });
+        }
+    );
+}
+
+ftxui::Component App::AddressInput() {
+    static std::string address;
+    ftxui::InputOption options{};
+    options.multiline = false;
+
+    options.on_change = [&]() {
+        if (address.empty() || std::isxdigit(address.back())) return;
+
+        address.pop_back();
+    };
+
+    options.on_enter = [&]() {
+        // TODO(william): faire la recherche et refresh l'affichage
+        this->address = std::stoi(address, nullptr, 16);
+    };
+
+    ftxui::Component addressInput = ftxui::Input(
+        &address,
+        "Search at address",
+        options
+    );
+
+    return addressInput;
+}
+
+ftxui::Component App::MemoryDisplay() {
+    return ftxui::Renderer([&] {
+        return ftxui::text(std::to_string(emulator.Mem[address]));
+    });
+}
+
+ftxui::Component App::MemoryLayout() {
+    return ftxui::Container::Vertical({
+        ftxui::Renderer([] {
+            return ftxui::vbox({
+                ftxui::text("Memory"),
+                ftxui::separator(),
+            });
+        }),
+        AddressInput(),
+        MemoryDisplay(),
+    });
+}
+
+ftxui::Component App::VerticalLayout() {
+    auto registers = RegistersLayout();
+    auto assembly = AssemblyLayout();
+    auto memory = MemoryLayout();
+
+    auto top = ftxui::ResizableSplitLeft(registers, memory, &layoutWidth);
+
+    return ftxui::ResizableSplitTop(top, assembly, &layoutHeight) | ftxui::border;
+}
+
+ftxui::Component App::MainLayout(ftxui::ScreenInteractive& screen) {
+    return KeyboardEvents(
+        screen,
+        VerticalLayout()
+    );
+}
+
+void App::Run() {
+    auto screen = ftxui::ScreenInteractive::Fullscreen();
+    ftxui::Loop loop{&screen, MainLayout(screen)};
+
+    while (!loop.HasQuitted()) {
+        // TODO(william): Check voir si ça cause des erreurs sinon ça marche live
+        screen.RequestAnimationFrame();
+        loop.RunOnce();
+
+        emulator.Execute();
+    }
+}
