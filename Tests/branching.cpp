@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <functional>
 
 #include "6502/6502.h"
 #include "6502/instruction_set.h"
