@@ -29,15 +29,15 @@ class App {
     int layoutWidth;
     int address{0};
 
-    ftxui::Component MainLayout(ftxui::ScreenInteractive&);
-    ftxui::Element RegistersTable();
-    ftxui::Component RegistersLayout();
-    ftxui::Component AssemblyLayout();
-    ftxui::Component VerticalLayout();
-    ftxui::Component AddressInput();
-    ftxui::Component MemoryLayout();
-    ftxui::Component MemoryDisplay();
-    static ftxui::Component KeyboardEvents(ftxui::ScreenInteractive&, ftxui::Component);
+    [[nodiscard]] ftxui::Component MainLayout(ftxui::ScreenInteractive&);
+    [[nodiscard]] ftxui::Element RegistersTable();
+    [[nodiscard]] ftxui::Component RegistersLayout();
+    [[nodiscard]] ftxui::Component AssemblyLayout();
+    [[nodiscard]] ftxui::Component VerticalLayout();
+    [[nodiscard]] ftxui::Component AddressInput();
+    [[nodiscard]] ftxui::Component MemoryLayout();
+    [[nodiscard]] ftxui::Component MemoryDisplay() const;
+    [[nodiscard]] static ftxui::Component KeyboardEvents(ftxui::ScreenInteractive&, ftxui::Component);
 };
 
 #endif  // !APP

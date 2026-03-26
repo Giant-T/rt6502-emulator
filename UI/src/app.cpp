@@ -1,6 +1,7 @@
 #include "app.h"
 
 #include <cctype>
+#include <cstdint>
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/component_base.hpp>
 #include <ftxui/component/component_options.hpp>
@@ -13,6 +14,8 @@
 #include <string>
 
 #include "6502/decode.h"
+
+enum : uint8_t { HEX = 16 };
 
 App::App() : layoutHeight(LAYOUT_HEIGHT), layoutWidth(LAYOUT_WIDTH) {
     emulator.Reset();
@@ -99,7 +102,7 @@ ftxui::Component App::AddressInput() {
 
     options.on_enter = [&]() {
         // TODO(william): faire la recherche et refresh l'affichage
-        this->address = std::stoi(address, nullptr, 16);
+        this->address = std::stoi(address, nullptr, HEX);
     };
 
     ftxui::Component addressInput = ftxui::Input(
@@ -111,9 +114,30 @@ ftxui::Component App::AddressInput() {
     return addressInput;
 }
 
-ftxui::Component App::MemoryDisplay() {
+ftxui::Component App::MemoryDisplay() const {
     return ftxui::Renderer([&] {
-        return ftxui::text(std::to_string(emulator.Mem[address]));
+        const int tableWidth = layoutWidth / 5;
+        const int tableHeight = layoutHeight;
+
+        std::vector<std::vector<std::string>> memoryTable{};
+        memoryTable.reserve(tableHeight);
+
+        for (int y = 0; y < tableHeight; ++y) {
+            std::vector<std::string> row;
+            row.reserve(tableWidth);
+            for (int x = 0; x < tableWidth; ++x) {
+                row.push_back(std::format("{:#04X}", emulator.Mem[address + (y * tableWidth) + x]));
+            }
+            memoryTable.push_back(row);
+        }
+
+        auto table = ftxui::Table(memoryTable);
+
+        for (int col = 0; col < tableWidth - 1; ++col) {
+            table.SelectColumn(col).BorderRight();
+        }
+
+        return table.Render();
     });
 }
 
@@ -135,7 +159,7 @@ ftxui::Component App::VerticalLayout() {
     auto assembly = AssemblyLayout();
     auto memory = MemoryLayout();
 
-    auto top = ftxui::ResizableSplitLeft(registers, memory, &layoutWidth);
+    auto top = ftxui::ResizableSplitRight(memory, registers, &layoutWidth);
 
     return ftxui::ResizableSplitTop(top, assembly, &layoutHeight) | ftxui::border;
 }
