@@ -8,6 +8,7 @@
 #pragma once
 
 #include <initializer_list>
+#include <memory>
 
 #include "addressing_mode.h"
 #include "cpu.h"
@@ -305,11 +306,11 @@ struct Instruction {
     /**
      * Par défaut, on construit une instruction NOP
      */
-    Instruction()
+    constexpr Instruction()
         : Opcode(INS_NOP_IMP), Bytes(1), Cycles(2), RW(Read), Name("NOP"), AddrMode(AddressingMode::Execute(AddressingMode::AddressingMode::Implicit)), Func(NOP), FormatText(AddressingMode::Format(AddressingMode::AddressingMode::Implicit)) {
     }
 
-    Instruction(const Opcodes opcodes, const Byte bytes, const Byte cycles, const char (&name)[4], const AddressingMode::AddressingMode addressingMode, const ReadWrite rw, const QueuedInstr& func)
+    constexpr Instruction(const Opcodes opcodes, const Byte bytes, const Byte cycles, const char (&name)[4], const AddressingMode::AddressingMode addressingMode, const ReadWrite rw, const QueuedInstr& func)
         : Opcode(opcodes), Bytes(bytes), Cycles(cycles), RW(rw), Name(name), AddrMode(AddressingMode::Execute(addressingMode)), Func(func), FormatText(AddressingMode::Format(addressingMode)) {
     }
 
@@ -317,7 +318,7 @@ struct Instruction {
      * Affiche l'instruction sous format assembleur.
      * @return Texte formatté
      */
-    const std::string_view& Format() const noexcept {
+    constexpr const std::string_view& Format() const noexcept {
         return FormatText;
     }
 };
@@ -326,14 +327,14 @@ class OpcodeArray {
     std::array<Instruction, 256> Arr{};
 
    public:
-    OpcodeArray(const std::initializer_list<Instruction> liste) {
-        // ajouter les instructions
+    constexpr OpcodeArray(const std::initializer_list<Instruction> liste) {
         for (const auto& instr : liste) {
-            new (&Arr[instr.Opcode]) Instruction{instr};
+            std::construct_at(&Arr[instr.Opcode], Instruction{instr});
+            // new (&Arr[instr.Opcode]) Instruction{instr}; // Placement-new n'est pas constexpr :( Sera disponible dans C++26
         }
     }
 
-    const Instruction& at(const Opcodes opcodes) const {
+    constexpr const Instruction& at(const Opcodes opcodes) const {
         return Arr[opcodes];
     }
 };
@@ -341,7 +342,7 @@ class OpcodeArray {
 /**
  * La liste des instructions implémenté et exécutable.
  */
-const OpcodeArray OPCODE_LIST{
+constexpr OpcodeArray OPCODE_LIST{
     {INS_BRK_IMP, 1, 7, "BRK", AddressingMode::AddressingMode::Implicit, Read, BRK},
 
     // Flags

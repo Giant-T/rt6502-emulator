@@ -127,12 +127,12 @@ struct QueuedInstr {
     QueuedInstrPtr Func;
 
     template <typename T>
-    QueuedInstr(const T& f) : Func(f) {}
+    constexpr QueuedInstr(const T& f) : Func(f) {}
 
-    QueuedInstr(const std::nullptr_t& f) : Func(nullptr) {}
+    constexpr QueuedInstr(const std::nullptr_t& f) : Func(nullptr) {}
 
-    QueuedInstr(const QueuedInstr& f) : Func(f.Func) {}
-    QueuedInstr(const QueuedInstrPtr& f) : Func(f) {}
+    constexpr QueuedInstr(const QueuedInstr& f) : Func(f.Func) {}
+    constexpr QueuedInstr(const QueuedInstrPtr& f) : Func(f) {}
 
     /**
      * Exécute la fonction actuel et retourne la prochaine fonction à exécuter.
@@ -142,11 +142,11 @@ struct QueuedInstr {
         return Func(cpu);
     }
 
-    bool has_value() const {
+    constexpr bool has_value() const {
         return Func != nullptr;
     }
 
-    operator QueuedInstrPtr() const {
+    constexpr operator QueuedInstrPtr() const {
         return Func;
     }
 };

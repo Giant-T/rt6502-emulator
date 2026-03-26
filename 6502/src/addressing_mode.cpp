@@ -2,39 +2,6 @@
 
 #include "6502/instruction_set.h"
 
-RT6502::QueuedInstr RT6502::AddressingMode::Execute(const AddressingMode addressingMode) {
-    switch (addressingMode) {
-        case AddressingMode::Implicit:
-            return Implicit;
-        case AddressingMode::Accumulator:
-            return Accumulator;
-        case AddressingMode::Immediate:
-            return Immediate;
-        case AddressingMode::Zeropage:
-            return Zeropage;
-        case AddressingMode::ZeropageX:
-            return ZeropageX;
-        case AddressingMode::ZeropageY:
-            return ZeropageY;
-        case AddressingMode::Relative:
-            return Relative;
-        case AddressingMode::Absolute:
-            return Absolute;
-        case AddressingMode::AbsoluteX:
-            return AbsoluteX;
-        case AddressingMode::AbsoluteY:
-            return AbsoluteY;
-        case AddressingMode::Indirect:
-            return Indirect;
-        case AddressingMode::IndexedIndirect:
-            return IndexedIndirect;
-        case AddressingMode::IndirectIndexed:
-            return IndirectIndexed;
-        default:
-            throw std::exception("Addressing mode not implemented");
-    }
-}
-
 RT6502::QueuedInstr RT6502::AddressingMode::Implicit(CPU& cpu) {
     // Dummy read
     // Car on ne bouge pas le PC
