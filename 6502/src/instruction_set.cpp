@@ -9,30 +9,30 @@ RT6502::QueuedInstr RT6502::InstructionSet::BRK(CPU& cpu) {
     cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
     cpu.AddressBus.Low = cpu.SP--;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.RW = false;
         cpu.DataBus = cpu.PC.Low;
         cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
         cpu.AddressBus.Low = cpu.SP--;
 
-        return [](CPU& cpu) {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.RW = false;
 
             cpu.DataBus = static_cast<Byte>(cpu.PS);
             cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
             cpu.AddressBus.Low = cpu.SP--;
 
-            return [](CPU& cpu) {
+            return [](CPU& cpu) -> QueuedInstr {
                 cpu.AddressBus = CPU::IRQBRK_VECTOR_ADDR;
 
                 cpu.PS.B = 1;
                 cpu.PS.I = 1;
 
-                return [](CPU& cpu) {
+                return [](CPU& cpu) -> QueuedInstr {
                     cpu.AddressRegister.Low = cpu.DataBus;
                     ++cpu.AddressBus.Low;
 
-                    return [](CPU& cpu) {
+                    return [](CPU& cpu) -> QueuedInstr {
                         cpu.AddressRegister.High = cpu.DataBus;
 
                         cpu.PC = cpu.AddressRegister;
@@ -82,7 +82,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::CLV(CPU& cpu) {
 
 RT6502::QueuedInstr RT6502::InstructionSet::ASL(CPU& cpu) {
     cpu.RW = false;
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.RW = false;
 
         cpu.PS.C = cpu.DataBus >> 7;
@@ -103,7 +103,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::ASL_ACC(CPU& cpu) {
 
 RT6502::QueuedInstr RT6502::InstructionSet::LSR(CPU& cpu) {
     cpu.RW = false;
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.RW = false;
 
         cpu.PS.C = cpu.DataBus & 0b1;
@@ -156,7 +156,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::BIT(CPU& cpu) {
 RT6502::QueuedInstr RT6502::InstructionSet::ROL(CPU& cpu) {
     cpu.RW = false;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.RW = false;
         const Byte newCarry = cpu.DataBus >> 7;
 
@@ -185,7 +185,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::ROL_ACC(CPU& cpu) {
 RT6502::QueuedInstr RT6502::InstructionSet::ROR(CPU& cpu) {
     cpu.RW = false;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.RW = false;
         const Byte newCarry = cpu.DataBus & 0b1;
 
@@ -243,13 +243,13 @@ RT6502::QueuedInstr RT6502::InstructionSet::JSR(CPU& cpu) {
     cpu.AddressBus.Low = cpu.SP--;
     cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.RW = false;
         cpu.DataBus = cpu.PC.Low;
         cpu.AddressBus.Low = cpu.SP--;
         cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
 
-        return [](CPU& cpu) {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.PC = cpu.AddressRegister;
             return nullptr;
         };
@@ -264,19 +264,19 @@ RT6502::QueuedInstr RT6502::InstructionSet::JMP(CPU& cpu) {
 RT6502::QueuedInstr RT6502::InstructionSet::RTI(CPU& cpu) {
     ++cpu.SP;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
         cpu.AddressBus.Low = cpu.SP++;
 
-        return [](CPU& cpu) {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.PS = cpu.DataBus;
             cpu.AddressBus.Low = cpu.SP++;
 
-            return [](CPU& cpu) {
+            return [](CPU& cpu) -> QueuedInstr {
                 cpu.PC.Low = cpu.DataBus;
                 cpu.AddressBus.Low = cpu.SP;
 
-                return [](CPU& cpu) {
+                return [](CPU& cpu) -> QueuedInstr {
                     cpu.PC.High = cpu.DataBus;
 
                     cpu.AddressBus = cpu.PC;
@@ -295,19 +295,19 @@ RT6502::QueuedInstr RT6502::InstructionSet::RTI(CPU& cpu) {
 RT6502::QueuedInstr RT6502::InstructionSet::RTS(CPU& cpu) {
     cpu.SP++;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.AddressBus.Low = cpu.SP++;
         cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
 
-        return [](CPU& cpu) {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.AddressRegister.Low = cpu.DataBus;
             cpu.AddressBus.Low = cpu.SP;
             cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
 
-            return [](CPU& cpu) {
+            return [](CPU& cpu) -> QueuedInstr {
                 cpu.AddressRegister.High = cpu.DataBus;
 
-                return [](CPU& cpu) {
+                return [](CPU& cpu) -> QueuedInstr {
                     cpu.PC = cpu.AddressRegister;
                     ++cpu.PC;
                     return nullptr;
@@ -372,11 +372,11 @@ RT6502::QueuedInstr RT6502::InstructionSet::PHP(CPU& cpu) {
 RT6502::QueuedInstr RT6502::InstructionSet::PLA(CPU& cpu) {
     cpu.SP++;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
         cpu.AddressBus.Low = cpu.SP;
 
-        return [](CPU& cpu) {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.A = cpu.DataBus;
             cpu.PS.Z = cpu.A == 0;
             cpu.PS.N = cpu.A >> 7;
@@ -396,11 +396,11 @@ RT6502::QueuedInstr RT6502::InstructionSet::PHA(CPU& cpu) {
 RT6502::QueuedInstr RT6502::InstructionSet::PLP(CPU& cpu) {
     cpu.SP++;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.AddressBus.High = CPU::STACK_POINTER_PAGE;
         cpu.AddressBus.Low = cpu.SP;
 
-        return [](CPU& cpu) {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.PS = cpu.DataBus;
             cpu.PS.B = 1;
             return nullptr;
@@ -490,7 +490,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::DEX(CPU& cpu) {
 
 RT6502::QueuedInstr RT6502::InstructionSet::DEC(CPU& cpu) {
     cpu.RW = false;
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.RW = false;
         cpu.DataBus -= 1;
         cpu.PS.Z = cpu.DataBus == 0;
@@ -517,7 +517,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::INX(CPU& cpu) {
 
 RT6502::QueuedInstr RT6502::InstructionSet::INC(CPU& cpu) {
     cpu.RW = false;
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.RW = false;
         cpu.DataBus += 1;
         cpu.PS.Z = cpu.DataBus == 0;
@@ -538,7 +538,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::BPL(CPU& cpu) {
 
             // Si on traverse une page
             if (cpu.AddressRegister.High != cpu.PC.High) {
-                return [](CPU& cpu) {
+                return [](CPU& cpu) -> QueuedInstr {
                     cpu.PC.High = cpu.AddressRegister.High;
 
                     return nullptr;
@@ -564,7 +564,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::BMI(CPU& cpu) {
 
             // Si on traverse une page
             if (cpu.AddressRegister.High != cpu.PC.High) {
-                return [](CPU& cpu) {
+                return [](CPU& cpu) -> QueuedInstr {
                     cpu.PC.High = cpu.AddressRegister.High;
 
                     return nullptr;
@@ -590,7 +590,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::BVC(CPU& cpu) {
 
             // Si on traverse une page
             if (cpu.AddressRegister.High != cpu.PC.High) {
-                return [](CPU& cpu) {
+                return [](CPU& cpu) -> QueuedInstr {
                     cpu.PC.High = cpu.AddressRegister.High;
 
                     return nullptr;
@@ -616,7 +616,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::BVS(CPU& cpu) {
 
             // Si on traverse une page
             if (cpu.AddressRegister.High != cpu.PC.High) {
-                return [](CPU& cpu) {
+                return [](CPU& cpu) -> QueuedInstr {
                     cpu.PC.High = cpu.AddressRegister.High;
 
                     return nullptr;
@@ -642,7 +642,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::BCC(CPU& cpu) {
 
             // Si on traverse une page
             if (cpu.AddressRegister.High != cpu.PC.High) {
-                return [](CPU& cpu) {
+                return [](CPU& cpu) -> QueuedInstr {
                     cpu.PC.High = cpu.AddressRegister.High;
 
                     return nullptr;
@@ -668,7 +668,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::BCS(CPU& cpu) {
 
             // Si on traverse une page
             if (cpu.AddressRegister.High != cpu.PC.High) {
-                return [](CPU& cpu) {
+                return [](CPU& cpu) -> QueuedInstr {
                     cpu.PC.High = cpu.AddressRegister.High;
 
                     return nullptr;
@@ -694,7 +694,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::BNE(CPU& cpu) {
 
             // Si on traverse une page
             if (cpu.AddressRegister.High != cpu.PC.High) {
-                return [](CPU& cpu) {
+                return [](CPU& cpu) -> QueuedInstr {
                     cpu.PC.High = cpu.AddressRegister.High;
 
                     return nullptr;
@@ -720,7 +720,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::BEQ(CPU& cpu) {
 
             // Si on traverse une page
             if (cpu.AddressRegister.High != cpu.PC.High) {
-                return [](CPU& cpu) {
+                return [](CPU& cpu) -> QueuedInstr {
                     cpu.PC.High = cpu.AddressRegister.High;
 
                     return nullptr;

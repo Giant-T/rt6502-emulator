@@ -42,7 +42,7 @@ constexpr std::array FORMATS_LIST = {
 constexpr const std::string_view& Format(const AddressingMode addrMode) {
     return FORMATS_LIST[static_cast<Byte>(addrMode)];
 }
-std::function<QueuedInstr(CPU&)> Execute(const AddressingMode addressingMode);
+QueuedInstr Execute(const AddressingMode addressingMode);
 
 QueuedInstr Implicit(CPU& cpu);
 QueuedInstr Accumulator(CPU& cpu);

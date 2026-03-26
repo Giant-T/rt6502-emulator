@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include <functional>
 #include <map>
 
 #include "addressing_mode.h"
@@ -211,11 +210,11 @@ struct Instruction {
     const Byte Cycles;  // Le nombre minimal de cycles pour l'exécution complète
     const ReadWrite RW;
     const char (&Name)[4];
-    const std::function<QueuedInstr(CPU&)> AddrMode;  // Son mode d'adressage
-    const std::function<QueuedInstr(CPU&)> Func;
+    const QueuedInstr AddrMode;  // Son mode d'adressage
+    const QueuedInstr Func;
     const std::string_view& FormatText;
 
-    Instruction(const Opcodes opcodes, const Byte bytes, const Byte cycles, const char (&name)[4], const AddressingMode::AddressingMode addressingMode, const ReadWrite rw, const std::function<QueuedInstr(CPU&)>& func)
+    Instruction(const Opcodes opcodes, const Byte bytes, const Byte cycles, const char (&name)[4], const AddressingMode::AddressingMode addressingMode, const ReadWrite rw, const QueuedInstr& func)
         : Opcode(opcodes), Bytes(bytes), Cycles(cycles), RW(rw), Name(name), AddrMode(AddressingMode::Execute(addressingMode)), Func(func), FormatText(AddressingMode::Format(addressingMode)) {
     }
 

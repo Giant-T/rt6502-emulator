@@ -36,7 +36,7 @@ void RT6502::RT6502::ExecuteTick() {
         Cpu.IR = &InstructionSet::OPCODE_LIST.at(static_cast<InstructionSet::Opcodes>(Cpu.DataBus));
 
         FonctionsToExecutes = Cpu.IR->AddrMode;
-
+        
         Cpu.SYNC = false;
     }
 
@@ -50,7 +50,7 @@ void RT6502::RT6502::ExecuteTick() {
             Cpu.SYNC = true;
         } else {
             // Sinon, on rajoute un cycle
-            FonctionsToExecutes = [](CPU&) {
+            FonctionsToExecutes = [](CPU&) -> QueuedInstr {
                 // C'est vide, car sera traité par le IF juste au dessus
                 return nullptr;
             };

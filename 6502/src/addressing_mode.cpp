@@ -2,7 +2,7 @@
 
 #include "6502/instruction_set.h"
 
-std::function<RT6502::QueuedInstr(RT6502::CPU&)> RT6502::AddressingMode::Execute(const AddressingMode addressingMode) {
+RT6502::QueuedInstr RT6502::AddressingMode::Execute(const AddressingMode addressingMode) {
     switch (addressingMode) {
         case AddressingMode::Implicit:
             return Implicit;
@@ -75,7 +75,7 @@ RT6502::QueuedInstr RT6502::AddressingMode::ZeropageX(CPU& cpu) {
     // Une lecture pour obtenir l'adresse dans le Zéro Page
     cpu.AddressBus = cpu.PC++;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         // Lecture à l'adresse sans ajouter X
         cpu.AddressRegister = cpu.DataBus;
         cpu.AddressBus = cpu.AddressRegister;
@@ -100,7 +100,7 @@ RT6502::QueuedInstr RT6502::AddressingMode::ZeropageY(CPU& cpu) {
     // Une lecture pour obtenir l'adresse dans le Zéro Page
     cpu.AddressBus = cpu.PC++;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         // Lecture à l'adresse sans ajouter X
         cpu.AddressRegister = cpu.DataBus;
         cpu.AddressBus = cpu.AddressRegister;
@@ -130,7 +130,7 @@ RT6502::QueuedInstr RT6502::AddressingMode::Absolute(CPU& cpu) {
     // Lecture pour ADL
     cpu.AddressBus = cpu.PC++;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.AddressRegister.Low = cpu.DataBus;
 
         // Lecture pour ADH
@@ -155,7 +155,7 @@ RT6502::QueuedInstr RT6502::AddressingMode::AbsoluteX(CPU& cpu) {
     // Lecture pour ADL
     cpu.AddressBus = cpu.PC++;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.AddressRegister = cpu.DataBus;
 
         // Lecture pour ADH
@@ -165,13 +165,13 @@ RT6502::QueuedInstr RT6502::AddressingMode::AbsoluteX(CPU& cpu) {
             cpu.AddressRegister.High = cpu.DataBus;
 
             // On ajoute l'index
-            const bool isOverflow = cpu.AddressRegister.Low + cpu.X > 0xFF;
+            cpu.IsOverflow = cpu.AddressRegister.Low + cpu.X > 0xFF;
             cpu.AddressRegister.Low += cpu.X;
             cpu.AddressBus = cpu.AddressRegister;
 
             if (cpu.IR->RW & Write) {
-                return [isOverflow](CPU& cpu) -> QueuedInstr {
-                    cpu.AddressRegister.High += isOverflow;
+                return [](CPU& cpu) -> QueuedInstr {
+                    cpu.AddressRegister.High += cpu.IsOverflow;
                     cpu.AddressBus = cpu.AddressRegister;
 
                     if (cpu.IR->RW == RMW)
@@ -181,7 +181,7 @@ RT6502::QueuedInstr RT6502::AddressingMode::AbsoluteX(CPU& cpu) {
                 };
             }
 
-            if (isOverflow) {
+            if (cpu.IsOverflow) {
                 return [](CPU& cpu) -> QueuedInstr {
                     cpu.AddressRegister.High += 1;
 
@@ -200,7 +200,7 @@ RT6502::QueuedInstr RT6502::AddressingMode::AbsoluteY(CPU& cpu) {
     // Lecture pour ADL
     cpu.AddressBus = cpu.PC++;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.AddressRegister = cpu.DataBus;
 
         // Lecture pour ADH
@@ -210,13 +210,13 @@ RT6502::QueuedInstr RT6502::AddressingMode::AbsoluteY(CPU& cpu) {
             cpu.AddressRegister.High = cpu.DataBus;
 
             // On ajoute l'index
-            const bool isOverflow = cpu.AddressRegister.Low + cpu.Y > 0xFF;
+            cpu.IsOverflow = cpu.AddressRegister.Low + cpu.Y > 0xFF;
             cpu.AddressRegister.Low += cpu.Y;
             cpu.AddressBus = cpu.AddressRegister;
 
             if (cpu.IR->RW & Write) {
-                return [isOverflow](CPU& cpu) -> QueuedInstr {
-                    cpu.AddressRegister.High += isOverflow;
+                return [](CPU& cpu) -> QueuedInstr {
+                    cpu.AddressRegister.High += cpu.IsOverflow;
                     cpu.AddressBus = cpu.AddressRegister;
 
                     if (cpu.IR->RW == RMW)
@@ -226,7 +226,7 @@ RT6502::QueuedInstr RT6502::AddressingMode::AbsoluteY(CPU& cpu) {
                 };
             }
 
-            if (isOverflow) {
+            if (cpu.IsOverflow) {
                 return [](CPU& cpu) -> QueuedInstr {
                     cpu.AddressRegister.High += 1;
 
@@ -244,19 +244,19 @@ RT6502::QueuedInstr RT6502::AddressingMode::AbsoluteY(CPU& cpu) {
 RT6502::QueuedInstr RT6502::AddressingMode::Indirect(CPU& cpu) {
     cpu.AddressBus = cpu.PC++;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.AddressRegister.Low = cpu.DataBus;
         cpu.AddressBus = cpu.PC++;
 
-        return [](CPU& cpu) {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.AddressRegister.High = cpu.DataBus;
             cpu.AddressBus = cpu.AddressRegister;
 
-            return [](CPU& cpu) {
+            return [](CPU& cpu) -> QueuedInstr {
                 cpu.AddressRegister.Low = cpu.DataBus;
                 cpu.AddressBus.Low++;
 
-                return [](CPU& cpu) {
+                return [](CPU& cpu) -> QueuedInstr {
                     cpu.AddressRegister.High = cpu.DataBus;
                     cpu.AddressBus = cpu.AddressRegister;
 
@@ -270,13 +270,13 @@ RT6502::QueuedInstr RT6502::AddressingMode::Indirect(CPU& cpu) {
 RT6502::QueuedInstr RT6502::AddressingMode::IndexedIndirect(CPU& cpu) {
     cpu.AddressBus = cpu.PC++;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.AddressBus = cpu.DataBus;
 
-        return [](CPU& cpu) {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.AddressBus.Low += cpu.X;
 
-            return [](CPU& cpu) {
+            return [](CPU& cpu) -> QueuedInstr {
                 cpu.AddressRegister.Low = cpu.DataBus;
                 cpu.AddressBus.Low++;
 
@@ -298,10 +298,10 @@ RT6502::QueuedInstr RT6502::AddressingMode::IndexedIndirect(CPU& cpu) {
 RT6502::QueuedInstr RT6502::AddressingMode::IndirectIndexed(CPU& cpu) {
     cpu.AddressBus = cpu.PC++;
 
-    return [](CPU& cpu) {
+    return [](CPU& cpu) -> QueuedInstr {
         cpu.AddressBus = cpu.DataBus;
 
-        return [](CPU& cpu) {
+        return [](CPU& cpu) -> QueuedInstr {
             cpu.AddressRegister.Low = cpu.DataBus;
             cpu.AddressBus.Low++;
 
@@ -309,12 +309,12 @@ RT6502::QueuedInstr RT6502::AddressingMode::IndirectIndexed(CPU& cpu) {
                 cpu.AddressRegister.High = cpu.DataBus;
                 cpu.AddressBus = cpu.AddressRegister;
 
-                const bool isOverflow = cpu.AddressBus.Low + cpu.Y > 0xFF;
+                cpu.IsOverflow = cpu.AddressBus.Low + cpu.Y > 0xFF;
                 cpu.AddressBus.Low += cpu.Y;
 
                 if (cpu.IR->RW & Write) {
-                    return [isOverflow](CPU& cpu) -> QueuedInstr {
-                        cpu.AddressBus.High += isOverflow;
+                    return [](CPU& cpu) -> QueuedInstr {
+                        cpu.AddressBus.High += cpu.IsOverflow;
 
                         if (cpu.IR->RW == RMW)
                             return cpu.IR->Func;
@@ -323,8 +323,8 @@ RT6502::QueuedInstr RT6502::AddressingMode::IndirectIndexed(CPU& cpu) {
                     };
                 }
 
-                if (isOverflow)
-                    return [](CPU& cpu) {
+                if (cpu.IsOverflow)
+                    return [](CPU& cpu) -> QueuedInstr {
                         cpu.AddressBus.High += 1;
                         return cpu.IR->Func;
                     };

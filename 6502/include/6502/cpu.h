@@ -37,6 +37,8 @@ class CPU {
     Word AddressRegister;                   // Contient ADL et ADH;
     const InstructionSet::Instruction* IR;  // Instruction Register. Holds the fetched instruction opcode byte while the CPU decodes and executes it.
 
+    bool IsOverflow = false; // TODO: lui retrouver un autre emplacement
+
     CPU();
 
     /**

@@ -6,7 +6,6 @@
 
 #include <cstdint>
 #include <format>
-#include <functional>
 
 namespace RT6502 {
 class CPU;
@@ -117,17 +116,23 @@ enum ReadWrite : Byte {
     RMW = Read | Write
 };
 
+struct QueuedInstr;
+using QueuedInstrPtr = QueuedInstr (*)(CPU&);
+
 /**
  * Nous permet d'avoir une fonction qui pointe vers la prochaine fonction à exécuter.
  * C'est utilisé pour définir chaque action par cycle.
  */
 struct QueuedInstr {
-    std::function<QueuedInstr(CPU&)> Func;
+    QueuedInstrPtr Func;
 
     template <typename T>
     QueuedInstr(const T& f) : Func(f) {}
 
-    explicit QueuedInstr(const std::nullptr_t& f) : Func(nullptr) {}
+    QueuedInstr(const std::nullptr_t& f) : Func(nullptr) {}
+
+    QueuedInstr(const QueuedInstr& f) : Func(f.Func) {}
+    QueuedInstr(const QueuedInstrPtr& f) : Func(f) {}
 
     /**
      * Exécute la fonction actuel et retourne la prochaine fonction à exécuter.
@@ -139,6 +144,10 @@ struct QueuedInstr {
 
     bool has_value() const {
         return Func != nullptr;
+    }
+
+    operator QueuedInstrPtr() const {
+        return Func;
     }
 };
 
