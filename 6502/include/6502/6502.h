@@ -50,6 +50,8 @@ struct RT6502 {
 
     template <class T>
     T AverageCycleElapsedTime() const {
+        if (CyclesCounter == 0)
+            return T(0);
         return duration_cast<T>(TotalCycleElapsedTime / CyclesCounter);
     }
 };
