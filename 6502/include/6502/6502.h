@@ -40,7 +40,7 @@ struct RT6502 {
     /**
      * Exécute un cycle.
      */
-    void ExecuteTick();
+    void ExecuteCycle();
 
     /**
      * Charge dans la mémoire le contenu binaire d'un fichier.

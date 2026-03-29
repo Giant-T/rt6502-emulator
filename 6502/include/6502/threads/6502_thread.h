@@ -6,7 +6,7 @@
 
 namespace RT6502::Threads {
 
-class RT6502Thread {
+class RT6502Thread : public RT6502 {
     std::jthread Worker;
 
     bool IsRunning = false;
@@ -16,13 +16,14 @@ class RT6502Thread {
     std::condition_variable Cv;
 
    public:
-    RT6502 Emulator;
-
     RT6502Thread();
     ~RT6502Thread();
 
     void Start();
     void Pause();
+
+    void Reset(const Word startAddress = 0x0000) noexcept;
+    bool LoadFile(const char*);
 
    private:
     void Run(const std::stop_token& stopToken);

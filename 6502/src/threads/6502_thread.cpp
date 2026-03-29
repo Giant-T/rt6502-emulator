@@ -19,6 +19,20 @@ void RT6502::Threads::RT6502Thread::Pause() {
     IsRunning = false;
 }
 
+void RT6502::Threads::RT6502Thread::Reset(const Word startAddress) noexcept {
+    Pause();                     // Arrêter l'émulateur si il s'exécute
+    std::scoped_lock lock(Mtx);  // Attendre d'avoir le lock
+
+    RT6502::Reset(startAddress);
+}
+
+bool RT6502::Threads::RT6502Thread::LoadFile(const char* filepath) {
+    Pause();                     // Arrêter l'émulateur si il s'exécute
+    std::scoped_lock lock(Mtx);  // Attendre d'avoir le lock
+
+    return RT6502::LoadFile(filepath);
+}
+
 void RT6502::Threads::RT6502Thread::Run(const std::stop_token& stopToken) {
     std::unique_lock lock(Mtx);
 
@@ -28,6 +42,6 @@ void RT6502::Threads::RT6502Thread::Run(const std::stop_token& stopToken) {
         // Revalider si on doit terminer le thread
         if (stopToken.stop_requested()) return;
 
-        Emulator.Execute();
+        Execute();
     }
 }

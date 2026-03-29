@@ -20,7 +20,7 @@ void RT6502::RT6502::Reset(const Word startAddress) noexcept {
 void RT6502::RT6502::Execute() {
     do {
         const auto pre = high_resolution_clock::now();
-        ExecuteTick();
+        ExecuteCycle();
         const auto post = high_resolution_clock::now();
 
         ++CyclesCounter;
@@ -28,7 +28,7 @@ void RT6502::RT6502::Execute() {
     } while (FonctionsToExecutes.has_value());
 }
 
-void RT6502::RT6502::ExecuteTick() {
+void RT6502::RT6502::ExecuteCycle() {
     Cpu.RW = true;  // Remettre la ligne en Read par défaut
 
     if (Cpu.SYNC) {
