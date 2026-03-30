@@ -9,6 +9,7 @@ void RT6502::RT6502::Reset(const Word startAddress) noexcept {
     Cpu.Reset(Mem);
 
     CyclesCounter = 0;
+    CycleElapsedTime = nanoseconds::zero();
     TotalCycleElapsedTime = nanoseconds::zero();
 
     // FIXME: Faire une première lecture mémoire pour le premier Fetch
@@ -19,12 +20,20 @@ void RT6502::RT6502::Reset(const Word startAddress) noexcept {
 
 void RT6502::RT6502::Execute() {
     do {
-        const auto pre = high_resolution_clock::now();
         ExecuteCycle();
-        const auto post = high_resolution_clock::now();
+
+        time_point<steady_clock> cycleEndTime = high_resolution_clock::now();
+
+        // Attendre que sa fasse assez longtemps depuis l'exécution du cycle précédent
+        while (cycleEndTime < CycleLastEndTime + Freq.CycleDuration()) {
+            cycleEndTime = high_resolution_clock::now();
+        }
 
         ++CyclesCounter;
-        TotalCycleElapsedTime += post - pre;
+        CycleElapsedTime = cycleEndTime - CycleLastEndTime;
+        TotalCycleElapsedTime += CycleElapsedTime;
+
+        CycleLastEndTime = cycleEndTime;
     } while (FonctionsToExecutes.has_value());
 }
 
@@ -36,7 +45,7 @@ void RT6502::RT6502::ExecuteCycle() {
         Cpu.IR = &InstructionSet::OPCODE_LIST.at(static_cast<InstructionSet::Opcodes>(Cpu.DataBus));
 
         FonctionsToExecutes = Cpu.IR->AddrMode;
-        
+
         Cpu.SYNC = false;
     }
 

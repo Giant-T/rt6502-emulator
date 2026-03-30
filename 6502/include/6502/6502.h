@@ -24,6 +24,8 @@ struct RT6502 {
      */
     QueuedInstr FonctionsToExecutes = nullptr;
 
+    time_point<steady_clock> CycleLastEndTime = high_resolution_clock::now();
+    nanoseconds CycleElapsedTime = nanoseconds::zero();
     nanoseconds TotalCycleElapsedTime = nanoseconds::zero();
 
     Frequency Freq = 1.0_MHz;
