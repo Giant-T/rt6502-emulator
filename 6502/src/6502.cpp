@@ -5,12 +5,10 @@
 #include "6502/decode.h"
 #include "6502/instruction_set.h"
 
-void RT6502::RT6502::Reset(const Word startAddress) noexcept {
+void RT6502::RT6502::Reset(const Word startAddress) {
     Cpu.Reset(Mem);
 
     CyclesCounter = 0;
-    CycleElapsedTime = nanoseconds::zero();
-    TotalCycleElapsedTime = nanoseconds::zero();
 
     // FIXME: Faire une première lecture mémoire pour le premier Fetch
     Cpu.PC = startAddress;
@@ -21,19 +19,6 @@ void RT6502::RT6502::Reset(const Word startAddress) noexcept {
 void RT6502::RT6502::Execute() {
     do {
         ExecuteCycle();
-
-        time_point<steady_clock> cycleEndTime = high_resolution_clock::now();
-
-        // Attendre que sa fasse assez longtemps depuis l'exécution du cycle précédent
-        while (cycleEndTime < CycleLastEndTime + Freq.CycleDuration()) {
-            cycleEndTime = high_resolution_clock::now();
-        }
-
-        ++CyclesCounter;
-        CycleElapsedTime = cycleEndTime - CycleLastEndTime;
-        TotalCycleElapsedTime += CycleElapsedTime;
-
-        CycleLastEndTime = cycleEndTime;
     } while (FonctionsToExecutes.has_value());
 }
 
@@ -71,6 +56,8 @@ void RT6502::RT6502::ExecuteCycle() {
     } else {
         Mem.Write(Cpu.AddressBus, Cpu.DataBus);
     }
+
+    ++CyclesCounter;
 }
 
 bool RT6502::RT6502::LoadFile(const char* filepath) {

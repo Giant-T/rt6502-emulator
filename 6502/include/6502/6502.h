@@ -23,18 +23,13 @@ struct RT6502 {
      * La prochaine fonction à exécuter pour le prochain cycle.
      */
     QueuedInstr FonctionsToExecutes = nullptr;
-
-    time_point<steady_clock> CycleLastEndTime = high_resolution_clock::now();
-    nanoseconds CycleElapsedTime = nanoseconds::zero();
-    nanoseconds TotalCycleElapsedTime = nanoseconds::zero();
-
-    Frequency Freq = 1.0_MHz;
+    Frequency ClockSpeed = 1.0_MHz;
 
     /**
      * Réinitialise le 6502 et le prépare à démarrer.
      * @param startAddress Adresse pour le PC
      */
-    void Reset(const Word startAddress = 0x0000) noexcept;
+    void Reset(const Word startAddress = 0x0000);
     /**
      * Exécute une instruction au complet.
      */
@@ -49,13 +44,6 @@ struct RT6502 {
      * @return Succès ou échec du chargement du fichier.
      */
     bool LoadFile(const char*);
-
-    template <class T>
-    T AverageCycleElapsedTime() const {
-        if (CyclesCounter == 0)
-            return T(0);
-        return duration_cast<T>(TotalCycleElapsedTime / CyclesCounter);
-    }
 };
 
 }  // namespace RT6502

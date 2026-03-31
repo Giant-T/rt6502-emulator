@@ -13,15 +13,18 @@ RT6502::Threads::RT6502Thread::~RT6502Thread() {
 void RT6502::Threads::RT6502Thread::Start() {
     IsRunning = true;
     Cv.notify_all();
+    EmulationStartTime = high_resolution_clock::now();
 }
 
 void RT6502::Threads::RT6502Thread::Pause() {
     IsRunning = false;
 }
 
-void RT6502::Threads::RT6502Thread::Reset(const Word startAddress) noexcept {
+void RT6502::Threads::RT6502Thread::Reset(const Word startAddress) {
     Pause();                     // Arrêter l'émulateur si il s'exécute
     std::scoped_lock lock(Mtx);  // Attendre d'avoir le lock
+
+    ResetStats();
 
     RT6502::Reset(startAddress);
 }
@@ -33,6 +36,12 @@ bool RT6502::Threads::RT6502Thread::LoadFile(const char* filepath) {
     return RT6502::LoadFile(filepath);
 }
 
+void RT6502::Threads::RT6502Thread::ResetStats() {
+    LastCycleInternalExecutionTime = nanoseconds::zero();
+    LastCycleSimulatedExecutionTime = nanoseconds::zero();
+    TotalCycleElapsedTime = nanoseconds::zero();
+}
+
 void RT6502::Threads::RT6502Thread::Run(const std::stop_token& stopToken) {
     std::unique_lock lock(Mtx);
 
@@ -42,6 +51,27 @@ void RT6502::Threads::RT6502Thread::Run(const std::stop_token& stopToken) {
         // Revalider si on doit terminer le thread
         if (stopToken.stop_requested()) return;
 
-        Execute();
+        ExecuteCycle();
     }
+}
+
+void RT6502::Threads::RT6502Thread::ExecuteCycle() {
+    const time_point<steady_clock> cycleStartTime = high_resolution_clock::now();
+
+    RT6502::ExecuteCycle();
+
+    time_point<steady_clock> cycleEndTime = high_resolution_clock::now();
+    LastCycleInternalExecutionTime = cycleEndTime - cycleStartTime;
+
+    // Attendre que sa fasse assez longtemps depuis l'exécution du cycle précédent
+    if (GetCyclesMissingBetweenRealAndSimulated(cycleEndTime) < 10)
+        while (cycleEndTime < CycleLastEndTime + ClockSpeed.CycleDuration()) {
+            cycleEndTime = high_resolution_clock::now();
+        }
+
+    // Statistiques sur l'exécution du cycle
+    LastCycleSimulatedExecutionTime = cycleEndTime - CycleLastEndTime;
+    TotalCycleElapsedTime += LastCycleSimulatedExecutionTime;
+
+    CycleLastEndTime = cycleEndTime;
 }
