@@ -2,7 +2,14 @@
 
 #include <functional>
 
+#ifdef _WINDOWS
+#include <windows.h>
+#endif
+
 RT6502::Threads::RT6502Thread::RT6502Thread() : Worker(std::bind_front(&RT6502Thread::Run, this)) {
+#ifdef _WINDOWS
+    SetThreadPriority(Worker.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
+#endif
 }
 
 RT6502::Threads::RT6502Thread::~RT6502Thread() {
