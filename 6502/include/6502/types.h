@@ -129,7 +129,7 @@ struct QueuedInstr {
     template <typename T>
     constexpr QueuedInstr(const T& f) : Func(f) {}
 
-    constexpr QueuedInstr(const std::nullptr_t& f) : Func(nullptr) {}
+    constexpr QueuedInstr(const std::nullptr_t& f) : Func(f) {}
 
     constexpr QueuedInstr(const QueuedInstr& f) : Func(f.Func) {}
     constexpr QueuedInstr(const QueuedInstrPtr& f) : Func(f) {}
@@ -144,10 +144,6 @@ struct QueuedInstr {
 
     constexpr bool has_value() const {
         return Func != nullptr;
-    }
-
-    constexpr operator QueuedInstrPtr() const {
-        return Func;
     }
 };
 

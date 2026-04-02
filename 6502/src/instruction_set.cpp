@@ -734,6 +734,6 @@ RT6502::QueuedInstr RT6502::InstructionSet::BEQ(CPU& cpu) {
     return nullptr;
 }
 
-RT6502::QueuedInstr RT6502::InstructionSet::NOP(CPU& cpu) {
+RT6502::QueuedInstr RT6502::InstructionSet::NOP(CPU&) {
     return nullptr;
 }

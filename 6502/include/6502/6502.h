@@ -29,7 +29,7 @@ struct RT6502 {
      * Réinitialise le 6502 et le prépare à démarrer.
      * @param startAddress Adresse pour le PC
      */
-    void Reset(const Word startAddress = 0x0000);
+    void Reset(Word startAddress = 0x0000);
     /**
      * Exécute une instruction au complet.
      */

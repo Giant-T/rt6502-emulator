@@ -67,7 +67,7 @@ bool RT6502::RT6502::LoadFile(const char* filepath) {
         return false;
     }
 
-    file.read(reinterpret_cast<char*>(Mem.Data), Memory::MAX_MEMORY);
+    file.read(reinterpret_cast<char*>(&Mem.Data), Memory::MAX_MEMORY);
 
     return true;
 }

@@ -9,7 +9,7 @@ using namespace std::chrono;
 class StopWatch {
     time_point<steady_clock> StartTime;
 
-    nanoseconds ElapsedTime;
+    nanoseconds ElapsedTime = nanoseconds::zero();
     bool IsRunning = false;
 
    public:

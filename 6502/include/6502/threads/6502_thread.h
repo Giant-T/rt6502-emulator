@@ -30,7 +30,7 @@ class RT6502Thread final : public RT6502 {
     void Start();
     void Pause();
 
-    void Reset(const Word startAddress = 0x0000);
+    void Reset(Word startAddress = 0x0000);
     bool LoadFile(const char*);
 
     void ResetStats();
@@ -39,17 +39,17 @@ class RT6502Thread final : public RT6502 {
     T AverageCycleElapsedTime() const {
         if (CyclesCounter == 0)
             return T(0);
-         return duration_cast<T>(TotalCycleElapsedTime / CyclesCounter);
+        return duration_cast<T>(TotalCycleElapsedTime / CyclesCounter);
     }
 
     const auto& GetLastCycleInternalExecutionTime() const { return LastCycleInternalExecutionTime; }
     const auto& GetLastCycleSimulatedExecutionTime() const { return LastCycleSimulatedExecutionTime; }
     const auto& GetTotalCycleElapsedTime() const { return TotalCycleElapsedTime; }
-    const auto& GetExpectedExecutedCycles() const { return ExecutionTime.GetDuration() / ClockSpeed.CycleDuration(); }
-    const auto& GetExpectedExecutedCycles(const time_point<steady_clock>& currentTime) const { return ExecutionTime.GetDuration(currentTime) / ClockSpeed.CycleDuration(); }
-    const auto& GetCyclesMissingBetweenRealAndSimulated() const { return static_cast<signed long long>(CyclesCounter - GetExpectedExecutedCycles()); }
-    const auto& GetCyclesMissingBetweenRealAndSimulated(const time_point<steady_clock>& currentTime) const { return static_cast<signed long long>(CyclesCounter - GetExpectedExecutedCycles(currentTime)); }
-    const auto& GetExecutionTime() const { return ExecutionTime.GetDuration(); }
+    auto GetExpectedExecutedCycles() const { return ExecutionTime.GetDuration() / ClockSpeed.CycleDuration(); }
+    auto GetExpectedExecutedCycles(const time_point<steady_clock>& currentTime) const { return ExecutionTime.GetDuration(currentTime) / ClockSpeed.CycleDuration(); }
+    auto GetCyclesMissingBetweenRealAndSimulated() const { return static_cast<signed long long>(CyclesCounter - GetExpectedExecutedCycles()); }
+    auto GetCyclesMissingBetweenRealAndSimulated(const time_point<steady_clock>& currentTime) const { return static_cast<signed long long>(CyclesCounter - GetExpectedExecutedCycles(currentTime)); }
+    auto GetExecutionTime() const { return ExecutionTime.GetDuration(); }
 
     const auto& Running() const { return IsRunning; }
 

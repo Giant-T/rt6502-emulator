@@ -11,7 +11,7 @@ namespace RT6502 {
 /**
  * http://www.erich-foltyn.eu/Technique/6502.html
  */
-class CPU {
+class CPU final {
    public:
     static constexpr Byte STACK_POINTER_PAGE = 0x01;
     static constexpr Byte STACK_POINTER_BEGIN = 0xFF;
@@ -44,7 +44,7 @@ class CPU {
     /**
      * Procédure de Reset: "https://www.c64-wiki.com/wiki/Reset_(Process)"
      */
-    void Reset(Memory&) noexcept;
+    void Reset(const Memory&) noexcept;
 };
 
 }  // namespace RT6502
