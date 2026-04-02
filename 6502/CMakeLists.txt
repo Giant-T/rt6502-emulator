@@ -17,7 +17,8 @@ add_library(6502
     "src/instruction_set.cpp" 
     "src/addressing_mode.cpp"
     "src/frequency.cpp" 
-    "src/threads/6502_thread.cpp")
+    "src/threads/6502_thread.cpp"
+    "src/stopwatch.cpp")
 add_library(6502::6502 ALIAS 6502)
 
 target_include_directories(6502

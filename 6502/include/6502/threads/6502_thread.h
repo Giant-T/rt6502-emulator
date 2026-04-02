@@ -3,6 +3,7 @@
 #include <thread>
 
 #include "6502/6502.h"
+#include "6502/stopwatch.h"
 
 namespace RT6502::Threads {
 
@@ -16,7 +17,7 @@ class RT6502Thread final : public RT6502 {
     std::condition_variable Cv;
 
     // Statistiques
-    time_point<steady_clock> EmulationStartTime = high_resolution_clock::now();
+    StopWatch ExecutionTime;
     time_point<steady_clock> CycleLastEndTime = high_resolution_clock::now();
     nanoseconds LastCycleInternalExecutionTime = nanoseconds::zero();
     nanoseconds LastCycleSimulatedExecutionTime = nanoseconds::zero();
@@ -34,18 +35,23 @@ class RT6502Thread final : public RT6502 {
 
     void ResetStats();
 
-    template <class T>
+    template <class T = nanoseconds>
     T AverageCycleElapsedTime() const {
         if (CyclesCounter == 0)
             return T(0);
-        return duration_cast<T>(TotalCycleElapsedTime / CyclesCounter);
+         return duration_cast<T>(TotalCycleElapsedTime / CyclesCounter);
     }
 
     const auto& GetLastCycleInternalExecutionTime() const { return LastCycleInternalExecutionTime; }
     const auto& GetLastCycleSimulatedExecutionTime() const { return LastCycleSimulatedExecutionTime; }
     const auto& GetTotalCycleElapsedTime() const { return TotalCycleElapsedTime; }
-    const auto& GetExpectedExecutedCycles(const time_point<steady_clock>& currentTime = high_resolution_clock::now()) const { return (currentTime - EmulationStartTime) / ClockSpeed.CycleDuration(); }
-    const auto& GetCyclesMissingBetweenRealAndSimulated(const time_point<steady_clock>& currentTime = high_resolution_clock::now()) const { return GetExpectedExecutedCycles(currentTime) - CyclesCounter; }
+    const auto& GetExpectedExecutedCycles() const { return ExecutionTime.GetDuration() / ClockSpeed.CycleDuration(); }
+    const auto& GetExpectedExecutedCycles(const time_point<steady_clock>& currentTime) const { return ExecutionTime.GetDuration(currentTime) / ClockSpeed.CycleDuration(); }
+    const auto& GetCyclesMissingBetweenRealAndSimulated() const { return static_cast<signed long long>(CyclesCounter - GetExpectedExecutedCycles()); }
+    const auto& GetCyclesMissingBetweenRealAndSimulated(const time_point<steady_clock>& currentTime) const { return static_cast<signed long long>(CyclesCounter - GetExpectedExecutedCycles(currentTime)); }
+    const auto& GetExecutionTime() const { return ExecutionTime.GetDuration(); }
+
+    const auto& Running() const { return IsRunning; }
 
    private:
     void Run(const std::stop_token& stopToken);

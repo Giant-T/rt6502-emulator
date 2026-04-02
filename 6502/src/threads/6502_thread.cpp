@@ -13,7 +13,6 @@ RT6502::Threads::RT6502Thread::~RT6502Thread() {
 void RT6502::Threads::RT6502Thread::Start() {
     IsRunning = true;
     Cv.notify_all();
-    EmulationStartTime = high_resolution_clock::now();
 }
 
 void RT6502::Threads::RT6502Thread::Pause() {
@@ -24,6 +23,7 @@ void RT6502::Threads::RT6502Thread::Reset(const Word startAddress) {
     Pause();                     // Arrêter l'émulateur si il s'exécute
     std::scoped_lock lock(Mtx);  // Attendre d'avoir le lock
 
+    ExecutionTime.Reset();
     ResetStats();
 
     RT6502::Reset(startAddress);
@@ -47,11 +47,15 @@ void RT6502::Threads::RT6502Thread::Run(const std::stop_token& stopToken) {
 
     while (!stopToken.stop_requested()) {
         Cv.wait(lock, [this, stopToken] { return IsRunning || stopToken.stop_requested(); });  // Attendre qu'on puisse s'exécuter
+        CycleLastEndTime = high_resolution_clock::now();
+        ExecutionTime.Resume(CycleLastEndTime);
 
-        // Revalider si on doit terminer le thread
-        if (stopToken.stop_requested()) return;
+        // Continuer l'exécution jusqu'à ce qu'on soit demandé d'arrêter.
+        while (!stopToken.stop_requested() && IsRunning) {
+            ExecuteCycle();
+        }
 
-        ExecuteCycle();
+        ExecutionTime.Pause();
     }
 }
 
@@ -64,10 +68,9 @@ void RT6502::Threads::RT6502Thread::ExecuteCycle() {
     LastCycleInternalExecutionTime = cycleEndTime - cycleStartTime;
 
     // Attendre que sa fasse assez longtemps depuis l'exécution du cycle précédent
-    if (GetCyclesMissingBetweenRealAndSimulated(cycleEndTime) < 10)
-        while (cycleEndTime < CycleLastEndTime + ClockSpeed.CycleDuration()) {
-            cycleEndTime = high_resolution_clock::now();
-        }
+    while (GetCyclesMissingBetweenRealAndSimulated(cycleEndTime) > 0) {
+        cycleEndTime = high_resolution_clock::now();
+    }
 
     // Statistiques sur l'exécution du cycle
     LastCycleSimulatedExecutionTime = cycleEndTime - CycleLastEndTime;
