@@ -68,7 +68,7 @@ void RT6502::Threads::RT6502Thread::ExecuteCycle() {
     LastCycleInternalExecutionTime = cycleEndTime - cycleStartTime;
 
     // Attendre que sa fasse assez longtemps depuis l'exécution du cycle précédent
-    while (GetCyclesMissingBetweenRealAndSimulated(cycleEndTime) > 0) {
+    while (GetCyclesMissingBetweenRealAndSimulated(cycleEndTime) >= 0) {
         cycleEndTime = high_resolution_clock::now();
     }
 
