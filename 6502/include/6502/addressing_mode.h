@@ -85,8 +85,6 @@ constexpr QueuedInstr Execute(const AddressingMode addressingMode) {
             return IndexedIndirect;
         case AddressingMode::IndirectIndexed:
             return IndirectIndexed;
-        default:
-            throw std::exception("Addressing mode not implemented");
     }
 }
 
