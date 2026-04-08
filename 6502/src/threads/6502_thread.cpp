@@ -2,12 +2,12 @@
 
 #include <functional>
 
-#ifdef _WINDOWS
+#if defined(_WIN32) && !defined(__MINGW32__)
 #include <windows.h>
 #endif
 
 RT6502::Threads::RT6502Thread::RT6502Thread() : Worker(std::bind_front(&RT6502Thread::Run, this)) {
-#ifdef _WINDOWS
+#if defined(_WIN32) && !defined(__MINGW32__)
     SetThreadPriority(Worker.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
 #endif
 }
