@@ -13,13 +13,13 @@ void RT6502::StopWatch::Resume(const time_point<steady_clock>& currentTime) {
 }
 
 void RT6502::StopWatch::Resume() {
-    Resume(high_resolution_clock::now());
+    Resume(steady_clock::now());
 }
 
 void RT6502::StopWatch::Pause() {
     if (IsRunning) {
         IsRunning = false;
-        ElapsedTime += high_resolution_clock::now() - StartTime;
+        ElapsedTime += steady_clock::now() - StartTime;
     }
 }
 
@@ -37,5 +37,5 @@ std::chrono::nanoseconds RT6502::StopWatch::GetDuration(const time_point<steady_
 }
 
 std::chrono::nanoseconds RT6502::StopWatch::GetDuration() const {
-    return GetDuration(high_resolution_clock::now());
+    return GetDuration(steady_clock::now());
 }

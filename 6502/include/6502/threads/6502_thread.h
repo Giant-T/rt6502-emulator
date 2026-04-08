@@ -1,6 +1,7 @@
 #pragma once
 #include <mutex>
 #include <thread>
+#include <condition_variable>
 
 #include "6502/6502.h"
 #include "6502/stopwatch.h"
@@ -18,7 +19,7 @@ class RT6502Thread final : public RT6502 {
 
     // Statistiques
     StopWatch ExecutionTime;
-    time_point<steady_clock> CycleLastEndTime = high_resolution_clock::now();
+    time_point<steady_clock> CycleLastEndTime = steady_clock::now();
     nanoseconds LastCycleInternalExecutionTime = nanoseconds::zero();
     nanoseconds LastCycleSimulatedExecutionTime = nanoseconds::zero();
     nanoseconds TotalCycleElapsedTime = nanoseconds::zero();

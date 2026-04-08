@@ -54,7 +54,7 @@ void RT6502::Threads::RT6502Thread::Run(const std::stop_token& stopToken) {
 
     while (!stopToken.stop_requested()) {
         Cv.wait(lock, [this, stopToken] { return IsRunning || stopToken.stop_requested(); });  // Attendre qu'on puisse s'exécuter
-        CycleLastEndTime = high_resolution_clock::now();
+        CycleLastEndTime = steady_clock::now();
         ExecutionTime.Resume(CycleLastEndTime);
 
         // Continuer l'exécution jusqu'à ce qu'on soit demandé d'arrêter.
@@ -67,16 +67,16 @@ void RT6502::Threads::RT6502Thread::Run(const std::stop_token& stopToken) {
 }
 
 void RT6502::Threads::RT6502Thread::ExecuteCycle() {
-    const time_point<steady_clock> cycleStartTime = high_resolution_clock::now();
+    const time_point<steady_clock> cycleStartTime = steady_clock::now();
 
     RT6502::ExecuteCycle();
 
-    time_point<steady_clock> cycleEndTime = high_resolution_clock::now();
+    time_point<steady_clock> cycleEndTime = steady_clock::now();
     LastCycleInternalExecutionTime = cycleEndTime - cycleStartTime;
 
     // Attendre que sa fasse assez longtemps depuis l'exécution du cycle précédent
     while (GetCyclesMissingBetweenRealAndSimulated(cycleEndTime) >= 0) {
-        cycleEndTime = high_resolution_clock::now();
+        cycleEndTime = steady_clock::now();
     }
 
     // Statistiques sur l'exécution du cycle
