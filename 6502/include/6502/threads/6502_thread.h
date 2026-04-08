@@ -1,7 +1,7 @@
 #pragma once
+#include <condition_variable>
 #include <mutex>
 #include <thread>
-#include <condition_variable>
 
 #include "6502/6502.h"
 #include "6502/stopwatch.h"

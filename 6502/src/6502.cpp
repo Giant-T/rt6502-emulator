@@ -10,7 +10,7 @@ void RT6502::RT6502::Reset(const Word startAddress) {
 
     CyclesCounter = 0;
 
-    // FIXME: Faire une première lecture mémoire pour le premier Fetch
+    // FIXME: Faire une premiÃ¨re lecture mÃ©moire pour le premier Fetch
     Cpu.PC = startAddress;
     Cpu.AddressBus = Cpu.PC++;
     Mem.Read(Cpu.AddressBus, Cpu.DataBus);
@@ -23,10 +23,10 @@ void RT6502::RT6502::Execute() {
 }
 
 void RT6502::RT6502::ExecuteCycle() {
-    Cpu.RW = true;  // Remettre la ligne en Read par défaut
+    Cpu.RW = true;  // Remettre la ligne en Read par dÃ©faut
 
     if (Cpu.SYNC) {
-        // Décoder la prochaine instruction
+        // DÃ©coder la prochaine instruction
         Cpu.IR = &InstructionSet::OPCODE_LIST.at(static_cast<InstructionSet::Opcodes>(Cpu.DataBus));
 
         FonctionsToExecutes = Cpu.IR->AddrMode;
@@ -36,7 +36,7 @@ void RT6502::RT6502::ExecuteCycle() {
 
     FonctionsToExecutes = FonctionsToExecutes.Func(Cpu);
 
-    // Gérer automatiquement le SYNC/Fetch à la fin de l'instruction
+    // GÃ©rer automatiquement le SYNC/Fetch Ã  la fin de l'instruction
     if (!FonctionsToExecutes.has_value()) {
         if (Cpu.RW) {
             // Si c'est une lecture, alors on fait le Fetch
@@ -45,7 +45,7 @@ void RT6502::RT6502::ExecuteCycle() {
         } else {
             // Sinon, on rajoute un cycle
             FonctionsToExecutes = [](CPU&) -> QueuedInstr {
-                // C'est vide, car sera traité par le IF juste au dessus
+                // C'est vide, car sera traitÃ© par le IF juste au dessus
                 return nullptr;
             };
         }

@@ -1,8 +1,8 @@
 /**
- * Fonctions de décodage des instructions 6502.
+ * Fonctions de dÃ©codage des instructions 6502.
  *
  * @file decode.h
- * @authors Nicolas Béland
+ * @authors Nicolas BÃ©land
  * @date 2026-01-23
  */
 
