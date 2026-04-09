@@ -27,7 +27,7 @@ union Word {
         Byte High;
     };
 
-    constexpr Word(const int& val) : Value(val) {}
+    constexpr Word(const uint16_t& val) : Value(val) {}
     constexpr Word(const Byte& high, const Byte& low) : Low(low), High(high) {}
 
     constexpr Word operator++(int) {
@@ -52,19 +52,13 @@ union Word {
         return *this;
     }
 
-    constexpr void operator+=(const Byte rvalue) {
+    template <typename T>
+        requires(std::is_integral_v<T>)
+    constexpr void operator+=(const T rvalue) {
         Value += rvalue;
     }
 
-    constexpr void operator+=(const int8_t rvalue) {
-        Value += rvalue;
-    }
-
-    constexpr bool operator>=(const int rvalue) const {
-        return Value >= rvalue;
-    }
-
-    operator uint16_t() const {
+    constexpr operator uint16_t() const {
         return Value;
     }
 };
@@ -82,26 +76,26 @@ struct Flags {
     Byte V : 1;  // Bit 6 - Overflow
     Byte N : 1;  // Bit 7 - Negative Result
 
-    Flags() : C(0), Z(0), I(0), D(0), B(1), _(1), V(0), N(0) {
+    constexpr Flags() : C(0), Z(0), I(0), D(0), B(1), _(1), V(0), N(0) {
     }
 
-    Flags(const Byte c, const Byte z, const Byte i, const Byte d, const Byte b, const Byte _, const Byte v, const Byte n) : C(c), Z(z), I(i), D(d), B(b), _(1), V(v), N(n) {
+    constexpr Flags(const Byte c, const Byte z, const Byte i, const Byte d, const Byte b, const Byte _, const Byte v, const Byte n) : C(c), Z(z), I(i), D(d), B(b), _(1), V(v), N(n) {
     }
 
-    explicit operator Byte() const {
+    constexpr explicit operator Byte() const {
         return std::bit_cast<Byte>(*this);
     }
 
-    void operator=(const Byte value) {
+    constexpr void operator=(const Byte value) {
         *this = std::bit_cast<Flags, Byte>(value);
         _ = 1;  // S'assurer que le Bit reste allumé
     }
 
-    bool operator==(const Flags& value) const {
+    constexpr bool operator==(const Flags& value) const {
         return static_cast<Byte>(*this) == static_cast<Byte>(value);
     }
 
-    bool operator==(const Byte& value) const {
+    constexpr bool operator==(const Byte& value) const {
         return static_cast<Byte>(*this) == value;
     }
 };

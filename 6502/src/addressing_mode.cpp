@@ -3,15 +3,11 @@
 #include "6502/instruction_set.h"
 
 RT6502::QueuedInstr RT6502::AddressingMode::Implicit(CPU& cpu) {
-    // Dummy read
-    // Car on ne bouge pas le PC
-    return cpu.IR->Func;
+    return cpu.IR->Func;  // Dummy read, Car on ne bouge pas le PC
 }
 
 RT6502::QueuedInstr RT6502::AddressingMode::Accumulator(CPU& cpu) {
-    // Dummy read
-    // Car on ne bouge pas le PC
-    return cpu.IR->Func;
+    return cpu.IR->Func;  // Dummy read, Car on ne bouge pas le PC
 }
 
 RT6502::QueuedInstr RT6502::AddressingMode::Immediate(CPU& cpu) {

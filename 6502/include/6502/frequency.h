@@ -26,7 +26,7 @@ constexpr Frequency operator""_MHz(const long double hertz) {
     return Frequency{hertz * std::micro::den};
 }
 
-};  // namespace RT6502
+}  // namespace RT6502
 
 template <>
 struct std::formatter<RT6502::Frequency> : std::formatter<RT6502::Frequency::Type> {

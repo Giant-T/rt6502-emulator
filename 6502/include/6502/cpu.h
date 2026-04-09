@@ -20,24 +20,22 @@ class CPU final {
     static constexpr Word RESET_VECTOR_ADDR = 0xFFFC;
     static constexpr Word IRQBRK_VECTOR_ADDR = 0xFFFE;
 
-    Word PC;  // Program Counter
-    Byte SP;  // Stack Pointer
+    Word PC;   // Program Counter
+    Byte SP;   // Stack Pointer
+    Flags PS;  // Processor Status
 
     Byte A;  // Accumulator
     Byte X;  // Index Register X
     Byte Y;  // Index Register Y
 
-    Flags PS;  // Processor Status
+    bool RW;                  // Read or Write on memory. Read = 1, Write = 0; C'est la direction du transfert de données entre le processeur et les chips.
+    bool SYNC;                // 1 = OPCODE Fetch, 0 = no fetch
+    bool IsOverflow = false;  // TODO: lui retrouver un autre emplacement
 
-    bool RW;    // Read or Write on memory. Read = 1, Write = 0; C'est la direction du transfert de données entre le processeur et les chips.
-    bool SYNC;  // 1 = OPCODE Fetch, 0 = no fetch
-
-    Byte DataBus;                           // All instructions and data transfers between the processor and memory take place on these lines. Page 47
-    Word AddressBus;                        // Also Address Register. Est utilisé pour accéder à la mémoire
-    Word AddressRegister;                   // Contient ADL et ADH;
+    Byte DataBus;                           // All instructions and data transfers between the processor and memory take place on these lines.
+    Word AddressBus;                        // Also Address Register. Est utilisé pour accéder à la mémoire.
+    Word AddressRegister;                   // ADL & ADH
     const InstructionSet::Instruction* IR;  // Instruction Register. Holds the fetched instruction opcode byte while the CPU decodes and executes it.
-
-    bool IsOverflow = false; // TODO: lui retrouver un autre emplacement
 
     CPU();
 

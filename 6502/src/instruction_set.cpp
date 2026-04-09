@@ -123,7 +123,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::LSR_ACC(CPU& cpu) {
 }
 
 RT6502::QueuedInstr RT6502::InstructionSet::ADC(CPU& cpu) {
-    const Word result = static_cast<Word>(cpu.A) + static_cast<Word>(cpu.DataBus) + static_cast<Word>(cpu.PS.C);
+    const Word result = cpu.A + cpu.DataBus + cpu.PS.C;
 
     cpu.PS.V = (~(cpu.A ^ cpu.DataBus) & (cpu.A ^ result.Low)) >> 7;
     cpu.A = result.Low;
@@ -135,7 +135,7 @@ RT6502::QueuedInstr RT6502::InstructionSet::ADC(CPU& cpu) {
 }
 
 RT6502::QueuedInstr RT6502::InstructionSet::SBC(CPU& cpu) {
-    const Word result = static_cast<Word>(cpu.A) - static_cast<Word>(cpu.DataBus) - static_cast<Word>(!cpu.PS.C);
+    const Word result = cpu.A - cpu.DataBus - !cpu.PS.C;
 
     cpu.PS.V = ((cpu.A ^ cpu.DataBus) & (cpu.A ^ result.Low)) >> 7;
     cpu.A = result.Low;

@@ -85,6 +85,8 @@ constexpr QueuedInstr Execute(const AddressingMode addressingMode) {
             return IndexedIndirect;
         case AddressingMode::IndirectIndexed:
             return IndirectIndexed;
+        default:
+            std::unreachable();
     }
 }
 
