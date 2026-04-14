@@ -1,8 +1,8 @@
 # rt6502-emulator
 
-Émulateur temps réel pour le 6502.
+Ã‰mulateur temps rÃ©el pour le 6502.
 
-## Références
+## RÃ©fÃ©rences
 
 http://www.6502.org/users/obelisk/6502/reference.html
 

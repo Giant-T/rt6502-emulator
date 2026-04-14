@@ -1,8 +1,8 @@
 /**
- * Fonctions de décodage des instructions 6502.
+ * Fonctions de dÃ©codage des instructions 6502.
  *
  * @file decode.h
- * @authors Nicolas Béland
+ * @authors Nicolas BÃ©land
  * @date 2026-01-23
  */
 
@@ -22,7 +22,7 @@ struct Operation {
     Word Param;
 
     [[nodiscard]] std::string Display() const {
-        return std::vformat(Info.Name + " " + Info.Format(), std::make_format_args(Param));
+        return std::vformat(std::string(Info.Name) + " " + std::string(Info.Format()), std::make_format_args(Param));
     }
 };
 

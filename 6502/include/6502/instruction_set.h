@@ -7,19 +7,21 @@
 
 #pragma once
 
-#include <functional>
-#include <map>
+#include <initializer_list>
+#include <memory>
 
 #include "addressing_mode.h"
 #include "cpu.h"
 #include "types.h"
 
 namespace RT6502::InstructionSet {
-
-// opcodes
+/**
+ * La liste des 256 opcodes du 6502.
+ * La liste des opcodes: http://www.6502.org/users/obelisk/6502/reference.html
+ */
 enum Opcodes : Byte {
 
-    INS_BRK_IMP = 0X00,
+    INS_BRK_IMP = 0x00,
 
     // Set Flags
     INS_CLC_IMP = 0x18,
@@ -200,20 +202,6 @@ enum Opcodes : Byte {
 
 };
 
-struct Instruction {
-    Opcodes Opcode;
-    Byte Bytes;
-    Byte Cycles;
-    std::string Name;
-    AddressingMode::AddressingMode AddrMode;
-    ReadWrite RW;
-    std::function<QueuedInstr(CPU&)> Func;
-
-    std::string Format() const noexcept {
-        return AddressingMode::Format(AddrMode);
-    }
-};
-
 QueuedInstr BRK(CPU&);
 
 // Flags
@@ -302,185 +290,237 @@ QueuedInstr BEQ(CPU&);
 
 QueuedInstr NOP(CPU&);
 
-inline const std::map<Opcodes, const Instruction> OPCODE_LIST = {
-    {INS_BRK_IMP, {INS_BRK_IMP, 1, 7, "BRK", AddressingMode::AddressingMode::Implicit, Read, BRK}},
+/**
+ * Représente une instruction avec ses métadonnées.
+ */
+struct Instruction {
+    const Opcodes Opcode;
+    const Byte Bytes;   // Le nombre de bytes utilisé
+    const Byte Cycles;  // Le nombre minimal de cycles pour l'exécution complète
+    const ReadWrite RW;
+    const char (&Name)[4];
+    const QueuedInstr AddrMode;  // Son mode d'adressage
+    const QueuedInstr Func;
+    const std::string_view& FormatText;
+
+    /**
+     * Par défaut, on construit une instruction NOP
+     */
+    constexpr Instruction()
+        : Opcode(INS_NOP_IMP), Bytes(1), Cycles(2), RW(Read), Name("NOP"), AddrMode(AddressingMode::Execute(AddressingMode::AddressingMode::Implicit)), Func(NOP), FormatText(AddressingMode::Format(AddressingMode::AddressingMode::Implicit)) {
+    }
+
+    constexpr Instruction(const Opcodes opcodes, const Byte bytes, const Byte cycles, const char (&name)[4], const AddressingMode::AddressingMode addressingMode, const ReadWrite rw, const QueuedInstr& func)
+        : Opcode(opcodes), Bytes(bytes), Cycles(cycles), RW(rw), Name(name), AddrMode(AddressingMode::Execute(addressingMode)), Func(func), FormatText(AddressingMode::Format(addressingMode)) {
+    }
+
+    /**
+     * Affiche l'instruction sous format assembleur.
+     * @return Texte formatté
+     */
+    constexpr const std::string_view& Format() const noexcept {
+        return FormatText;
+    }
+};
+
+class OpcodeArray {
+    std::array<Instruction, 256> Arr{};
+
+   public:
+    constexpr OpcodeArray(const std::initializer_list<Instruction> liste) {
+        for (const auto& instr : liste) {
+            std::construct_at(&Arr[instr.Opcode], Instruction{instr});
+            // new (&Arr[instr.Opcode]) Instruction{instr}; // Placement-new n'est pas constexpr :( Sera disponible dans C++26
+        }
+    }
+
+    constexpr const Instruction& at(const Opcodes opcodes) const {
+        return Arr[opcodes];
+    }
+};
+
+/**
+ * La liste des instructions implémenté et exécutable.
+ */
+constexpr OpcodeArray OPCODE_LIST{
+    {INS_BRK_IMP, 1, 7, "BRK", AddressingMode::AddressingMode::Implicit, Read, BRK},
 
     // Flags
-    {INS_CLC_IMP, {INS_CLC_IMP, 1, 2, "CLC", AddressingMode::AddressingMode::Implicit, Read, CLC}},
-    {INS_SEC_IMP, {INS_SEC_IMP, 1, 2, "SEC", AddressingMode::AddressingMode::Implicit, Read, SEC}},
-    {INS_CLI_IMP, {INS_CLI_IMP, 1, 2, "CLI", AddressingMode::AddressingMode::Implicit, Read, CLI}},
-    {INS_SEI_IMP, {INS_SEI_IMP, 1, 2, "SEI", AddressingMode::AddressingMode::Implicit, Read, SEI}},
-    {INS_CLD_IMP, {INS_CLD_IMP, 1, 2, "CLD", AddressingMode::AddressingMode::Implicit, Read, CLD}},
-    {INS_SED_IMP, {INS_SED_IMP, 1, 2, "SED", AddressingMode::AddressingMode::Implicit, Read, SED}},
-    {INS_CLV_IMP, {INS_CLV_IMP, 1, 2, "CLV", AddressingMode::AddressingMode::Implicit, Read, CLV}},
+    {INS_CLC_IMP, 1, 2, "CLC", AddressingMode::AddressingMode::Implicit, Read, CLC},
+    {INS_SEC_IMP, 1, 2, "SEC", AddressingMode::AddressingMode::Implicit, Read, SEC},
+    {INS_CLI_IMP, 1, 2, "CLI", AddressingMode::AddressingMode::Implicit, Read, CLI},
+    {INS_SEI_IMP, 1, 2, "SEI", AddressingMode::AddressingMode::Implicit, Read, SEI},
+    {INS_CLD_IMP, 1, 2, "CLD", AddressingMode::AddressingMode::Implicit, Read, CLD},
+    {INS_SED_IMP, 1, 2, "SED", AddressingMode::AddressingMode::Implicit, Read, SED},
+    {INS_CLV_IMP, 1, 2, "CLV", AddressingMode::AddressingMode::Implicit, Read, CLV},
 
     // Arithmetic
-    {INS_ASL_ACC, {INS_ASL_ACC, 1, 2, "ASL", AddressingMode::AddressingMode::Accumulator, Read, ASL_ACC}},
-    {INS_ASL_ZP, {INS_ASL_ZP, 2, 5, "ASL", AddressingMode::AddressingMode::Zeropage, Read, ASL}},
-    {INS_ASL_ZPX, {INS_ASL_ZPX, 2, 6, "ASL", AddressingMode::AddressingMode::ZeropageX, Read, ASL}},
-    {INS_ASL_ABS, {INS_ASL_ABS, 3, 6, "ASL", AddressingMode::AddressingMode::Absolute, Read, ASL}},
-    {INS_ASL_ABSX, {INS_ASL_ABSX, 3, 7, "ASL", AddressingMode::AddressingMode::AbsoluteX, Read, ASL}},
-    {INS_LSR_ACC, {INS_LSR_ACC, 1, 2, "LSR", AddressingMode::AddressingMode::Accumulator, Read, LSR_ACC}},
-    {INS_LSR_ZP, {INS_LSR_ZP, 2, 5, "LSR", AddressingMode::AddressingMode::Zeropage, Read, LSR}},
-    {INS_LSR_ZPX, {INS_LSR_ZPX, 2, 6, "LSR", AddressingMode::AddressingMode::ZeropageX, Read, LSR}},
-    {INS_LSR_ABS, {INS_LSR_ABS, 3, 6, "LSR", AddressingMode::AddressingMode::Absolute, Read, LSR}},
-    {INS_LSR_ABSX, {INS_LSR_ABSX, 3, 7, "LSR", AddressingMode::AddressingMode::AbsoluteX, Read, LSR}},
+    {INS_ASL_ACC, 1, 2, "ASL", AddressingMode::AddressingMode::Accumulator, Read, ASL_ACC},
+    {INS_ASL_ZP, 2, 5, "ASL", AddressingMode::AddressingMode::Zeropage, Read, ASL},
+    {INS_ASL_ZPX, 2, 6, "ASL", AddressingMode::AddressingMode::ZeropageX, Read, ASL},
+    {INS_ASL_ABS, 3, 6, "ASL", AddressingMode::AddressingMode::Absolute, Read, ASL},
+    {INS_ASL_ABSX, 3, 7, "ASL", AddressingMode::AddressingMode::AbsoluteX, Read, ASL},
+    {INS_LSR_ACC, 1, 2, "LSR", AddressingMode::AddressingMode::Accumulator, Read, LSR_ACC},
+    {INS_LSR_ZP, 2, 5, "LSR", AddressingMode::AddressingMode::Zeropage, Read, LSR},
+    {INS_LSR_ZPX, 2, 6, "LSR", AddressingMode::AddressingMode::ZeropageX, Read, LSR},
+    {INS_LSR_ABS, 3, 6, "LSR", AddressingMode::AddressingMode::Absolute, Read, LSR},
+    {INS_LSR_ABSX, 3, 7, "LSR", AddressingMode::AddressingMode::AbsoluteX, Read, LSR},
 
-    {INS_ADC_IMM, {INS_ADC_IMM, 2, 2, "ADC", AddressingMode::AddressingMode::Immediate, Read, ADC}},
-    {INS_ADC_ZP, {INS_ADC_ZP, 2, 3, "ADC", AddressingMode::AddressingMode::Zeropage, Read, ADC}},
-    {INS_ADC_ZPX, {INS_ADC_ZPX, 2, 4, "ADC", AddressingMode::AddressingMode::ZeropageX, Read, ADC}},
-    {INS_ADC_ABS, {INS_ADC_ABS, 3, 4, "ADC", AddressingMode::AddressingMode::Absolute, Read, ADC}},
-    {INS_ADC_ABSX, {INS_ADC_ABSX, 3, 4, "ADC", AddressingMode::AddressingMode::AbsoluteX, Read, ADC}},
-    {INS_ADC_ABSY, {INS_ADC_ABSY, 3, 4, "ADC", AddressingMode::AddressingMode::AbsoluteY, Read, ADC}},
-    {INS_ADC_INDX, {INS_ADC_INDX, 2, 6, "ADC", AddressingMode::AddressingMode::IndexedIndirect, Read, ADC}},
-    {INS_ADC_INDY, {INS_ADC_INDY, 2, 5, "ADC", AddressingMode::AddressingMode::IndirectIndexed, Read, ADC}},
-    {INS_SBC_IMM, {INS_SBC_IMM, 2, 2, "SBC", AddressingMode::AddressingMode::Immediate, Read, SBC}},
-    {INS_SBC_ZP, {INS_SBC_ZP, 2, 3, "SBC", AddressingMode::AddressingMode::Zeropage, Read, SBC}},
-    {INS_SBC_ZPX, {INS_SBC_ZPX, 2, 4, "SBC", AddressingMode::AddressingMode::ZeropageX, Read, SBC}},
-    {INS_SBC_ABS, {INS_SBC_ABS, 3, 4, "SBC", AddressingMode::AddressingMode::Absolute, Read, SBC}},
-    {INS_SBC_ABSX, {INS_SBC_ABSX, 3, 4, "SBC", AddressingMode::AddressingMode::AbsoluteX, Read, SBC}},
-    {INS_SBC_ABSY, {INS_SBC_ABSY, 3, 4, "SBC", AddressingMode::AddressingMode::AbsoluteY, Read, SBC}},
-    {INS_SBC_INDX, {INS_SBC_INDX, 2, 6, "SBC", AddressingMode::AddressingMode::IndexedIndirect, Read, SBC}},
-    {INS_SBC_INDY, {INS_SBC_INDY, 2, 5, "SBC", AddressingMode::AddressingMode::IndirectIndexed, Read, SBC}},
+    {INS_ADC_IMM, 2, 2, "ADC", AddressingMode::AddressingMode::Immediate, Read, ADC},
+    {INS_ADC_ZP, 2, 3, "ADC", AddressingMode::AddressingMode::Zeropage, Read, ADC},
+    {INS_ADC_ZPX, 2, 4, "ADC", AddressingMode::AddressingMode::ZeropageX, Read, ADC},
+    {INS_ADC_ABS, 3, 4, "ADC", AddressingMode::AddressingMode::Absolute, Read, ADC},
+    {INS_ADC_ABSX, 3, 4, "ADC", AddressingMode::AddressingMode::AbsoluteX, Read, ADC},
+    {INS_ADC_ABSY, 3, 4, "ADC", AddressingMode::AddressingMode::AbsoluteY, Read, ADC},
+    {INS_ADC_INDX, 2, 6, "ADC", AddressingMode::AddressingMode::IndexedIndirect, Read, ADC},
+    {INS_ADC_INDY, 2, 5, "ADC", AddressingMode::AddressingMode::IndirectIndexed, Read, ADC},
+    {INS_SBC_IMM, 2, 2, "SBC", AddressingMode::AddressingMode::Immediate, Read, SBC},
+    {INS_SBC_ZP, 2, 3, "SBC", AddressingMode::AddressingMode::Zeropage, Read, SBC},
+    {INS_SBC_ZPX, 2, 4, "SBC", AddressingMode::AddressingMode::ZeropageX, Read, SBC},
+    {INS_SBC_ABS, 3, 4, "SBC", AddressingMode::AddressingMode::Absolute, Read, SBC},
+    {INS_SBC_ABSX, 3, 4, "SBC", AddressingMode::AddressingMode::AbsoluteX, Read, SBC},
+    {INS_SBC_ABSY, 3, 4, "SBC", AddressingMode::AddressingMode::AbsoluteY, Read, SBC},
+    {INS_SBC_INDX, 2, 6, "SBC", AddressingMode::AddressingMode::IndexedIndirect, Read, SBC},
+    {INS_SBC_INDY, 2, 5, "SBC", AddressingMode::AddressingMode::IndirectIndexed, Read, SBC},
 
-    {INS_BIT_ZP, {INS_BIT_ZP, 2, 3, "BIT", AddressingMode::AddressingMode::Zeropage, Read, BIT}},
-    {INS_BIT_ABS, {INS_BIT_ABS, 3, 4, "BIT", AddressingMode::AddressingMode::Absolute, Read, BIT}},
+    {INS_BIT_ZP, 2, 3, "BIT", AddressingMode::AddressingMode::Zeropage, Read, BIT},
+    {INS_BIT_ABS, 3, 4, "BIT", AddressingMode::AddressingMode::Absolute, Read, BIT},
 
-    {INS_ROL_ACC, {INS_ROL_ACC, 1, 2, "ROL", AddressingMode::AddressingMode::Accumulator, Read, ROL_ACC}},
-    {INS_ROL_ZP, {INS_ROL_ZP, 2, 5, "ROL", AddressingMode::AddressingMode::Zeropage, Read, ROL}},
-    {INS_ROL_ZPX, {INS_ROL_ZPX, 2, 6, "ROL", AddressingMode::AddressingMode::ZeropageX, Read, ROL}},
-    {INS_ROL_ABS, {INS_ROL_ABS, 3, 6, "ROL", AddressingMode::AddressingMode::Absolute, Read, ROL}},
-    {INS_ROL_ABSX, {INS_ROL_ABSX, 3, 7, "ROL", AddressingMode::AddressingMode::AbsoluteX, Read, ROL}},
-    {INS_ROR_ACC, {INS_ROR_ACC, 1, 2, "ROR", AddressingMode::AddressingMode::Accumulator, Read, ROR_ACC}},
-    {INS_ROR_ZP, {INS_ROR_ZP, 2, 5, "ROR", AddressingMode::AddressingMode::Zeropage, Read, ROR}},
-    {INS_ROR_ZPX, {INS_ROR_ZPX, 2, 6, "ROR", AddressingMode::AddressingMode::ZeropageX, Read, ROR}},
-    {INS_ROR_ABS, {INS_ROR_ABS, 3, 6, "ROR", AddressingMode::AddressingMode::Absolute, Read, ROR}},
-    {INS_ROR_ABSX, {INS_ROR_ABSX, 3, 7, "ROR", AddressingMode::AddressingMode::AbsoluteX, Read, ROR}},
+    {INS_ROL_ACC, 1, 2, "ROL", AddressingMode::AddressingMode::Accumulator, Read, ROL_ACC},
+    {INS_ROL_ZP, 2, 5, "ROL", AddressingMode::AddressingMode::Zeropage, Read, ROL},
+    {INS_ROL_ZPX, 2, 6, "ROL", AddressingMode::AddressingMode::ZeropageX, Read, ROL},
+    {INS_ROL_ABS, 3, 6, "ROL", AddressingMode::AddressingMode::Absolute, Read, ROL},
+    {INS_ROL_ABSX, 3, 7, "ROL", AddressingMode::AddressingMode::AbsoluteX, Read, ROL},
+    {INS_ROR_ACC, 1, 2, "ROR", AddressingMode::AddressingMode::Accumulator, Read, ROR_ACC},
+    {INS_ROR_ZP, 2, 5, "ROR", AddressingMode::AddressingMode::Zeropage, Read, ROR},
+    {INS_ROR_ZPX, 2, 6, "ROR", AddressingMode::AddressingMode::ZeropageX, Read, ROR},
+    {INS_ROR_ABS, 3, 6, "ROR", AddressingMode::AddressingMode::Absolute, Read, ROR},
+    {INS_ROR_ABSX, 3, 7, "ROR", AddressingMode::AddressingMode::AbsoluteX, Read, ROR},
 
-    {INS_ORA_IMM, {INS_ORA_IMM, 2, 2, "ORA", AddressingMode::AddressingMode::Immediate, Read, ORA}},
-    {INS_ORA_ZP, {INS_ORA_ZP, 2, 3, "ORA", AddressingMode::AddressingMode::Zeropage, Read, ORA}},
-    {INS_ORA_ZPX, {INS_ORA_ZPX, 2, 4, "ORA", AddressingMode::AddressingMode::ZeropageX, Read, ORA}},
-    {INS_ORA_ABS, {INS_ORA_ABS, 3, 4, "ORA", AddressingMode::AddressingMode::Absolute, Read, ORA}},
-    {INS_ORA_ABSX, {INS_ORA_ABSX, 3, 4, "ORA", AddressingMode::AddressingMode::AbsoluteX, Read, ORA}},
-    {INS_ORA_ABSY, {INS_ORA_ABSY, 3, 4, "ORA", AddressingMode::AddressingMode::AbsoluteY, Read, ORA}},
-    {INS_ORA_INDX, {INS_ORA_INDX, 3, 6, "ORA", AddressingMode::AddressingMode::IndexedIndirect, Read, ORA}},
-    {INS_ORA_INDY, {INS_ORA_INDY, 3, 5, "ORA", AddressingMode::AddressingMode::IndirectIndexed, Read, ORA}},
-    {INS_AND_IMM, {INS_AND_IMM, 2, 2, "AND", AddressingMode::AddressingMode::Immediate, Read, AND}},
-    {INS_AND_ZP, {INS_AND_ZP, 2, 3, "AND", AddressingMode::AddressingMode::Zeropage, Read, AND}},
-    {INS_AND_ZPX, {INS_AND_ZPX, 2, 4, "AND", AddressingMode::AddressingMode::ZeropageX, Read, AND}},
-    {INS_AND_ABS, {INS_AND_ABS, 3, 4, "AND", AddressingMode::AddressingMode::Absolute, Read, AND}},
-    {INS_AND_ABSX, {INS_AND_ABSX, 3, 4, "AND", AddressingMode::AddressingMode::AbsoluteX, Read, AND}},
-    {INS_AND_ABSY, {INS_AND_ABSY, 3, 4, "AND", AddressingMode::AddressingMode::AbsoluteY, Read, AND}},
-    {INS_AND_INDX, {INS_AND_INDX, 2, 6, "AND", AddressingMode::AddressingMode::IndexedIndirect, Read, AND}},
-    {INS_AND_INDY, {INS_AND_INDY, 2, 5, "AND", AddressingMode::AddressingMode::IndirectIndexed, Read, AND}},
-    {INS_EOR_IMM, {INS_EOR_IMM, 2, 2, "EOR", AddressingMode::AddressingMode::Immediate, Read, EOR}},
-    {INS_EOR_ZP, {INS_EOR_ZP, 2, 3, "EOR", AddressingMode::AddressingMode::Zeropage, Read, EOR}},
-    {INS_EOR_ZPX, {INS_EOR_ZPX, 2, 4, "EOR", AddressingMode::AddressingMode::ZeropageX, Read, EOR}},
-    {INS_EOR_ABS, {INS_EOR_ABS, 3, 4, "EOR", AddressingMode::AddressingMode::Absolute, Read, EOR}},
-    {INS_EOR_ABSX, {INS_EOR_ABSX, 3, 4, "EOR", AddressingMode::AddressingMode::AbsoluteX, Read, EOR}},
-    {INS_EOR_ABSY, {INS_EOR_ABSY, 3, 4, "EOR", AddressingMode::AddressingMode::AbsoluteY, Read, EOR}},
-    {INS_EOR_INDX, {INS_EOR_INDX, 2, 6, "EOR", AddressingMode::AddressingMode::IndexedIndirect, Read, EOR}},
-    {INS_EOR_INDY, {INS_EOR_INDY, 2, 5, "EOR", AddressingMode::AddressingMode::IndirectIndexed, Read, EOR}},
+    {INS_ORA_IMM, 2, 2, "ORA", AddressingMode::AddressingMode::Immediate, Read, ORA},
+    {INS_ORA_ZP, 2, 3, "ORA", AddressingMode::AddressingMode::Zeropage, Read, ORA},
+    {INS_ORA_ZPX, 2, 4, "ORA", AddressingMode::AddressingMode::ZeropageX, Read, ORA},
+    {INS_ORA_ABS, 3, 4, "ORA", AddressingMode::AddressingMode::Absolute, Read, ORA},
+    {INS_ORA_ABSX, 3, 4, "ORA", AddressingMode::AddressingMode::AbsoluteX, Read, ORA},
+    {INS_ORA_ABSY, 3, 4, "ORA", AddressingMode::AddressingMode::AbsoluteY, Read, ORA},
+    {INS_ORA_INDX, 3, 6, "ORA", AddressingMode::AddressingMode::IndexedIndirect, Read, ORA},
+    {INS_ORA_INDY, 3, 5, "ORA", AddressingMode::AddressingMode::IndirectIndexed, Read, ORA},
+    {INS_AND_IMM, 2, 2, "AND", AddressingMode::AddressingMode::Immediate, Read, AND},
+    {INS_AND_ZP, 2, 3, "AND", AddressingMode::AddressingMode::Zeropage, Read, AND},
+    {INS_AND_ZPX, 2, 4, "AND", AddressingMode::AddressingMode::ZeropageX, Read, AND},
+    {INS_AND_ABS, 3, 4, "AND", AddressingMode::AddressingMode::Absolute, Read, AND},
+    {INS_AND_ABSX, 3, 4, "AND", AddressingMode::AddressingMode::AbsoluteX, Read, AND},
+    {INS_AND_ABSY, 3, 4, "AND", AddressingMode::AddressingMode::AbsoluteY, Read, AND},
+    {INS_AND_INDX, 2, 6, "AND", AddressingMode::AddressingMode::IndexedIndirect, Read, AND},
+    {INS_AND_INDY, 2, 5, "AND", AddressingMode::AddressingMode::IndirectIndexed, Read, AND},
+    {INS_EOR_IMM, 2, 2, "EOR", AddressingMode::AddressingMode::Immediate, Read, EOR},
+    {INS_EOR_ZP, 2, 3, "EOR", AddressingMode::AddressingMode::Zeropage, Read, EOR},
+    {INS_EOR_ZPX, 2, 4, "EOR", AddressingMode::AddressingMode::ZeropageX, Read, EOR},
+    {INS_EOR_ABS, 3, 4, "EOR", AddressingMode::AddressingMode::Absolute, Read, EOR},
+    {INS_EOR_ABSX, 3, 4, "EOR", AddressingMode::AddressingMode::AbsoluteX, Read, EOR},
+    {INS_EOR_ABSY, 3, 4, "EOR", AddressingMode::AddressingMode::AbsoluteY, Read, EOR},
+    {INS_EOR_INDX, 2, 6, "EOR", AddressingMode::AddressingMode::IndexedIndirect, Read, EOR},
+    {INS_EOR_INDY, 2, 5, "EOR", AddressingMode::AddressingMode::IndirectIndexed, Read, EOR},
 
     // Jump
-    {INS_JSR_ABS, {INS_JSR_ABS, 3, 6, "JSR", AddressingMode::AddressingMode::Absolute, Read, JSR}},
-    {INS_JMP_ABS, {INS_JMP_ABS, 3, 3, "JMP", AddressingMode::AddressingMode::Absolute, Write, JMP}},
-    {INS_JMP_IND, {INS_JMP_IND, 3, 5, "JMP", AddressingMode::AddressingMode::Indirect, Write, JMP}},
-    {INS_RTI_IMP, {INS_RTI_IMP, 1, 6, "RTI", AddressingMode::AddressingMode::Implicit, Read, RTI}},
-    {INS_RTS_IMP, {INS_RTS_IMP, 1, 6, "RTS", AddressingMode::AddressingMode::Implicit, Read, RTS}},
+    {INS_JSR_ABS, 3, 6, "JSR", AddressingMode::AddressingMode::Absolute, Read, JSR},
+    {INS_JMP_ABS, 3, 3, "JMP", AddressingMode::AddressingMode::Absolute, Write, JMP},
+    {INS_JMP_IND, 3, 5, "JMP", AddressingMode::AddressingMode::Indirect, Write, JMP},
+    {INS_RTI_IMP, 1, 6, "RTI", AddressingMode::AddressingMode::Implicit, Read, RTI},
+    {INS_RTS_IMP, 1, 6, "RTS", AddressingMode::AddressingMode::Implicit, Read, RTS},
 
     // Load
-    {INS_LDY_IMM, {INS_LDY_IMM, 2, 2, "LDY", AddressingMode::AddressingMode::Immediate, Read, LDY}},
-    {INS_LDY_ZP, {INS_LDY_ZP, 2, 3, "LDY", AddressingMode::AddressingMode::Zeropage, Read, LDY}},
-    {INS_LDY_ZPX, {INS_LDY_ZPX, 2, 4, "LDY", AddressingMode::AddressingMode::ZeropageX, Read, LDY}},
-    {INS_LDY_ABS, {INS_LDY_ABS, 3, 4, "LDY", AddressingMode::AddressingMode::Absolute, Read, LDY}},
-    {INS_LDY_ABSX, {INS_LDY_ABSX, 3, 4, "LDY", AddressingMode::AddressingMode::AbsoluteX, Read, LDY}},
-    {INS_LDX_IMM, {INS_LDX_IMM, 2, 2, "LDX", AddressingMode::AddressingMode::Immediate, Read, LDX}},
-    {INS_LDX_ZP, {INS_LDX_ZP, 2, 3, "LDX", AddressingMode::AddressingMode::Zeropage, Read, LDX}},
-    {INS_LDX_ZPY, {INS_LDX_ZPY, 2, 4, "LDX", AddressingMode::AddressingMode::ZeropageY, Read, LDX}},
-    {INS_LDX_ABS, {INS_LDX_ABS, 3, 4, "LDX", AddressingMode::AddressingMode::Absolute, Read, LDX}},
-    {INS_LDX_ABSY, {INS_LDX_ABSY, 3, 4, "LDX", AddressingMode::AddressingMode::AbsoluteY, Read, LDX}},
-    {INS_LDA_IMM, {INS_LDA_IMM, 2, 2, "LDA", AddressingMode::AddressingMode::Immediate, Read, LDA}},
-    {INS_LDA_ZP, {INS_LDA_ZP, 2, 3, "LDA", AddressingMode::AddressingMode::Zeropage, Read, LDA}},
-    {INS_LDA_ZPX, {INS_LDA_ZPX, 2, 4, "LDA", AddressingMode::AddressingMode::ZeropageX, Read, LDA}},
-    {INS_LDA_ABS, {INS_LDA_ABS, 3, 4, "LDA", AddressingMode::AddressingMode::Absolute, Read, LDA}},
-    {INS_LDA_ABSX, {INS_LDA_ABSX, 3, 4, "LDA", AddressingMode::AddressingMode::AbsoluteX, Read, LDA}},
-    {INS_LDA_ABSY, {INS_LDA_ABSY, 3, 4, "LDA", AddressingMode::AddressingMode::AbsoluteY, Read, LDA}},
-    {INS_LDA_INDX, {INS_LDA_INDX, 2, 6, "LDA", AddressingMode::AddressingMode::IndexedIndirect, Read, LDA}},
-    {INS_LDA_INDY, {INS_LDA_INDY, 2, 5, "LDA", AddressingMode::AddressingMode::IndirectIndexed, Read, LDA}},
+    {INS_LDY_IMM, 2, 2, "LDY", AddressingMode::AddressingMode::Immediate, Read, LDY},
+    {INS_LDY_ZP, 2, 3, "LDY", AddressingMode::AddressingMode::Zeropage, Read, LDY},
+    {INS_LDY_ZPX, 2, 4, "LDY", AddressingMode::AddressingMode::ZeropageX, Read, LDY},
+    {INS_LDY_ABS, 3, 4, "LDY", AddressingMode::AddressingMode::Absolute, Read, LDY},
+    {INS_LDY_ABSX, 3, 4, "LDY", AddressingMode::AddressingMode::AbsoluteX, Read, LDY},
+    {INS_LDX_IMM, 2, 2, "LDX", AddressingMode::AddressingMode::Immediate, Read, LDX},
+    {INS_LDX_ZP, 2, 3, "LDX", AddressingMode::AddressingMode::Zeropage, Read, LDX},
+    {INS_LDX_ZPY, 2, 4, "LDX", AddressingMode::AddressingMode::ZeropageY, Read, LDX},
+    {INS_LDX_ABS, 3, 4, "LDX", AddressingMode::AddressingMode::Absolute, Read, LDX},
+    {INS_LDX_ABSY, 3, 4, "LDX", AddressingMode::AddressingMode::AbsoluteY, Read, LDX},
+    {INS_LDA_IMM, 2, 2, "LDA", AddressingMode::AddressingMode::Immediate, Read, LDA},
+    {INS_LDA_ZP, 2, 3, "LDA", AddressingMode::AddressingMode::Zeropage, Read, LDA},
+    {INS_LDA_ZPX, 2, 4, "LDA", AddressingMode::AddressingMode::ZeropageX, Read, LDA},
+    {INS_LDA_ABS, 3, 4, "LDA", AddressingMode::AddressingMode::Absolute, Read, LDA},
+    {INS_LDA_ABSX, 3, 4, "LDA", AddressingMode::AddressingMode::AbsoluteX, Read, LDA},
+    {INS_LDA_ABSY, 3, 4, "LDA", AddressingMode::AddressingMode::AbsoluteY, Read, LDA},
+    {INS_LDA_INDX, 2, 6, "LDA", AddressingMode::AddressingMode::IndexedIndirect, Read, LDA},
+    {INS_LDA_INDY, 2, 5, "LDA", AddressingMode::AddressingMode::IndirectIndexed, Read, LDA},
 
     // Store
-    {INS_STA_ZP, {INS_STA_ZP, 2, 3, "STA", AddressingMode::AddressingMode::Zeropage, Write, STA}},
-    {INS_STA_ZPX, {INS_STA_ZPX, 2, 4, "STA", AddressingMode::AddressingMode::ZeropageX, Write, STA}},
-    {INS_STA_ABS, {INS_STA_ABS, 3, 4, "STA", AddressingMode::AddressingMode::Absolute, Write, STA}},
-    {INS_STA_ABSX, {INS_STA_ABSX, 3, 5, "STA", AddressingMode::AddressingMode::AbsoluteX, Write, STA}},
-    {INS_STA_ABSY, {INS_STA_ABSY, 3, 5, "STA", AddressingMode::AddressingMode::AbsoluteY, Write, STA}},
-    {INS_STA_INDX, {INS_STA_INDX, 2, 6, "STA", AddressingMode::AddressingMode::IndexedIndirect, Write, STA}},
-    {INS_STA_INDY, {INS_STA_INDY, 2, 6, "STA", AddressingMode::AddressingMode::IndirectIndexed, Write, STA}},
-    {INS_STY_ZP, {INS_STY_ZP, 2, 3, "STY", AddressingMode::AddressingMode::Zeropage, Write, STY}},
-    {INS_STY_ZPX, {INS_STY_ZPX, 2, 4, "STY", AddressingMode::AddressingMode::ZeropageX, Write, STY}},
-    {INS_STY_ABS, {INS_STY_ABS, 3, 4, "STY", AddressingMode::AddressingMode::Absolute, Write, STY}},
-    {INS_STX_ZP, {INS_STX_ZP, 2, 3, "STX", AddressingMode::AddressingMode::Zeropage, Write, STX}},
-    {INS_STX_ZPY, {INS_STX_ZPY, 2, 4, "STX", AddressingMode::AddressingMode::ZeropageY, Write, STX}},
-    {INS_STX_ABS, {INS_STX_ABS, 3, 4, "STX", AddressingMode::AddressingMode::Absolute, Write, STX}},
+    {INS_STA_ZP, 2, 3, "STA", AddressingMode::AddressingMode::Zeropage, Write, STA},
+    {INS_STA_ZPX, 2, 4, "STA", AddressingMode::AddressingMode::ZeropageX, Write, STA},
+    {INS_STA_ABS, 3, 4, "STA", AddressingMode::AddressingMode::Absolute, Write, STA},
+    {INS_STA_ABSX, 3, 5, "STA", AddressingMode::AddressingMode::AbsoluteX, Write, STA},
+    {INS_STA_ABSY, 3, 5, "STA", AddressingMode::AddressingMode::AbsoluteY, Write, STA},
+    {INS_STA_INDX, 2, 6, "STA", AddressingMode::AddressingMode::IndexedIndirect, Write, STA},
+    {INS_STA_INDY, 2, 6, "STA", AddressingMode::AddressingMode::IndirectIndexed, Write, STA},
+    {INS_STY_ZP, 2, 3, "STY", AddressingMode::AddressingMode::Zeropage, Write, STY},
+    {INS_STY_ZPX, 2, 4, "STY", AddressingMode::AddressingMode::ZeropageX, Write, STY},
+    {INS_STY_ABS, 3, 4, "STY", AddressingMode::AddressingMode::Absolute, Write, STY},
+    {INS_STX_ZP, 2, 3, "STX", AddressingMode::AddressingMode::Zeropage, Write, STX},
+    {INS_STX_ZPY, 2, 4, "STX", AddressingMode::AddressingMode::ZeropageY, Write, STX},
+    {INS_STX_ABS, 3, 4, "STX", AddressingMode::AddressingMode::Absolute, Write, STX},
 
     // Stack
-    {INS_PHP_IMP, {INS_PHP_IMP, 1, 3, "PHP", AddressingMode::AddressingMode::Implicit, Write, PHP}},
-    {INS_PLP_IMP, {INS_PLP_IMP, 1, 4, "PLP", AddressingMode::AddressingMode::Implicit, Read, PLP}},
-    {INS_PHA_IMP, {INS_PHA_IMP, 1, 3, "PHA", AddressingMode::AddressingMode::Implicit, Write, PHA}},
-    {INS_PLA_IMP, {INS_PLA_IMP, 1, 4, "PLA", AddressingMode::AddressingMode::Implicit, Read, PLA}},
+    {INS_PHP_IMP, 1, 3, "PHP", AddressingMode::AddressingMode::Implicit, Write, PHP},
+    {INS_PLP_IMP, 1, 4, "PLP", AddressingMode::AddressingMode::Implicit, Read, PLP},
+    {INS_PHA_IMP, 1, 3, "PHA", AddressingMode::AddressingMode::Implicit, Write, PHA},
+    {INS_PLA_IMP, 1, 4, "PLA", AddressingMode::AddressingMode::Implicit, Read, PLA},
 
     // Transfer
-    {INS_TXA_IMP, {INS_TXA_IMP, 1, 2, "TXA", AddressingMode::AddressingMode::Implicit, Read, TXA}},
-    {INS_TYA_IMP, {INS_TYA_IMP, 1, 2, "TYA", AddressingMode::AddressingMode::Implicit, Read, TYA}},
-    {INS_TXS_IMP, {INS_TXS_IMP, 1, 2, "TXS", AddressingMode::AddressingMode::Implicit, Read, TXS}},
-    {INS_TAY_IMP, {INS_TAY_IMP, 1, 2, "TAY", AddressingMode::AddressingMode::Implicit, Read, TAY}},
-    {INS_TAX_IMP, {INS_TAX_IMP, 1, 2, "TAX", AddressingMode::AddressingMode::Implicit, Read, TAX}},
-    {INS_TSX_IMP, {INS_TSX_IMP, 1, 2, "TSX", AddressingMode::AddressingMode::Implicit, Read, TSX}},
+    {INS_TXA_IMP, 1, 2, "TXA", AddressingMode::AddressingMode::Implicit, Read, TXA},
+    {INS_TYA_IMP, 1, 2, "TYA", AddressingMode::AddressingMode::Implicit, Read, TYA},
+    {INS_TXS_IMP, 1, 2, "TXS", AddressingMode::AddressingMode::Implicit, Read, TXS},
+    {INS_TAY_IMP, 1, 2, "TAY", AddressingMode::AddressingMode::Implicit, Read, TAY},
+    {INS_TAX_IMP, 1, 2, "TAX", AddressingMode::AddressingMode::Implicit, Read, TAX},
+    {INS_TSX_IMP, 1, 2, "TSX", AddressingMode::AddressingMode::Implicit, Read, TSX},
 
     // Compare
-    {INS_CPY_IMM, {INS_CPY_IMM, 2, 2, "CPY", AddressingMode::AddressingMode::Immediate, Read, CPY}},
-    {INS_CPY_ZP, {INS_CPY_ZP, 2, 3, "CPY", AddressingMode::AddressingMode::Zeropage, Read, CPY}},
-    {INS_CPY_ABS, {INS_CPY_ABS, 3, 4, "CPY", AddressingMode::AddressingMode::Absolute, Read, CPY}},
-    {INS_CMP_IMM, {INS_CMP_IMM, 2, 2, "CMP", AddressingMode::AddressingMode::Immediate, Read, CMP}},
-    {INS_CMP_ZP, {INS_CMP_ZP, 2, 3, "CMP", AddressingMode::AddressingMode::Zeropage, Read, CMP}},
-    {INS_CMP_ZPX, {INS_CMP_ZPX, 2, 4, "CMP", AddressingMode::AddressingMode::ZeropageX, Read, CMP}},
-    {INS_CMP_ABS, {INS_CMP_ABS, 3, 4, "CMP", AddressingMode::AddressingMode::Absolute, Read, CMP}},
-    {INS_CMP_ABSX, {INS_CMP_ABSX, 3, 4, "CMP", AddressingMode::AddressingMode::AbsoluteX, Read, CMP}},
-    {INS_CMP_ABSY, {INS_CMP_ABSY, 3, 4, "CMP", AddressingMode::AddressingMode::AbsoluteY, Read, CMP}},
-    {INS_CMP_INDX, {INS_CMP_INDX, 2, 6, "CMP", AddressingMode::AddressingMode::IndexedIndirect, Read, CMP}},
-    {INS_CMP_INDY, {INS_CMP_INDY, 2, 5, "CMP", AddressingMode::AddressingMode::IndirectIndexed, Read, CMP}},
-    {INS_CPX_IMM, {INS_CPX_IMM, 2, 2, "CPX", AddressingMode::AddressingMode::Immediate, Read, CPX}},
-    {INS_CPX_ZP, {INS_CPX_ZP, 2, 3, "CPX", AddressingMode::AddressingMode::Zeropage, Read, CPX}},
-    {INS_CPX_ABS, {INS_CPX_ABS, 3, 4, "CPX", AddressingMode::AddressingMode::Absolute, Read, CPX}},
+    {INS_CPY_IMM, 2, 2, "CPY", AddressingMode::AddressingMode::Immediate, Read, CPY},
+    {INS_CPY_ZP, 2, 3, "CPY", AddressingMode::AddressingMode::Zeropage, Read, CPY},
+    {INS_CPY_ABS, 3, 4, "CPY", AddressingMode::AddressingMode::Absolute, Read, CPY},
+    {INS_CMP_IMM, 2, 2, "CMP", AddressingMode::AddressingMode::Immediate, Read, CMP},
+    {INS_CMP_ZP, 2, 3, "CMP", AddressingMode::AddressingMode::Zeropage, Read, CMP},
+    {INS_CMP_ZPX, 2, 4, "CMP", AddressingMode::AddressingMode::ZeropageX, Read, CMP},
+    {INS_CMP_ABS, 3, 4, "CMP", AddressingMode::AddressingMode::Absolute, Read, CMP},
+    {INS_CMP_ABSX, 3, 4, "CMP", AddressingMode::AddressingMode::AbsoluteX, Read, CMP},
+    {INS_CMP_ABSY, 3, 4, "CMP", AddressingMode::AddressingMode::AbsoluteY, Read, CMP},
+    {INS_CMP_INDX, 2, 6, "CMP", AddressingMode::AddressingMode::IndexedIndirect, Read, CMP},
+    {INS_CMP_INDY, 2, 5, "CMP", AddressingMode::AddressingMode::IndirectIndexed, Read, CMP},
+    {INS_CPX_IMM, 2, 2, "CPX", AddressingMode::AddressingMode::Immediate, Read, CPX},
+    {INS_CPX_ZP, 2, 3, "CPX", AddressingMode::AddressingMode::Zeropage, Read, CPX},
+    {INS_CPX_ABS, 3, 4, "CPX", AddressingMode::AddressingMode::Absolute, Read, CPX},
 
     // Decrement
-    {INS_DEY_IMP, {INS_DEY_IMP, 1, 2, "DEY", AddressingMode::AddressingMode::Implicit, Read, DEY}},
-    {INS_DEX_IMP, {INS_DEX_IMP, 1, 2, "DEX", AddressingMode::AddressingMode::Implicit, Read, DEX}},
-    {INS_DEC_ZP, {INS_DEC_ZP, 2, 5, "DEC", AddressingMode::AddressingMode::Zeropage, Read, DEC}},
-    {INS_DEC_ZPX, {INS_DEC_ZPX, 2, 6, "DEC", AddressingMode::AddressingMode::ZeropageX, Read, DEC}},
-    {INS_DEC_ABS, {INS_DEC_ABS, 3, 6, "DEC", AddressingMode::AddressingMode::Absolute, Read, DEC}},
-    {INS_DEC_ABSX, {INS_DEC_ABSX, 3, 7, "DEC", AddressingMode::AddressingMode::AbsoluteX, RMW, DEC}},
+    {INS_DEY_IMP, 1, 2, "DEY", AddressingMode::AddressingMode::Implicit, Read, DEY},
+    {INS_DEX_IMP, 1, 2, "DEX", AddressingMode::AddressingMode::Implicit, Read, DEX},
+    {INS_DEC_ZP, 2, 5, "DEC", AddressingMode::AddressingMode::Zeropage, Read, DEC},
+    {INS_DEC_ZPX, 2, 6, "DEC", AddressingMode::AddressingMode::ZeropageX, Read, DEC},
+    {INS_DEC_ABS, 3, 6, "DEC", AddressingMode::AddressingMode::Absolute, Read, DEC},
+    {INS_DEC_ABSX, 3, 7, "DEC", AddressingMode::AddressingMode::AbsoluteX, RMW, DEC},
 
     // Increment
-    {INS_INY_IMP, {INS_INY_IMP, 1, 2, "INY", AddressingMode::AddressingMode::Implicit, Read, INY}},
-    {INS_INX_IMP, {INS_INX_IMP, 1, 2, "INX", AddressingMode::AddressingMode::Implicit, Read, INX}},
-    {INS_INC_ZP, {INS_INC_ZP, 2, 5, "INC", AddressingMode::AddressingMode::Zeropage, Read, INC}},
-    {INS_INC_ZPX, {INS_INC_ZPX, 2, 6, "INC", AddressingMode::AddressingMode::ZeropageX, Read, INC}},
-    {INS_INC_ABS, {INS_INC_ABS, 3, 6, "INC", AddressingMode::AddressingMode::Absolute, Read, INC}},
-    {INS_INC_ABSX, {INS_INC_ABSX, 3, 7, "INC", AddressingMode::AddressingMode::AbsoluteX, RMW, INC}},
+    {INS_INY_IMP, 1, 2, "INY", AddressingMode::AddressingMode::Implicit, Read, INY},
+    {INS_INX_IMP, 1, 2, "INX", AddressingMode::AddressingMode::Implicit, Read, INX},
+    {INS_INC_ZP, 2, 5, "INC", AddressingMode::AddressingMode::Zeropage, Read, INC},
+    {INS_INC_ZPX, 2, 6, "INC", AddressingMode::AddressingMode::ZeropageX, Read, INC},
+    {INS_INC_ABS, 3, 6, "INC", AddressingMode::AddressingMode::Absolute, Read, INC},
+    {INS_INC_ABSX, 3, 7, "INC", AddressingMode::AddressingMode::AbsoluteX, RMW, INC},
 
     // Branching
-    {INS_BPL_REL, {INS_BPL_REL, 2, 2, "BPL", AddressingMode::AddressingMode::Relative, Read, BPL}},
-    {INS_BMI_REL, {INS_BMI_REL, 2, 2, "BMI", AddressingMode::AddressingMode::Relative, Read, BMI}},
-    {INS_BVC_REL, {INS_BVC_REL, 2, 2, "BVC", AddressingMode::AddressingMode::Relative, Read, BVC}},
-    {INS_BVS_REL, {INS_BVS_REL, 2, 2, "BVS", AddressingMode::AddressingMode::Relative, Read, BVS}},
-    {INS_BCC_REL, {INS_BCC_REL, 2, 2, "BCC", AddressingMode::AddressingMode::Relative, Read, BCC}},
-    {INS_BCS_REL, {INS_BCS_REL, 2, 2, "BCS", AddressingMode::AddressingMode::Relative, Read, BCS}},
-    {INS_BNE_REL, {INS_BNE_REL, 2, 2, "BNE", AddressingMode::AddressingMode::Relative, Read, BNE}},
-    {INS_BEQ_REL, {INS_BEQ_REL, 2, 2, "BEQ", AddressingMode::AddressingMode::Relative, Read, BEQ}},
+    {INS_BPL_REL, 2, 2, "BPL", AddressingMode::AddressingMode::Relative, Read, BPL},
+    {INS_BMI_REL, 2, 2, "BMI", AddressingMode::AddressingMode::Relative, Read, BMI},
+    {INS_BVC_REL, 2, 2, "BVC", AddressingMode::AddressingMode::Relative, Read, BVC},
+    {INS_BVS_REL, 2, 2, "BVS", AddressingMode::AddressingMode::Relative, Read, BVS},
+    {INS_BCC_REL, 2, 2, "BCC", AddressingMode::AddressingMode::Relative, Read, BCC},
+    {INS_BCS_REL, 2, 2, "BCS", AddressingMode::AddressingMode::Relative, Read, BCS},
+    {INS_BNE_REL, 2, 2, "BNE", AddressingMode::AddressingMode::Relative, Read, BNE},
+    {INS_BEQ_REL, 2, 2, "BEQ", AddressingMode::AddressingMode::Relative, Read, BEQ},
 
-    {INS_NOP_IMP, {INS_NOP_IMP, 1, 2, "NOP", AddressingMode::AddressingMode::Implicit, Read, NOP}},
+    {INS_NOP_IMP, 1, 2, "NOP", AddressingMode::AddressingMode::Implicit, Read, NOP},
 };
 
 }  // namespace RT6502::InstructionSet

@@ -3,10 +3,16 @@
 #include "types.h"
 
 namespace RT6502 {
-
+/**
+ * Représente l'unité de mémoire d'un 6502.
+ */
 class Memory {
    public:
-    static constexpr uint32_t MAX_MEMORY = 1024 * 64;  // 64 Kb
+    /**
+     * Taille maximal de la mémoire pour le 6502.
+     * 64 Kb
+     */
+    static constexpr uint32_t MAX_MEMORY = 1024 * 64;
     Byte Data[MAX_MEMORY];
 
     Memory();
