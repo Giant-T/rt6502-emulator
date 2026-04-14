@@ -21,6 +21,7 @@ class RT6502Thread final : public RT6502 {
     StopWatch ExecutionTime;
     time_point<steady_clock> CycleLastEndTime = steady_clock::now();
     nanoseconds LastCycleInternalExecutionTime = nanoseconds::zero();
+    nanoseconds TotalCycleInternalExecutionTime = nanoseconds::zero();
     nanoseconds LastCycleSimulatedExecutionTime = nanoseconds::zero();
     nanoseconds TotalCycleElapsedTime = nanoseconds::zero();
 
@@ -41,6 +42,13 @@ class RT6502Thread final : public RT6502 {
         if (CyclesCounter == 0)
             return T(0);
         return duration_cast<T>(TotalCycleElapsedTime / CyclesCounter);
+    }
+
+    template <class T = nanoseconds>
+    T AverageCycleInternalExecutionTime() const {
+        if (CyclesCounter == 0)
+            return T(0);
+        return duration_cast<T>(TotalCycleInternalExecutionTime / CyclesCounter);
     }
 
     const auto& GetLastCycleInternalExecutionTime() const { return LastCycleInternalExecutionTime; }

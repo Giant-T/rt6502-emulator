@@ -45,6 +45,7 @@ bool RT6502::Threads::RT6502Thread::LoadFile(const char* filepath) {
 
 void RT6502::Threads::RT6502Thread::ResetStats() {
     LastCycleInternalExecutionTime = nanoseconds::zero();
+    TotalCycleInternalExecutionTime = nanoseconds::zero();
     LastCycleSimulatedExecutionTime = nanoseconds::zero();
     TotalCycleElapsedTime = nanoseconds::zero();
 }
@@ -73,6 +74,7 @@ void RT6502::Threads::RT6502Thread::ExecuteCycle() {
 
     time_point<steady_clock> cycleEndTime = steady_clock::now();
     LastCycleInternalExecutionTime = cycleEndTime - cycleStartTime;
+    TotalCycleInternalExecutionTime += LastCycleInternalExecutionTime;
 
     // Attendre que sa fasse assez longtemps depuis l'exécution du cycle précédent
     while (GetCyclesMissingBetweenRealAndSimulated(cycleEndTime) >= 0) {
