@@ -11,28 +11,24 @@ TEST_CASE("Benchmark Single Instr", "[Benchmark]") {
 
     // Remplir la mémoire avec la même instruction
     for (unsigned int i = 0; i < RT6502::Memory::MAX_MEMORY;) {
+        emulator.Mem[i++] = INS_TXA_IMP;
+    }
+
+    emulator.Reset();
+
+    BENCHMARK("Cycle") {
+        emulator.ExecuteCycle();
+    };
+
+    // Remplir la mémoire avec la même instruction
+    for (unsigned int i = 0; i < RT6502::Memory::MAX_MEMORY;) {
         emulator.Mem[i++] = INS_LDA_IMM;
         emulator.Mem[i++] = 0x17;
     }
 
     emulator.Reset();
 
-    BENCHMARK("LDA 0x17") {
+    BENCHMARK("Instruction") {
         emulator.Execute();
-    };
-}
-
-TEST_CASE("Benchmark Single Cycle", "[Benchmark]") {
-    RT6502::RT6502 emulator;
-
-    // Remplir la mémoire avec la même instruction
-    for (unsigned int i = 0; i < RT6502::Memory::MAX_MEMORY;) {
-        emulator.Mem[i++] = INS_TXA_IMP;
-    }
-
-    emulator.Reset();
-
-    BENCHMARK("TXA") {
-        emulator.ExecuteCycle();
     };
 }
