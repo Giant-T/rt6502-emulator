@@ -94,15 +94,22 @@ ftxui::Component App::AddressInput() {
     ftxui::InputOption options{};
     options.multiline = false;
 
-    options.on_change = [&]() {
-        if (address.empty() || std::isxdigit(address.back())) return;
+    options.on_change = [&] {
+        if (address.empty()) {
+            return;
+        }
+        if (std::isxdigit(address.back()))
+            return;
 
         address.pop_back();
     };
 
-    options.on_enter = [&]() {
+    options.on_enter = [&] {
         // TODO(william): faire la recherche et refresh l'affichage
-        this->address = std::stoi(address, nullptr, HEX);
+        if (address.empty())
+            this->address = 0;
+        else
+            this->address = std::stoi(address, nullptr, HEX);
     };
 
     ftxui::Component addressInput = ftxui::Input(
@@ -143,9 +150,9 @@ ftxui::Component App::MemoryDisplay() const {
 
 ftxui::Component App::MemoryLayout() {
     return ftxui::Container::Vertical({
-        ftxui::Renderer([] {
+        ftxui::Renderer([&] {
             return ftxui::vbox({
-                ftxui::text("Memory"),
+                ftxui::text("Memory at address: " + std::format("{:#04X}", address)),
                 ftxui::separator(),
             });
         }),
