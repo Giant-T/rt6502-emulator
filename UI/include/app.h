@@ -9,7 +9,7 @@
 
 class App {
     enum : uint8_t { LAYOUT_HEIGHT = 19,
-                     LAYOUT_WIDTH = 18,
+                     LAYOUT_WIDTH = 50,
                      OPER_WIDTH = 13 };
 
    public:
@@ -27,6 +27,7 @@ class App {
     RT6502::Threads::RT6502Thread emulator;
     int layoutHeight;
     int layoutWidth;
+    int bottomLayoutWidth;
     uint32_t address{0};
 
     [[nodiscard]] ftxui::Component MainLayout(ftxui::ScreenInteractive&);
@@ -37,5 +38,6 @@ class App {
     [[nodiscard]] ftxui::Component AddressInput();
     [[nodiscard]] ftxui::Component MemoryLayout();
     [[nodiscard]] ftxui::Component MemoryDisplay() const;
+    [[nodiscard]] ftxui::Component MetricsLayout() const;
     [[nodiscard]] static ftxui::Component KeyboardEvents(ftxui::ScreenInteractive&, ftxui::Component);
 };

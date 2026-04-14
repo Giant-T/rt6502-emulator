@@ -23,7 +23,7 @@ App::App() : layoutHeight(LAYOUT_HEIGHT), layoutWidth(LAYOUT_WIDTH) {
     emulator.Reset();
 }
 
-App::App(const std::string& fileName, int firstMemAddr, int layoutHeight, int layoutWidth) : layoutHeight(layoutHeight), layoutWidth(layoutWidth) {
+App::App(const std::string& fileName, int firstMemAddr, int layoutHeight, int layoutWidth) : layoutHeight(layoutHeight), layoutWidth(layoutWidth), bottomLayoutWidth(layoutWidth) {
     emulator.LoadFile(fileName.data());
     emulator.Reset(firstMemAddr);
 }
@@ -182,14 +182,39 @@ ftxui::Component App::MemoryLayout() {
     });
 }
 
+ftxui::Component App::MetricsLayout() const {
+    return ftxui::Renderer([&] {
+        return ftxui::vbox({
+            ftxui::text("Metrics"),
+            ftxui::separator(),
+            ftxui::text(std::format("Execution Time: {:%H:%M:%S}", emulator.GetExecutionTime())),
+            ftxui::text(std::format("Frequency: {}", RT6502::Frequency(emulator.AverageCycleElapsedTime()))),
+            ftxui::text(std::format("PC: {:04X}", emulator.Cpu.PC - 1)),
+            ftxui::text(std::format("Total Cycles [Real]: {}", emulator.GetExpectedExecutedCycles())),
+            ftxui::text(std::format("Total Cycles [Simulated]: {}", emulator.CyclesCounter)),
+            ftxui::text(std::format("Total Cycles Diff: {}", emulator.GetCyclesMissingBetweenRealAndSimulated())),
+            ftxui::text(std::format("Total Cycle Duration [Simulated]: {}", emulator.GetTotalCycleElapsedTime())),
+            ftxui::text(std::format("Last Cycle Duration [Internal]: {}", emulator.GetLastCycleInternalExecutionTime())),
+            ftxui::text(std::format("Last Cycle Duration [Simulated]: {}", emulator.GetLastCycleSimulatedExecutionTime())),
+            ftxui::text(std::format("Expected Average Cycle Duration: {}", emulator.ClockSpeed.CycleDuration())),
+            ftxui::text(std::format("Average Cycle Duration [Internal]: {}", emulator.AverageCycleInternalExecutionTime())),
+            ftxui::text(std::format("Average Cycle Duration [Simulated]: {}", emulator.AverageCycleElapsedTime())),
+            ftxui::text(std::format("Remaining Duration: {}", emulator.ClockSpeed.CycleDuration() - emulator.AverageCycleElapsedTime())),
+        });
+    });
+}
+
 ftxui::Component App::VerticalLayout() {
     auto registers = RegistersLayout();
     auto assembly = AssemblyLayout();
     auto memory = MemoryLayout();
+    auto metrics = MetricsLayout();
 
     auto top = ftxui::ResizableSplitRight(memory, registers, &layoutWidth);
+    auto bottom = ftxui::ResizableSplitRight(metrics, assembly, &bottomLayoutWidth);
 
-    return ftxui::ResizableSplitTop(top, assembly, &layoutHeight) | ftxui::border;
+    return ftxui::ResizableSplitTop(top, bottom, &layoutHeight) |
+           ftxui::border;
 }
 
 ftxui::Component App::MainLayout(ftxui::ScreenInteractive& screen) {
