@@ -1,5 +1,4 @@
-#ifndef APP
-#define APP
+#pragma once
 
 #include <cstdint>
 #include <ftxui/component/component_base.hpp>
@@ -39,5 +38,3 @@ class App {
     [[nodiscard]] ftxui::Component MemoryDisplay() const;
     [[nodiscard]] static ftxui::Component KeyboardEvents(ftxui::ScreenInteractive&, ftxui::Component);
 };
-
-#endif  // !APP
