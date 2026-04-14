@@ -1,17 +1,24 @@
+/**
+ * Contient les types généraux qui sont utilisé pour la représentation du 6502.
+ */
+
 #pragma once
 
 #include <cstdint>
 #include <format>
-#include <functional>
-#include <optional>
 
 namespace RT6502 {
+class CPU;
 
+/**
+ * Représentation de 8 bits sur un 6502.
+ */
 using Byte = uint8_t;
-// using Word = uint16_t;
 
-// using InstrFuncPtr = std::function<void()>;
-
+/**
+ * Représentation de 16 bits sur un 6502.
+ * Séparation entre 8 bits Low et 8 bits High.
+ */
 union Word {
     uint16_t Value;
 
@@ -20,7 +27,7 @@ union Word {
         Byte High;
     };
 
-    constexpr Word(const int& val) : Value(val) {}
+    constexpr Word(const uint16_t& val) : Value(val) {}
     constexpr Word(const Byte& high, const Byte& low) : Low(low), High(high) {}
 
     constexpr Word operator++(int) {
@@ -45,23 +52,20 @@ union Word {
         return *this;
     }
 
-    constexpr void operator+=(const Byte rvalue) {
+    template <typename T>
+        requires(std::is_integral_v<T>)
+    constexpr void operator+=(const T rvalue) {
         Value += rvalue;
     }
 
-    constexpr void operator+=(const int8_t rvalue) {
-        Value += rvalue;
-    }
-
-    constexpr bool operator>=(const int rvalue) const {
-        return Value >= rvalue;
-    }
-
-    operator uint16_t() const {
+    constexpr operator uint16_t() const {
         return Value;
     }
 };
 
+/**
+ * Représente les différents flags du Processor Status sur 8 bits.
+ */
 struct Flags {
     Byte C : 1;  // Bit 0 - Carry
     Byte Z : 1;  // Bit 1 - Zero Result
@@ -72,58 +76,76 @@ struct Flags {
     Byte V : 1;  // Bit 6 - Overflow
     Byte N : 1;  // Bit 7 - Negative Result
 
-    Flags() : C(0), Z(0), I(0), D(0), B(1), _(1), V(0), N(0) {
+    constexpr Flags() : C(0), Z(0), I(0), D(0), B(1), _(1), V(0), N(0) {
     }
 
-    Flags(const Byte c, const Byte z, const Byte i, const Byte d, const Byte b, const Byte _, const Byte v, const Byte n) : C(c), Z(z), I(i), D(d), B(b), _(1), V(v), N(n) {
+    constexpr Flags(const Byte c, const Byte z, const Byte i, const Byte d, const Byte b, const Byte _, const Byte v, const Byte n) : C(c), Z(z), I(i), D(d), B(b), _(1), V(v), N(n) {
     }
 
-    explicit operator Byte() const {
+    constexpr explicit operator Byte() const {
         return std::bit_cast<Byte>(*this);
     }
 
-    void operator=(const Byte value) {
+    constexpr void operator=(const Byte value) {
         *this = std::bit_cast<Flags, Byte>(value);
         _ = 1;  // S'assurer que le Bit reste allumé
     }
 
-    bool operator==(const Flags& value) const {
+    constexpr bool operator==(const Flags& value) const {
         return static_cast<Byte>(*this) == static_cast<Byte>(value);
     }
 
-    bool operator==(const Byte& value) const {
+    constexpr bool operator==(const Byte& value) const {
         return static_cast<Byte>(*this) == value;
     }
 };
 
-enum TimeStates {
-    T0 = 0,
-    T1 = 1,
-    T2 = 2,
-    T3 = 3,
-    T4 = 4,
-    T5 = 5
-};
-
-enum ReadWrite {
+/**
+ * Utilisé pour le mode d'adressage.
+ * Permet de savoir si le mode d'adressage doit faire une lecture et/ou attendre pour faire une écriture.
+ */
+enum ReadWrite : Byte {
     Read = 1 << 0,
     Write = 1 << 1,
     RMW = Read | Write
 };
 
+struct QueuedInstr;
+using QueuedInstrPtr = QueuedInstr (*)(CPU&);
+
+/**
+ * Nous permet d'avoir une fonction qui pointe vers la prochaine fonction à exécuter.
+ * C'est utilisé pour définir chaque action par cycle.
+ */
 struct QueuedInstr {
-    std::function<std::optional<QueuedInstr>()> Func;
+    QueuedInstrPtr Func;
 
     template <typename T>
-    QueuedInstr(const T& f) : Func(f) {}
+    constexpr QueuedInstr(const T& f) : Func(f) {}
 
-    std::optional<QueuedInstr> operator()() const {
-        return Func();
+    constexpr QueuedInstr(const std::nullptr_t& f) : Func(f) {}
+
+    constexpr QueuedInstr(const QueuedInstr& f) : Func(f.Func) {}
+    constexpr QueuedInstr(const QueuedInstrPtr& f) : Func(f) {}
+
+    /**
+     * Exécute la fonction actuel et retourne la prochaine fonction à exécuter.
+     * @return La prochaine fonction à exécuter
+     */
+    QueuedInstr operator()(CPU& cpu) const {
+        return Func(cpu);
+    }
+
+    constexpr bool has_value() const {
+        return Func != nullptr;
     }
 };
 
 }  // namespace RT6502
 
+/**
+ * Nous permet de formatter le type Word comme un uint16_t.
+ */
 template <>
 struct std::formatter<RT6502::Word> : std::formatter<uint16_t> {
     auto format(const RT6502::Word& id, std::format_context& ctx) const {
