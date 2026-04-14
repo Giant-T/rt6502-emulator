@@ -5,11 +5,12 @@
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/node.hpp>
 
-#include "6502/6502.h"
+#include "6502/threads/6502_thread.h"
 
 class App {
-    enum : uint8_t { LAYOUT_HEIGHT = 18,
-                     LAYOUT_WIDTH = 18 };
+    enum : uint8_t { LAYOUT_HEIGHT = 19,
+                     LAYOUT_WIDTH = 18,
+                     OPER_WIDTH = 13 };
 
    public:
     App();
@@ -23,10 +24,10 @@ class App {
     void Run();
 
    private:
-    RT6502::RT6502 emulator{};
+    RT6502::Threads::RT6502Thread emulator;
     int layoutHeight;
     int layoutWidth;
-    int address{0};
+    uint32_t address{0};
 
     [[nodiscard]] ftxui::Component MainLayout(ftxui::ScreenInteractive&);
     [[nodiscard]] ftxui::Element RegistersTable();

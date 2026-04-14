@@ -14,6 +14,8 @@
 #include <string>
 
 #include "6502/decode.h"
+#include "6502/memory.h"
+#include "6502/threads/6502_thread.h"
 
 enum : uint8_t { HEX = 16 };
 
@@ -42,6 +44,9 @@ ftxui::Component App::KeyboardEvents(ftxui::ScreenInteractive& screen, ftxui::Co
 
 ftxui::Element App::RegistersTable() {
     const auto oper = RT6502::Decode::Decode(emulator.Cpu.PC, emulator.Mem);
+    std::string operStr = oper.Display();
+    if (operStr.length() < OPER_WIDTH)
+        operStr.append(OPER_WIDTH - operStr.length(), ' ');
 
     auto table = ftxui::Table({
         {"Register", "Values"},
@@ -57,7 +62,7 @@ ftxui::Element App::RegistersTable() {
         {"I", std::to_string(emulator.Cpu.PS.I)},
         {"Z", std::to_string(emulator.Cpu.PS.Z)},
         {"C", std::to_string(emulator.Cpu.PS.C)},
-        {"Decode", oper.Display()},
+        {"Decode", operStr},
     });
 
     table.SelectColumns(0, -1).Border();
@@ -108,8 +113,23 @@ ftxui::Component App::AddressInput() {
         // TODO(william): faire la recherche et refresh l'affichage
         if (address.empty())
             this->address = 0;
-        else
-            this->address = std::stoi(address, nullptr, HEX);
+        else {
+            const int tableWidth = layoutWidth / 5;
+            const int tableHeight = layoutHeight;
+            const int numberOfCells = tableWidth * tableHeight;
+
+            try {
+                this->address = std::stoi(address, nullptr, HEX);
+
+                if (this->address + numberOfCells >= RT6502::Memory::MAX_MEMORY) {
+                    this->address = RT6502::Memory::MAX_MEMORY - numberOfCells - 1;
+                    address = std::format("{:x}", this->address);
+                }
+            } catch (...) {
+                this->address = RT6502::Memory::MAX_MEMORY - numberOfCells - 1;
+                address = std::format("{:x}", this->address);
+            }
+        }
     };
 
     ftxui::Component addressInput = ftxui::Input(
@@ -133,7 +153,8 @@ ftxui::Component App::MemoryDisplay() const {
             std::vector<std::string> row;
             row.reserve(tableWidth);
             for (int x = 0; x < tableWidth; ++x) {
-                row.push_back(std::format("{:#04X}", emulator.Mem[address + (y * tableWidth) + x]));
+                int idx = address + (y * tableWidth) + x;
+                row.push_back(std::format("{:#04X}", emulator.Mem[idx]));
             }
             memoryTable.push_back(row);
         }
@@ -182,11 +203,12 @@ void App::Run() {
     auto screen = ftxui::ScreenInteractive::Fullscreen();
     ftxui::Loop loop{&screen, MainLayout(screen)};
 
+    emulator.Start();
+
     while (!loop.HasQuitted()) {
         // TODO(william): Check voir si ça cause des erreurs sinon ça marche live
         screen.RequestAnimationFrame();
-        loop.RunOnce();
 
-        emulator.Execute();
+        loop.RunOnce();
     }
 }
