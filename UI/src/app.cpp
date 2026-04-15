@@ -12,6 +12,7 @@
 #include <ftxui/dom/table.hpp>
 #include <ftxui/screen/box.hpp>
 #include <string>
+#include <vector>
 
 #include "6502/decode.h"
 #include "6502/memory.h"
@@ -26,12 +27,15 @@ App::App() : layoutHeight(LAYOUT_HEIGHT), layoutWidth(LAYOUT_WIDTH) {
 App::App(const std::string& fileName, int firstMemAddr, int layoutHeight, int layoutWidth) : layoutHeight(layoutHeight), layoutWidth(layoutWidth), bottomLayoutWidth(layoutWidth) {
     emulator.LoadFile(fileName.data());
     emulator.Reset(firstMemAddr);
+    assembly = DecodeFrom(firstMemAddr);
 }
 
 ftxui::Component App::KeyboardEvents(ftxui::ScreenInteractive& screen, ftxui::Component component) {
     return ftxui::CatchEvent(
         std::move(component),
         [&](const ftxui::Event& event) {
+            if (!event.is_character()) return false;
+
             if (event.character() == "q") {  // Exits the program when pressing 'q'
                 screen.Exit();
                 return true;
@@ -110,15 +114,39 @@ ftxui::Component App::RegistersLayout() {
 }
 
 ftxui::Component App::AssemblyLayout() {
-    return ftxui::Renderer(
-        [] {
-            return ftxui::vbox({
-                ftxui::text("Assembly"),
-                ftxui::separator(),
-                ftxui::text("Informations") | ftxui::flex,
-            });
+    static int selected{0};
+    static auto menu{ftxui::Menu(assembly, &selected)};
+
+    auto scroller = ftxui::Renderer(menu, [&] {
+        int begin = std::max(0, selected - 10);
+        int end = std::min(assembly.size(), static_cast<std::size_t>(selected + 10));
+
+        ftxui::Elements elems;
+
+        for (int idx = begin; idx < end; ++idx) {
+            elems.emplace_back(ftxui::text(assembly[idx]));
         }
-    );
+
+        return ftxui::vbox(elems) | ftxui::frame | ftxui::flex;
+    });
+
+    return ftxui::Container::Vertical({ftxui::Renderer([&] {
+                                           return ftxui::vbox({ftxui::text("Assembly"), ftxui::separator()});
+                                       }),
+                                       scroller});
+}
+
+std::vector<std::string> App::DecodeFrom(int addr) {
+    std::vector<std::string> assembly{};
+
+    while (addr < RT6502::CPU::NMI_VECTOR_ADDR) {
+        auto oper = RT6502::Decode::Decode(addr, emulator.Mem);
+
+        assembly.push_back(std::format("{:04X}: {}", addr, oper.Display()));
+        addr += oper.Info.Bytes;
+    }
+
+    return assembly;
 }
 
 ftxui::Component App::AddressInput() {
@@ -180,7 +208,7 @@ ftxui::Component App::MemoryDisplay() const {
             std::vector<std::string> row;
             row.reserve(tableWidth);
             for (int x = 0; x < tableWidth; ++x) {
-                int idx = address + (y * tableWidth) + x;
+                uint32_t idx = address + (y * tableWidth) + x;
                 row.push_back(std::format("{:#04X}", emulator.Mem[idx]));
             }
             memoryTable.push_back(row);

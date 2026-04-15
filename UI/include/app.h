@@ -29,8 +29,10 @@ class App {
     int layoutWidth;
     int bottomLayoutWidth;
     uint32_t address{0};
+    std::vector<std::string> assembly;
 
     [[nodiscard]] ftxui::Component MainLayout(ftxui::ScreenInteractive&);
+    [[nodiscard]] std::vector<std::string> DecodeFrom(int);
     [[nodiscard]] ftxui::Component ActionsLayout();
     [[nodiscard]] ftxui::Element RegistersTable();
     [[nodiscard]] ftxui::Component RegistersLayout();
