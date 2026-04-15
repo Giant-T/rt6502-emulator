@@ -31,6 +31,7 @@ class App {
     uint32_t address{0};
 
     [[nodiscard]] ftxui::Component MainLayout(ftxui::ScreenInteractive&);
+    [[nodiscard]] ftxui::Component ActionsLayout();
     [[nodiscard]] ftxui::Element RegistersTable();
     [[nodiscard]] ftxui::Component RegistersLayout();
     [[nodiscard]] ftxui::Component AssemblyLayout();
@@ -39,5 +40,5 @@ class App {
     [[nodiscard]] ftxui::Component MemoryLayout();
     [[nodiscard]] ftxui::Component MemoryDisplay() const;
     [[nodiscard]] ftxui::Component MetricsLayout() const;
-    [[nodiscard]] static ftxui::Component KeyboardEvents(ftxui::ScreenInteractive&, ftxui::Component);
+    [[nodiscard]] ftxui::Component KeyboardEvents(ftxui::ScreenInteractive&, ftxui::Component);
 };

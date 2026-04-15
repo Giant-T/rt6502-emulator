@@ -36,10 +36,37 @@ ftxui::Component App::KeyboardEvents(ftxui::ScreenInteractive& screen, ftxui::Co
                 screen.Exit();
                 return true;
             }
+            if (event.character() == " ") {
+                if (emulator.Running())
+                    emulator.Pause();
+                else
+                    emulator.Start();
+
+                return true;
+            }
 
             return false;
         }
     );
+}
+
+ftxui::Component App::ActionsLayout() {
+    auto startOptions = ftxui::ButtonOption::Ascii();
+    startOptions.label = "▶︎";
+    startOptions.on_click = [&] {
+        emulator.Start();
+    };
+
+    auto pauseOptions = ftxui::ButtonOption::Ascii();
+    pauseOptions.label = "‖";
+    pauseOptions.on_click = [&] {
+        emulator.Pause();
+    };
+
+    return ftxui::Container::Horizontal({
+        ftxui::Button(startOptions),
+        ftxui::Button(pauseOptions),
+    });
 }
 
 ftxui::Element App::RegistersTable() {
@@ -213,8 +240,7 @@ ftxui::Component App::VerticalLayout() {
     auto top = ftxui::ResizableSplitRight(memory, registers, &layoutWidth);
     auto bottom = ftxui::ResizableSplitRight(metrics, assembly, &bottomLayoutWidth);
 
-    return ftxui::ResizableSplitTop(top, bottom, &layoutHeight) |
-           ftxui::border;
+    return ftxui::Container::Vertical({ActionsLayout(), ftxui::ResizableSplitTop(top, bottom, &layoutHeight) | ftxui::border});
 }
 
 ftxui::Component App::MainLayout(ftxui::ScreenInteractive& screen) {
@@ -231,7 +257,6 @@ void App::Run() {
     emulator.Start();
 
     while (!loop.HasQuitted()) {
-        // TODO(william): Check voir si ça cause des erreurs sinon ça marche live
         screen.RequestAnimationFrame();
 
         loop.RunOnce();
